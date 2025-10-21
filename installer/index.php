@@ -7,7 +7,7 @@ $configDirectory = $rootDirectory.'config.php';
 $tablesDirectory = $rootDirectory.'table.php';
 if(!file_exists($configDirectory) || !file_exists($tablesDirectory)) {
     $ERROR[] = "فایل های پروژه ناقص هستند.";
-    $ERROR[] = "فایل های پروژه را مجددا دانلود و بارگذاری کنید (<a href='https://github.com/mahdiMGF2/botmirzapanel'>‎🌐 Github</a>)";
+    $ERROR[] = "فایل های پروژه را مجددا دانلود و بارگذاری کنید (<a href='https://github.com/mahdiMGF2/mirza_pro'>‎🌐 Github</a>)";
 }
 if(phpversion() < 8.2){
     $ERROR[] = "نسخه PHP شما باید حداقل 8.2 باشد.";
@@ -106,7 +106,7 @@ if(isset($uPOST['submit']) && $uPOST['submit']) {
         
         if(file_put_contents($configDirectory,$newConfigData) === false || $count == 0) {
             $ERROR[] = '✏️❌ خطا در زمان بازنویسی اطلاعات فایل اصلی ربات';
-            $ERROR[] = "فایل های پروژه را مجددا دانلود و بارگذاری کنید (<a href='https://github.com/mahdiMGF2/botmirzapanel'>‎🌐 Github</a>)";
+            $ERROR[] = "فایل های پروژه را مجددا دانلود و بارگذاری کنید (<a href='https://github.com/mahdiMGF2/mirza_pro'>‎🌐 Github</a>)";
         }
         else {
             getContents("https://api.telegram.org/bot".$tgBotToken."/setwebhook?url=https://".$document['address'].'/index.php');
@@ -211,7 +211,7 @@ if(isset($uPOST['submit']) && $uPOST['submit']) {
                 <button type="submit" name="submit" value="submit">نصب ربات</button>
             </form>
         <footer>
-            <p>Mirzabot Installer , Made by ♥️ | <a href="https://github.com/mahdiMGF2/botmirzapanel">Github</a> | <a href="https://t.me/mirzapanel">Telegram</a> | &copy; <?php echo date('Y'); ?></p>
+            <p>Mirzabot Installer , Made by ♥️ | <a href="https://github.com/mahdiMGF2/mirza_pro">Github</a> | <a href="https://t.me/mirzapanel">Telegram</a> | &copy; <?php echo date('Y'); ?></p>
         </footer>
     </div>
 </body>
@@ -277,4 +277,5 @@ function sanitizeInput(&$INPUT, array $options = []) {
     
     return $INPUT;
 }
+
 ?>

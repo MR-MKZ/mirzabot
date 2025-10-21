@@ -7,7 +7,7 @@ ini_set('max_execution_time', '600');
 $rootPath = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
 $PHP_SELF = filter_input(INPUT_SERVER, 'PHP_SELF');
 $Pathfile = dirname(dirname($PHP_SELF, 2));
-$Pathfiles = $rootPath . $Pathfile;
+$Pathfiles = rtrim($rootPath . $Pathfile, '/\\') . '/';
 require_once 'config.php';
 require_once $Pathfiles . 'function.php';
 require_once $Pathfiles . 'config.php';
@@ -23,7 +23,7 @@ $text_bot_var = json_decode(file_get_contents('text.json'), true);
 if (!checktelegramip())
     die("Unauthorized access");
 
-$textbotlang = json_decode(file_get_contents($Pathfiles . '/text.json'), true)['fa'];
+$textbotlang = json_decode(file_get_contents($Pathfiles . 'text.json'), true)['fa'];
 $dataBase = select("botsaz", "*", "bot_token", $ApiToken, "select");
 $admin_ids = json_decode($dataBase['admin_ids']);
 $setting = json_decode($dataBase['setting'], true);
@@ -443,7 +443,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $stmt->execute();
     $stmt->close();
     $dataoutput = $ManagePanel->createUser($marzban_list_get['name_panel'], "usertest", $username_ac, $datac);
-    if ($dataoutput['username'] == null) {
+    if (empty($dataoutput['username'])) {
         $dataoutput['msg'] = json_encode($dataoutput['msg']);
         sendmessage($from_id, $textbotlang['users']['usertest']['errorcreat'], $keyboard, 'html');
         $texterros = "
@@ -846,7 +846,16 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
             $code_product = $userdate['code_product'];
         }
     } else {
-        $code_product = $dataget[1];
+        if (isset($dataget[1])) {
+            $code_product = $dataget[1];
+        } else {
+            $code_product = $userdate['code_product'] ?? null;
+        }
+    }
+    if (empty($code_product)) {
+        sendmessage($from_id, "❌ خطایی در هنگام خرید رخ داده لطفا مراحل را از اول طی کنید", $keyboard, 'html');
+        step("home", $from_id);
+        return;
     }
     if (!in_array($user['step'], ["endstepuserscustom", "getvolumecustomuser"])) {
         $product = select("product", "*", "code_product", $code_product);
@@ -856,7 +865,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
             return;
         }
         savedata("save", "code_product", $code_product);
-        $productlist = json_decode(file_get_contents('product.json'), true);
+        $productlist = readJsonFileIfExists('product.json');
         if (isset($productlist[$product['code_product']])) {
             $product['price_product'] = $productlist[$product['code_product']];
         }
@@ -941,7 +950,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
         $product = $userdate['code_product'];
         $product = select("product", "*", "code_product", $product);
         $priceBot = $product['price_product'];
-        $productlist = json_decode(file_get_contents('product.json'), true);
+        $productlist = readJsonFileIfExists('product.json');
         if (isset($productlist[$product['code_product']])) {
             $product['price_product'] = $productlist[$product['code_product']];
         }
@@ -1048,7 +1057,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
         'type' => 'buy_agent_user_bot'
     );
     $dataoutput = $ManagePanel->createUser($marzban_list_get['name_panel'], $datafactor['code_product'], $username_ac, $datac);
-    if ($dataoutput['username'] == null) {
+    if (empty($dataoutput['username'])) {
         $dataoutput['msg'] = json_encode($dataoutput['msg']);
         sendmessage($from_id, $textbotlang['users']['sell']['ErrorConfig'], $keyboard, 'HTML');
         $texterros = "⭕️ خطای ساخت اشتراک  در ربات نماینده
@@ -1261,6 +1270,10 @@ $textonebuy
     step("getresidcart", $from_id);
     savedata("clear", "id_order", $randomString);
 } elseif ($user['step'] == "getresidcart") {
+    if (empty($photo)) {
+        sendmessage($from_id, "❌ لطفاً فقط تصویر رسید را ارسال کنید.", null, 'HTML');
+        return;
+    }
     $userdate = json_decode($user['Processing_value'], true);
     $PaymentReport = select("Payment_report", '*', "id_order", $userdate['id_order'], "select");
     $Confirm_pay = json_encode([
@@ -1649,7 +1662,7 @@ $output
         $product = $dataget[1];
         savedata("save", "code_product", $product);
         $product = select("product", "*", "code_product", $product);
-        $productlist = json_decode(file_get_contents('product.json'), true);
+        $productlist = readJsonFileIfExists('product.json');
         if (isset($productlist[$product['code_product']])) {
             $product['price_product'] = $productlist[$product['code_product']];
         }
@@ -1697,7 +1710,7 @@ $output
     if (isset($userdate['code_product'])) {
         $product = $userdate['code_product'];
         $product = select("product", "*", "code_product", $product);
-        $productlist = json_decode(file_get_contents('product.json'), true);
+        $productlist = readJsonFileIfExists('product.json');
         $priceproductmain = $product['price_product'];
         if (isset($productlist[$product['code_product']])) {
             $product['price_product'] = $productlist[$product['code_product']];
@@ -1725,7 +1738,7 @@ $output
             "data_limit_reset" => "no_reset"
         );
     }
-    $productlist_name = json_decode(file_get_contents('product_name.json'), true);
+    $productlist_name = readJsonFileIfExists('product_name.json');
     $datafactor['name_product'] = empty($productlist_name[$datafactor['code_product']]) ? $datafactor['name_product'] : $productlist_name[$datafactor['code_product']];
     $botbalance = select("botsaz", "*", "bot_token", $ApiToken, "select");
     $userbotbalance = select("user", "*", "id", $botbalance['id_user'], "select");

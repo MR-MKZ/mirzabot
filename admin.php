@@ -1,8 +1,90 @@
 <?php
 #----------------[  admin section  ]------------------#
 $textadmin = ["panel", "/panel", $textbotlang['Admin']['textpaneladmin']];
+$text_panel_admin_login_base64_parts = [
+    '8J+SjiB8IFZlcnNpb24gQm90OiA1LjEwLjc3ICAK8J+TjCB8IFZlcnNpb24gTWluaSBBcHA6IDAuMS4x',
+    'CjxibG9ja3F1b3RlPvCflLkgfCDYp9uM2YYg2LHYqNin2Kog2qnYp9mF2YTYp9mLINix2KfbjNqv2KfZ',
+    'hiDYp9iz2Kog2Ygg2KrZiNiz2Lcg2KrZiNiz2LnZh+KAjNiv2YfZhtiv2Ycg2YXbjNix2LLYpyDYudix',
+    '2LbZhyDYtNiv2Ycg2YggbW1kOGFtaXIg2K/bjNio2KfaryDYtNiv2Ycg2KfYs9iqLjwvYmxvY2txdW90',
+    'ZT4KCjxibG9ja3F1b3RlPvCflLkgfCDZh9ix2q/ZiNmG2Ycg2YHYsdmI2LQg24zYpyDYr9ix24zYp9mB',
+    '2Kog2YjYrNmHINio2KfYqNiqINin24zZhiDYsdio2KfYqiDYqtiu2YTZgSDZhdit2LPZiNioINmF24zi',
+    'gIzYtNmI2K8uPC9ibG9ja3F1b3RlPgoKPGJsb2NrcXVvdGU+8J+UuSB8INiv2LEg2LXZiNix2Kog2YXY',
+    'tNin2YfYr9mH2ZQg2YHYsdmI2LQg24zYpyDYr9ix24zYp9mB2Kog2YjYrNmH2Iwg2YTYt9mB2KfZiyDZ',
+    'iNis2Ycg2K7ZiNivINix2Kcg2b7bjNqv24zYsduMINqp2LHYr9mHINmIINio2KfYstm+2LPigIzar9uM',
+    '2LHbjCDZhtmF2KfbjNuM2K8uPC9ibG9ja3F1b3RlPgoKPGJsb2NrcXVvdGU+8J+QniB8INin2q/YsSDY',
+    'r9ixINi52YXZhNqp2LHYryDYsdio2KfYqiDYqNinINio2KfaryDbjNinINmF2LTaqdmE24wg2YXZiNin',
+    '2KzZhyDYtNiv24zYr9iMINin2LIg2LfYsduM2YIg2K/aqdmF2YfZlCA8Yj7wn5OsINqv2LLYp9ix2LQg',
+    '2LHYqNin2Ko8L2I+INiv2LEg2b7ZhtmEINin2K/ZhduM2YYg2KjYpyDZhdinINiv2LEg2KfYsdiq2KjY',
+    'p9i3INio2KfYtNuM2K8uPC9ibG9ja3F1b3RlPg==',
+];
+$text_panel_admin_login_base64 = implode('', $text_panel_admin_login_base64_parts);
+$text_panel_admin_login_template = base64_decode($text_panel_admin_login_base64, true) ?: '';
 if (!in_array($from_id, $admin_ids))
     return;
+
+$domainhostsEscaped = htmlspecialchars($domainhosts, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+$miniAppInstructionText = <<<HTML
+📌 آموزش فعالسازی مینی اپ در ربات BotFather
+
+/mybots > Select Bot > Bot Setting >  Configure Mini App > Enable Mini App  > Edit Mini App URL
+
+مراحل بالا را طی کنید سپس آدرس زیر را ارسال نمایید :
+
+<code>https://{$domainhostsEscaped}/app/</code>
+
+➖➖➖➖➖➖➖➖➖➖➖➖
+⚙️ تنظیم کرون‌جاب‌ها در هاست
+
+<b>🕒 بررسی وضعیت روزانه — هر 15 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/statusday.php</code>
+
+<b>🔔 سرویس اعلان‌ها (Notification Service) — هر 1 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/NoticationsService.php</code>
+
+<b>💳 بررسی انقضای پرداخت‌ها — هر 5 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/payment_expire.php</code>
+
+<b>📩 ارسال پیام‌ها — هر 1 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/sendmessage.php</code>
+
+<b>💰 پردازش پرداخت‌های Plisio — هر 3 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/plisio.php</code>
+
+<b>⚙️ فعال‌سازی تنظیمات جدید — هر 1 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/activeconfig.php</code>
+
+<b>🚫 غیرفعال‌سازی تنظیمات قدیمی — هر 1 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/disableconfig.php</code>
+
+<b>🇮🇷 بررسی وضعیت پرداخت ایران‌پی — هر 1 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/iranpay1.php</code>
+
+<b>🗄 تهیه نسخه‌ی پشتیبان (Backup) — هر 5 ساعت</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/backupbot.php</code>
+
+<b>🎁 ارسال هدایا (Gift System) — هر 2 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/gift.php</code>
+
+<b>👥 بررسی انقضای نمایندگان — هر 30 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/expireagent.php</code>
+
+<b>⏸ بررسی وضعیت سفارش‌های معلق — هر 15 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/on_hold.php</code>
+
+<b>🧪 تست تنظیمات سیستم — هر 2 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/configtest.php</code>
+
+<b>🌐 بررسی Uptime نودها — هر 15 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/uptime_node.php</code>
+
+<b>🖥 بررسی Uptime پنل‌ها — هر 15 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/uptime_panel.php</code>
+
+<b>💳 انجام تراکنش‌های کارت‌به‌کارت — هر 1 دقیقه</b>
+<code>curl https://{$domainhostsEscaped}/cronbot/croncard.php</code>
+HTML;
+
 if (in_array($text, $textadmin) || $datain == "admin") {
     if ($datain == "admin")
         deletemessage($from_id, $message_id);
@@ -11,29 +93,40 @@ if (in_array($text, $textadmin) || $datain == "admin") {
         return;
     }
     $version_mini_app = file_get_contents('app/version');
-    $version_Bot_Agent = file_get_contents('vpnbot/update/version');
     activecron();
-    $text_admin = sprintf($textbotlang['Admin']['TextPanelAdminLogin'], $version, $version_mini_app, $version_Bot_Agent);
-    $how_active_mini_app = "📌 آموزش فعالسازی مینی اپ در ربات BotFather
-
-/mybots > Select Bot > Bot Setting >  Configure Mini App > Enable Mini App  > Edit Mini App URL
-
-مراحل بالا را طی کنید سپس آدرس زیر را ارسال نمایید :
-
-<code>https://$domainhosts/app/</code>";
-
+    $text_admin = sprintf($text_panel_admin_login_template, $version, $version_mini_app);
     sendmessage($from_id, $text_admin, $keyboardadmin, 'HTML');
-    sendmessage($from_id, $how_active_mini_app, null, 'HTML');
+    $miniAppInstructionHidden = isset($user['hide_mini_app_instruction']) ? (string) $user['hide_mini_app_instruction'] : '0';
+    if ($miniAppInstructionHidden !== '1') {
+        $miniAppInstructionKeyboard = json_encode([
+            'inline_keyboard' => [
+                [
+                    ['text' => 'دیگر نمایش نده ⛓️‍💥', 'callback_data' => 'hide_mini_app_instruction'],
+                ],
+            ],
+        ]);
+        sendmessage($from_id, $miniAppInstructionText, $miniAppInstructionKeyboard, 'HTML');
+    }
 } elseif ($text == $textbotlang['Admin']['backadmin']) {
     if ($buyreport == "0" || $otherservice == "0" || $otherreport == "0" || $paymentreports == "0" || $reporttest == "0" || $errorreport == "0") {
         sendmessage($from_id, $textbotlang['Admin']['activebottext'], $active_panell, 'HTML');
         return;
     }
     $version_mini_app = file_get_contents('app/version');
-    $version_Bot_Agent = file_get_contents('vpnbot/update/version');
-    $text_admin = sprintf($textbotlang['Admin']['TextPanelAdminLogin'], $version, $version_mini_app, $version_Bot_Agent);
+    $text_admin = sprintf($text_panel_admin_login_template, $version, $version_mini_app);
     sendmessage($from_id, $text_admin, $keyboardadmin, 'HTML');
     step('home', $from_id);
+    return;
+} elseif ($datain == "hide_mini_app_instruction") {
+    if (!in_array($from_id, $admin_ids))
+        return;
+    if (($user['hide_mini_app_instruction'] ?? '0') !== '1') {
+        update("user", "hide_mini_app_instruction", "1", "id", $from_id);
+        $user['hide_mini_app_instruction'] = '1';
+    }
+    $confirmationKeyboard = json_encode(['inline_keyboard' => []]);
+    $confirmationText = $miniAppInstructionText . "\n\n✅ این پیام دیگر برای شما نمایش داده نخواهد شد.";
+    Editmessagetext($from_id, $message_id, $confirmationText, $confirmationKeyboard, 'HTML');
     return;
 } elseif ($text == $textbotlang['Admin']['backmenu']) {
     if ($buyreport == "0" || $otherservice == "0" || $otherreport == "0" || $paymentreports == "0" || $reporttest == "0" || $errorreport == "0") {
@@ -69,13 +162,46 @@ if (in_array($text, $textadmin) || $datain == "admin") {
         return;
     }
     $userdata = json_decode($user['Processing_value'], true);
+    if (!is_array($userdata)) {
+        $userdata = [];
+    }
+
+    $remark = isset($userdata['remark']) ? (string) $userdata['remark'] : '';
+    $link = isset($userdata['link']) ? (string) $userdata['link'] : '';
+
     sendmessage($from_id, "✅ کانال جوین اجباری با موفقیت ثبت گردید.", $channelkeyboard, 'HTML');
     step('home', $from_id);
-    $stmt = $pdo->prepare("INSERT INTO channels (link,remark,linkjoin) VALUES (:link,:remark,:linkjoin)");
-    $stmt->bindParam(':remark', $userdata['remark'], PDO::PARAM_STR);
-    $stmt->bindParam(':link', $userdata['link'], PDO::PARAM_STR);
-    $stmt->bindParam(':linkjoin', $text, PDO::PARAM_STR);
-    $stmt->execute();
+
+    $insertChannel = function ($remarkValue) use ($pdo, $link, $text) {
+        $stmt = $pdo->prepare("INSERT INTO channels (link, remark, linkjoin) VALUES (:link, :remark, :linkjoin)");
+        $stmt->bindValue(':remark', $remarkValue, PDO::PARAM_STR);
+        $stmt->bindValue(':link', $link, PDO::PARAM_STR);
+        $stmt->bindValue(':linkjoin', $text, PDO::PARAM_STR);
+        $stmt->execute();
+    };
+
+    try {
+        $insertChannel($remark);
+    } catch (PDOException $e) {
+        if (strpos($e->getMessage(), 'Incorrect string value') !== false) {
+            ensureTableUtf8mb4('channels');
+            try {
+                $insertChannel($remark);
+            } catch (PDOException $retryException) {
+                if (strpos($retryException->getMessage(), 'Incorrect string value') === false) {
+                    throw $retryException;
+                }
+
+                $sanitisedRemark = is_string($remark) ? @iconv('UTF-8', 'UTF-8//IGNORE', $remark) : '';
+                if ($sanitisedRemark === false) {
+                    $sanitisedRemark = '';
+                }
+                $insertChannel($sanitisedRemark);
+            }
+        } else {
+            throw $e;
+        }
+    }
 } elseif ($text == $textbotlang['Admin']['channel']['removechannelbtn'] && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['Admin']['channel']['removechannel'], $list_channels_joins, 'HTML');
     step('removechannel', $from_id);
@@ -89,7 +215,12 @@ if (in_array($text, $textadmin) || $datain == "admin") {
     sendmessage($from_id, $textbotlang['Admin']['manageadmin']['getid'], $backadmin, 'HTML');
     step('addadmin', $from_id);
 } elseif ($user['step'] == "addadmin") {
-    update("user", "Processing_value", $text, "id", $from_id);
+    $adminId = trim($text);
+    if ($adminId === '') {
+        sendmessage($from_id, $textbotlang['Admin']['manageadmin']['getid'], $backadmin, 'HTML');
+        return;
+    }
+    update("user", "Processing_value", $adminId, "id", $from_id);
     sendmessage($from_id, $textbotlang['Admin']['manageadmin']['setrule'], $adminrule, 'HTML');
     step('getrule', $from_id);
 } elseif ($user['step'] == "getrule") {
@@ -158,10 +289,13 @@ if (in_array($text, $textadmin) || $datain == "admin") {
     $invoicesum = $stmt2->fetch(PDO::FETCH_ASSOC)['total_price'];
     $sql33 = "SELECT SUM(price_product) AS total_price FROM invoice WHERE status!= 'Unpaid' AND name_product != 'سرویس تست'";
     $sql33 = $pdo->query($sql33);
-    $invoicesumall = number_format($sql33->fetch(PDO::FETCH_ASSOC)['total_price'], 0);
+    $invoiceSumRow = $sql33->fetch(PDO::FETCH_ASSOC);
+    $invoiceTotal = isset($invoiceSumRow['total_price']) ? (float) $invoiceSumRow['total_price'] : 0;
+    $invoicesumall = number_format($invoiceTotal, 0);
     $sql3 = "SELECT SUM(price) AS total_extend FROM service_other WHERE type = 'extend_user'";
     $stmt3 = $pdo->query($sql3);
-    $extendsum = $stmt3->fetch(PDO::FETCH_ASSOC)['total_extend'];
+    $extendSumRow = $stmt3->fetch(PDO::FETCH_ASSOC);
+    $extendsum = isset($extendSumRow['total_extend']) ? (float) $extendSumRow['total_extend'] : 0;
     $count_usertest = select("invoice", "*", "name_product", "سرویس تست", "count");
     $timeacc = jdate('H:i:s', time());
     $stmt2 = $pdo->prepare("SELECT COUNT(DISTINCT id_user) as count FROM `invoice` WHERE Status != 'Unpaid'");
@@ -183,12 +317,16 @@ if (in_array($text, $textadmin) || $datain == "admin") {
     $stmt->bindParam(':requestedDateend', $end_time_timestamp);
     $stmt->execute();
     $suminvoiceday = $stmt->fetch(PDO::FETCH_ASSOC)['SUM(price_product)'];
-    ;
+    $invoicesum = (float) ($invoicesum ?? 0);
+    $extendsum = (float) ($extendsum ?? 0);
+    $suminvoiceday = (float) ($suminvoiceday ?? 0);
+    $statistics = (int) ($statistics ?? 0);
+    $statisticsorder = (int) ($statisticsorder ?? 0);
     $paycount = "";
-    $ratecustomer = round(($statisticsorder / $statisticsorder) * 100, 2);
-    $avgbuy_customer = number_format($invoicesum / $statisticsorder);
+    $ratecustomer = $statistics > 0 ? round(($statisticsorder / $statistics) * 100, 2) : 0;
+    $avgbuy_customer = $statisticsorder > 0 ? number_format($invoicesum / $statisticsorder) : '0';
     $monthe_buy = number_format($suminvoiceday * 30);
-    $percent_of_extend = $extendsum != 0 ? round(($extendsum / $invoicesum) * 100, 2) : 0;
+    $percent_of_extend = $invoicesum > 0 ? round(($extendsum / $invoicesum) * 100, 2) : 0;
     $percent_of_extend = $percent_of_extend > 100 ? 100 : $percent_of_extend;
     $extendsum = number_format($extendsum, 0);
     if (count($statispay) != 0) {
@@ -2458,18 +2596,31 @@ $caption";
         update("setting", "statuscopycart", $valuenew);
     } elseif ($type == "score") {
         if ($value == "1") {
-            $currentCronJobs = shell_exec("crontab -l");
-            $jobToRemove = "*/1 * * * * curl https://$domainhosts/cronbot/lottery.php";
-            $newCronJobs = preg_replace('/' . preg_quote($jobToRemove, '/') . '/', '', $currentCronJobs);
-            file_put_contents('/tmp/crontab.txt', $newCronJobs);
-            shell_exec('crontab /tmp/crontab.txt');
-            unlink('/tmp/crontab.txt');
+            if (isShellExecAvailable()) {
+                $crontabBinary = getCrontabBinary();
+                if ($crontabBinary === null) {
+                    error_log('Unable to locate crontab executable; cannot remove lottery cron job.');
+                } else {
+                    $currentCronJobs = runShellCommand(sprintf('%s -l 2>/dev/null', escapeshellarg($crontabBinary)));
+                    $jobToRemove = "*/1 * * * * curl https://$domainhosts/cronbot/lottery.php";
+                    $newCronJobs = preg_replace('/' . preg_quote($jobToRemove, '/') . '/', '', (string) $currentCronJobs);
+                    $tempCronFile = '/tmp/crontab.txt';
+                    file_put_contents($tempCronFile, trim($newCronJobs) . PHP_EOL);
+                    runShellCommand(sprintf('%s %s', escapeshellarg($crontabBinary), escapeshellarg($tempCronFile)));
+                    if (file_exists($tempCronFile)) {
+                        unlink($tempCronFile);
+                    }
+                }
+            } else {
+                error_log('Unable to remove lottery cron job because shell_exec is unavailable.');
+            }
             $valuenew = "0";
         } else {
-            $existingCronCommands = shell_exec('crontab -l');
             $phpFilePath = "https://$domainhosts/cronbot/lottery.php";
             $cronCommand = "*/1 * * * * curl $phpFilePath";
-            addCronIfNotExists($cronCommand);
+            if (!addCronIfNotExists($cronCommand)) {
+                error_log('Unable to register lottery cron job because shell_exec is unavailable.');
+            }
             $valuenew = "1";
         }
         update("setting", "scorestatus", $valuenew);
@@ -2964,10 +3115,16 @@ $caption";
     step('addchannelid', $from_id);
 } elseif ($user['step'] == "addchannelid") {
     $outputcheck = sendmessage($text, $textbotlang['Admin']['Channel']['TestChannel'], null, 'HTML');
-    if (!$outputcheck['ok']) {
-        $texterror = "❌ اتصال به گروه با موفقیت انجام نشد  
+    if (empty($outputcheck['ok'])) {
+        $errorDescription = 'نامشخص';
+        if (is_array($outputcheck) && isset($outputcheck['description'])) {
+            $errorDescription = $outputcheck['description'];
+        } elseif (is_string($outputcheck) && $outputcheck !== '') {
+            $errorDescription = $outputcheck;
+        }
+        $texterror = "❌ اتصال به گروه با موفقیت انجام نشد
 
-خطای دریافتی :  {$outputcheck['description']}";
+خطای دریافتی :  {$errorDescription}";
         sendmessage($from_id, $texterror, null, 'HTML');
         return;
     }
@@ -3183,9 +3340,13 @@ $caption";
     $list_admin = select("admin", "*", null, null, "fetchAll");
     $keyboardadmin = ['inline_keyboard' => []];
     foreach ($list_admin as $admin) {
+        $adminId = isset($admin['id_admin']) ? trim($admin['id_admin']) : '';
+        if ($adminId === '') {
+            continue;
+        }
         $keyboardadmin['inline_keyboard'][] = [
-            ['text' => "❌", 'callback_data' => "removeadmin_" . $admin['id_admin']],
-            ['text' => $admin['id_admin'], 'callback_data' => "adminlist"],
+            ['text' => "❌", 'callback_data' => "removeadmin_" . $adminId],
+            ['text' => $adminId, 'callback_data' => "adminlist"],
         ];
     }
     $keyboardadmin['inline_keyboard'][] = [
@@ -4023,11 +4184,25 @@ $text_expie_agent
     update("user", "Processing_value", $text, "id", $from_id);
     step('getnamecard', $from_id);
 } elseif ($user['step'] == "getnamecard") {
-    sendmessage($from_id, $textbotlang['Admin']['SettingPayment']['Savacard'], $CartManage, 'HTML');
-    $stmt = $connect->prepare("INSERT INTO card_number (cardnumber,namecard) VALUES (?,?)");
-    $stmt->bind_param("ss", $user['Processing_value'], $text);
-    $stmt->execute();
-    step('home', $from_id);
+    try {
+        if (function_exists('ensureCardNumberTableSupportsUnicode')) {
+            ensureCardNumberTableSupportsUnicode();
+        }
+
+        $stmt = $connect->prepare("INSERT INTO card_number (cardnumber,namecard) VALUES (?,?)");
+        $stmt->bind_param("ss", $user['Processing_value'], $text);
+        $stmt->execute();
+        $stmt->close();
+        sendmessage($from_id, $textbotlang['Admin']['SettingPayment']['Savacard'], $CartManage, 'HTML');
+        step('home', $from_id);
+    } catch (\mysqli_sql_exception $e) {
+        error_log('Failed to save card number: ' . $e->getMessage());
+        if (stripos($e->getMessage(), 'Incorrect string value') !== false) {
+            error_log('card_number insert failed due to charset mismatch. Please verify the table collation.');
+        }
+        sendmessage($from_id, "❌ ثبت شماره کارت ناموفق بود. لطفاً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.", $backadmin, 'HTML');
+        step('home', $from_id);
+    }
 } elseif ($datain == "plisiosetting" && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['users']['selectoption'], $NowPaymentsManage, 'HTML');
 } elseif ($text == "🧩 api plisio" && $adminrulecheck['rule'] == "administrator") {
@@ -4090,9 +4265,15 @@ $text_expie_agent
         if (isset($Check_token['access_token'])) {
             $System_Stats = Get_System_Stats($text);
             if ($new_marzban) {
-                $active_users = $System_Stats['active_users'];
+                $active_users = $System_Stats['active_users']
+                    ?? $System_Stats['users_active']
+                    ?? $System_Stats['online_users']
+                    ?? 0;
             } else {
-                $active_users = $System_Stats['users_active'];
+                $active_users = $System_Stats['users_active']
+                    ?? $System_Stats['active_users']
+                    ?? $System_Stats['online_users']
+                    ?? 0;
             }
             $total_user = $System_Stats['total_user'];
             $mem_total = formatBytes($System_Stats['mem_total']);
@@ -6000,13 +6181,16 @@ n2", $backadmin, 'HTML');
         $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
         $lastupdate = jdate('Y/m/d H:i:s', $dateTime->getTimestamp());
     }
-    if ($DataUserOut['data_limit'] != null && $DataUserOut['used_traffic'] != null) {
-        $Percent = ($DataUserOut['data_limit'] - $DataUserOut['used_traffic']) * 100 / $DataUserOut['data_limit'];
+    $limitValue = isset($DataUserOut['data_limit']) ? (float) $DataUserOut['data_limit'] : 0;
+    $usedTrafficValue = isset($DataUserOut['used_traffic']) ? (float) $DataUserOut['used_traffic'] : 0;
+    if ($limitValue > 0) {
+        $Percent = (($limitValue - $usedTrafficValue) * 100) / $limitValue;
     } else {
-        $Percent = "100";
+        $Percent = 100;
     }
-    if ($Percent < 0)
-        $Percent = -($Percent);
+    if ($Percent < 0) {
+        $Percent = -$Percent;
+    }
     $Percent = round($Percent, 2);
     $text_order .= "
   
@@ -6501,17 +6685,35 @@ n2", $backadmin, 'HTML');
     if ($DataUserOut['status'] == "on_hold") {
         $pricelast = $invoice['price_product'];
     } elseif ($DataUserOut['data_limit'] == null) {
-        $pricetime = ($nameloc['price_product'] / $nameloc['Service_time']) + intval($sumproduct['SUM(price)']);
-        $pricelast = (($DataUserOut['expire'] - time()) / 86400) * $pricetime;
+        $serviceTime = (float) ($nameloc['Service_time'] ?? 0);
+        if ($serviceTime > 0) {
+            $pricetime = ($nameloc['price_product'] / $serviceTime) + intval($sumproduct['SUM(price)']);
+            $pricelast = (($DataUserOut['expire'] - time()) / 86400) * $pricetime;
+        } else {
+            $pricelast = 0;
+        }
     } elseif ($DataUserOut['expire'] == null) {
-        $volumelefts = ($DataUserOut['data_limit'] - $DataUserOut['used_traffic']) / pow(1024, 3);
-        $volumeleft = $volumelefts / ($DataUserOut['data_limit'] / pow(1024, 3));
-        $pricelast = round($volumeleft * ($nameloc['price_product'] + intval($sumproduct['SUM(price)'])), 2);
+        $dataLimit = isset($DataUserOut['data_limit']) ? (float) $DataUserOut['data_limit'] : 0;
+        if ($dataLimit > 0) {
+            $volumelefts = ($dataLimit - (float) ($DataUserOut['used_traffic'] ?? 0)) / pow(1024, 3);
+            $volumeDivisor = $dataLimit / pow(1024, 3);
+            $volumeleft = $volumeDivisor > 0 ? $volumelefts / $volumeDivisor : 0;
+            $pricelast = round($volumeleft * ($nameloc['price_product'] + intval($sumproduct['SUM(price)'])), 2);
+        } else {
+            $pricelast = 0;
+        }
     } else {
-        $timeleft = (round(($DataUserOut['expire'] - time()) / 86400, 0)) / $nameloc['Service_time'];
-        $volumelefts = ($DataUserOut['data_limit'] - $DataUserOut['used_traffic']) / pow(1024, 3);
-        $volumeleft = $volumelefts / ($DataUserOut['data_limit'] / pow(1024, 3));
-        $pricelast = round($timeleft * $volumeleft * ($nameloc['price_product'] + intval($sumproduct['SUM(price)'])), 2);
+        $serviceTime = (float) ($nameloc['Service_time'] ?? 0);
+        $dataLimit = isset($DataUserOut['data_limit']) ? (float) $DataUserOut['data_limit'] : 0;
+        $volumeDivisor = $dataLimit / pow(1024, 3);
+        if ($serviceTime > 0 && $volumeDivisor > 0) {
+            $timeleft = (round(($DataUserOut['expire'] - time()) / 86400, 0)) / $serviceTime;
+            $volumelefts = ($dataLimit - (float) ($DataUserOut['used_traffic'] ?? 0)) / pow(1024, 3);
+            $volumeleft = $volumelefts / $volumeDivisor;
+            $pricelast = round($timeleft * $volumeleft * ($nameloc['price_product'] + intval($sumproduct['SUM(price)'])), 2);
+        } else {
+            $pricelast = 0;
+        }
     }
     $pricelast = intval($pricelast);
     if (intval($pricelast) != 0) {
@@ -6972,8 +7174,15 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
 } elseif (preg_match('/addagentrequest_(\w+)/', $datain, $datagetr)) {
     $id_user = $datagetr[1];
     $request_agent = select("Requestagent", "*", "id", $id_user, "select");
-    update("Requestagent", "status", "accept", "id", $id_user);
-    update("user", "Processing_value", $id_user, "id", $from_id);
+    if (!$request_agent) {
+        telegram('answerCallbackQuery', array(
+            'callback_query_id' => $callback_query_id,
+            'text' => "درخواست مورد نظر یافت نشد.",
+            'show_alert' => true,
+            'cache_time' => 5,
+        ));
+        return;
+    }
     if ($request_agent['status'] == "reject" || $request_agent['status'] == "accept") {
         telegram('answerCallbackQuery', array(
             'callback_query_id' => $callback_query_id,
@@ -6983,34 +7192,90 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         ));
         return;
     }
+    $defaultAgentType = 'n';
+    $agentTypeLabels = [
+        'n' => 'نماینده عادی',
+        'n2' => 'نماینده پیشرفته',
+    ];
+    update("Requestagent", "status", "accept", "id", $id_user);
+    update("Requestagent", "type", $defaultAgentType, "id", $id_user);
+    update("user", "agent", $defaultAgentType, "id", $id_user);
+    update("user", "expire", null, "id", $id_user);
+    sendmessage($id_user, "✅ کاربر گرامی با درخواست نمایندگی شما موافقت و شما نماینده شدید.", null, 'HTML');
+    sendmessage($from_id, $textbotlang['Admin']['agent']['useragented'], $keyboardadmin, 'HTML');
+    $agentTypeButtons = [];
+    foreach ($agentTypeLabels as $typeCode => $label) {
+        $buttonText = ($typeCode === $defaultAgentType ? "✅ " : "") . $label;
+        $agentTypeButtons[] = [
+            'text' => $buttonText,
+            'callback_data' => "setagenttype_{$typeCode}_{$id_user}"
+        ];
+    }
     $keyboardreject = json_encode([
         'inline_keyboard' => [
             [['text' => "✅درخواست تایید شده.", 'callback_data' => "accept"]],
+            $agentTypeButtons,
             [['text' => "⏱️ زمان انقضا نمایندگی", 'callback_data' => 'expireset_' . $id_user]],
             [['text' => "مدیریت کاربر", 'callback_data' => 'manageuser_' . $id_user]]
         ]
-    ]);
-    sendmessage($from_id, "📌 نوع کاربری را ارسال نمایید.", $backuser, 'HTML');
-    sendmessage($id_user, "✅ کاربر گرامی با درخواست نمایندگی شما موافقت و شما نماینده شدید.", null, 'HTML');
-    $textrequestagent = "📣 یک کاربر درخواست نمایندگی ثبت کرده لطفا اطلاعات را بررسی و وضعیت را مشخص کنید.
-
-آیدی عددی : $id_user
-نام کاربری : {$request_agent['username']} 
-توضیحات :  {$request_agent['Description']} ";
+    ], JSON_UNESCAPED_UNICODE);
+    $textrequestagent = "📣 یک کاربر درخواست نمایندگی ثبت کرده لطفا اطلاعات را بررسی و وضعیت را مشخص کنید.\n\nآیدی عددی : $id_user\nنام کاربری : {$request_agent['username']}\nتوضیحات :  {$request_agent['Description']} ";
+    $textrequestagent .= "\nوضعیت: تایید شد ({$agentTypeLabels[$defaultAgentType]})";
+    $textrequestagent .= "\nبرای تغییر نوع نماینده از دکمه‌های زیر استفاده کنید.";
     Editmessagetext($from_id, $message_id, $textrequestagent, $keyboardreject);
-    step("typeagent", $from_id);
-} elseif ($user['step'] == "typeagent") {
-    $agentst = ["n", "n2"];
-    $text = strtolower($text);
-    if (!in_array($text, $agentst)) {
-        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidtypeagent'], $backadmin, 'HTML');
+    telegram('answerCallbackQuery', array(
+        'callback_query_id' => $callback_query_id,
+        'text' => "درخواست تایید شد و نماینده عادی فعال شد.",
+        'show_alert' => false,
+        'cache_time' => 5,
+    ));
+} elseif (preg_match('/^setagenttype_(n|n2)_(\w+)/', $datain, $datagetr)) {
+    $selectedType = $datagetr[1];
+    $id_user = $datagetr[2];
+    $agentTypeLabels = [
+        'n' => 'نماینده عادی',
+        'n2' => 'نماینده پیشرفته',
+    ];
+    if (!array_key_exists($selectedType, $agentTypeLabels)) {
+        telegram('answerCallbackQuery', array(
+            'callback_query_id' => $callback_query_id,
+            'text' => $textbotlang['Admin']['agent']['invalidtypeagent'],
+            'show_alert' => true,
+            'cache_time' => 5,
+        ));
         return;
     }
-    $id_user = $user['Processing_value'];
-    update("user", "agent", $text, "id", $id_user);
-    update("Requestagent", "type", $text, "id", $id_user);
-    step("home", $from_id);
-    sendmessage($from_id, "✅ کاربر با موفقیت نماینده گردید.", $keyboardadmin, 'HTML');
+    update("user", "agent", $selectedType, "id", $id_user);
+    update("Requestagent", "type", $selectedType, "id", $id_user);
+    $request_agent = select("Requestagent", "*", "id", $id_user, "select");
+    if ($request_agent) {
+        $agentTypeButtons = [];
+        foreach ($agentTypeLabels as $typeCode => $label) {
+            $buttonText = ($typeCode === $selectedType ? "✅ " : "") . $label;
+            $agentTypeButtons[] = [
+                'text' => $buttonText,
+                'callback_data' => "setagenttype_{$typeCode}_{$id_user}"
+            ];
+        }
+        $keyboardreject = json_encode([
+            'inline_keyboard' => [
+                [['text' => "✅درخواست تایید شده.", 'callback_data' => "accept"]],
+                $agentTypeButtons,
+                [['text' => "⏱️ زمان انقضا نمایندگی", 'callback_data' => 'expireset_' . $id_user]],
+                [['text' => "مدیریت کاربر", 'callback_data' => 'manageuser_' . $id_user]]
+            ]
+        ], JSON_UNESCAPED_UNICODE);
+        $textrequestagent = "📣 یک کاربر درخواست نمایندگی ثبت کرده لطفا اطلاعات را بررسی و وضعیت را مشخص کنید.\n\nآیدی عددی : $id_user\nنام کاربری : {$request_agent['username']}\nتوضیحات :  {$request_agent['Description']} ";
+        $textrequestagent .= "\nوضعیت: تایید شد ({$agentTypeLabels[$selectedType]})";
+        $textrequestagent .= "\nبرای تغییر نوع نماینده از دکمه‌های زیر استفاده کنید.";
+        Editmessagetext($from_id, $message_id, $textrequestagent, $keyboardreject);
+    }
+    telegram('answerCallbackQuery', array(
+        'callback_query_id' => $callback_query_id,
+        'text' => "نوع نماینده به {$agentTypeLabels[$selectedType]} تغییر کرد.",
+        'show_alert' => false,
+        'cache_time' => 5,
+    ));
 } elseif ($datain == "iranpay2setting" && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['users']['selectoption'], $trnado, 'HTML');
 } elseif ($datain == "iranpay3setting" && $adminrulecheck['rule'] == "administrator") {
@@ -7365,6 +7630,10 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     }
     update("user", "Processing_value", $userdata['idpanel'], "id", $from_id);
     step("home", $from_id);
+} elseif ($text == "📬 گزارش ربات" && $adminrulecheck['rule'] == "administrator") {
+    $textupdate = "💬 | گزارش ربات\n\n🔹 | اگر در عملکرد ربات با <b>باگ یا مشکلی</b> روبه‌رو شدید، لطفاً مورد را برای بررسی به ما اطلاع دهید.\n➖➖➖➖➖➖➖➖➖➖➖\n🔹 | در صورتی که با <b>باگ جدی</b> یا رفتار غیرعادی مواجه شدید، سریع‌تر گزارش دهید تا رفع شود.\n➖➖➖➖➖➖➖➖➖➖➖\n🔹 | اگر پیشنهادی برای <b>افزودن قابلیت جدید</b> دارید یا ایده‌ای برای بهبود عملکرد ربات در نظر دارید، خوشحال می‌شویم بشنویم.\n➖➖➖➖➖➖➖➖➖➖➖\n🔹 | همچنین اگر نیاز به <b>راهنمایی</b> یا کمک دارید، می‌توانید از طریق دایرکت با تیم پشتیبانی در ارتباط باشید.\n\n📩 | برای ارسال گزارش، پیشنهاد یا درخواست راهنمایی، در <b>دایرکت مسیج چنل</b> پیام بگذارید:\n<a href=\"https://t.me/LumeTeam\" rel=\"nofollow\" target=\"_blank\">Lume</a>";
+    sendmessage($from_id, $textupdate, null, 'HTML');
+    step('home', $from_id);
 } elseif ($text == "🛠 قابلیت های پنل") {
     sendmessage($from_id, "🪚 برای استفاده از این قابلیت یکی از پنل های زیر را انتخاب نمایید", $json_list_marzban_panel, 'HTML');
     step('getlocoption', $from_id);
@@ -7582,21 +7851,21 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     $textnode = "✅ نود با موفقیت حذف گردید";
     Editmessagetext($from_id, $message_id, $textnode, $backinfoss);
 } elseif ($text == "💎 مالی" && $adminrulecheck['rule'] == "administrator") {
-    $cartotcart = select("PaySetting", "ValuePay", "NamePay", "Cartstatus", "select")['ValuePay'];
-    $plisio = select("PaySetting", "ValuePay", "NamePay", "nowpaymentstatus", "select")['ValuePay'];
-    $arzireyali1 = select("PaySetting", "ValuePay", "NamePay", "statusSwapWallet", "select")['ValuePay'];
+    $cartotcart = getPaySettingValue('Cartstatus', 'offcard');
+    $plisio = getPaySettingValue('nowpaymentstatus', 'offnowpayment');
+    $arzireyali1 = getPaySettingValue('statusSwapWallet', 'offSwapinoBot');
     if ($arzireyali1 != "onSwapinoBot" && $arzireyali1 != "offSwapinoBot") {
         update("PaySetting", "ValuePay", "onSwapinoBot", "NamePay", "statusSwapWallet");
-        $arzireyali1 = select("PaySetting", "ValuePay", "NamePay", "statusSwapWallet", "select")['ValuePay'];
+        $arzireyali1 = getPaySettingValue('statusSwapWallet', 'offSwapinoBot');
     }
-    $arzireyali2 = select("PaySetting", "ValuePay", "NamePay", "statustarnado", "select")['ValuePay'];
-    $arzireyali3 = select("PaySetting", "ValuePay", "NamePay", "statusiranpay3", "select")['ValuePay'];
-    $aqayepardakht = select("PaySetting", "ValuePay", "NamePay", "statusaqayepardakht", "select")['ValuePay'];
-    $zarinpal = select("PaySetting", "ValuePay", "NamePay", "zarinpalstatus", "select")['ValuePay'];
-    $affilnecurrency = select("PaySetting", "ValuePay", "NamePay", "digistatus", "select")['ValuePay'];
-    $paymentstatussnotverify = select("PaySetting", "ValuePay", "NamePay", "paymentstatussnotverify", "select")['ValuePay'];
-    $paymentsstartelegram = select("PaySetting", "ValuePay", "NamePay", "statusstar", "select")['ValuePay'];
-    $payment_status_nowpayment = select("PaySetting", "ValuePay", "NamePay", "statusnowpayment", "select")['ValuePay'];
+    $arzireyali2 = getPaySettingValue('statustarnado', 'offternado');
+    $arzireyali3 = getPaySettingValue('statusiranpay3', 'offiranpay3');
+    $aqayepardakht = getPaySettingValue('statusaqayepardakht', 'offaqayepardakht');
+    $zarinpal = getPaySettingValue('zarinpalstatus', 'offzarinpal');
+    $affilnecurrency = getPaySettingValue('digistatus', 'offdigi');
+    $paymentstatussnotverify = getPaySettingValue('paymentstatussnotverify', 'offpaymentstatus');
+    $paymentsstartelegram = getPaySettingValue('statusstar', '0');
+    $payment_status_nowpayment = getPaySettingValue('statusnowpayment', '0');
     $cartotcartstatus = [
         'oncard' => $textbotlang['Admin']['Status']['statuson'],
         'offcard' => $textbotlang['Admin']['Status']['statusoff']
@@ -7810,17 +8079,17 @@ n2", $backadmin, 'HTML');
         }
         update("PaySetting", "ValuePay", $valuenew, "NamePay", "statusnowpayment");
     }
-    $zarinpal = select("PaySetting", "ValuePay", "NamePay", "zarinpalstatus", "select")['ValuePay'];
-    $cartotcart = select("PaySetting", "ValuePay", "NamePay", "Cartstatus", "select")['ValuePay'];
-    $plisio = select("PaySetting", "ValuePay", "NamePay", "nowpaymentstatus", "select")['ValuePay'];
-    $arzireyali1 = select("PaySetting", "ValuePay", "NamePay", "statusSwapWallet", "select")['ValuePay'];
-    $arzireyali2 = select("PaySetting", "ValuePay", "NamePay", "statustarnado", "select")['ValuePay'];
-    $aqayepardakht = select("PaySetting", "ValuePay", "NamePay", "statusaqayepardakht", "select")['ValuePay'];
-    $affilnecurrency = select("PaySetting", "ValuePay", "NamePay", "digistatus", "select")['ValuePay'];
-    $arzireyali3 = select("PaySetting", "ValuePay", "NamePay", "statusiranpay3", "select")['ValuePay'];
-    $paymentstatussnotverify = select("PaySetting", "ValuePay", "NamePay", "paymentstatussnotverify", "select")['ValuePay'];
-    $paymentsstartelegram = select("PaySetting", "ValuePay", "NamePay", "statusstar", "select")['ValuePay'];
-    $payment_status_nowpayment = select("PaySetting", "ValuePay", "NamePay", "statusnowpayment", "select")['ValuePay'];
+    $zarinpal = getPaySettingValue('zarinpalstatus', 'offzarinpal');
+    $cartotcart = getPaySettingValue('Cartstatus', 'offcard');
+    $plisio = getPaySettingValue('nowpaymentstatus', 'offnowpayment');
+    $arzireyali1 = getPaySettingValue('statusSwapWallet', 'offSwapinoBot');
+    $arzireyali2 = getPaySettingValue('statustarnado', 'offternado');
+    $aqayepardakht = getPaySettingValue('statusaqayepardakht', 'offaqayepardakht');
+    $affilnecurrency = getPaySettingValue('digistatus', 'offdigi');
+    $arzireyali3 = getPaySettingValue('statusiranpay3', 'offiranpay3');
+    $paymentstatussnotverify = getPaySettingValue('paymentstatussnotverify', 'offpaymentstatus');
+    $paymentsstartelegram = getPaySettingValue('statusstar', '0');
+    $payment_status_nowpayment = getPaySettingValue('statusnowpayment', '0');
     $cartotcartstatus = [
         'oncard' => $textbotlang['Admin']['Status']['statuson'],
         'offcard' => $textbotlang['Admin']['Status']['statusoff']
@@ -9351,14 +9620,19 @@ f,n.n2", $backadmin, 'HTML');
     update("user", "Balance", "0", "id", $iduser);
     sendmessage($from_id, "موجودی کاربر به مبلغ {$userdata['Balance']} صفر گردید", $keyboardadmin, 'HTML');
 } elseif (preg_match('/removeadmin_(\w+)/', $datain, $dataget) && $adminrulecheck['rule'] == "administrator") {
-    $idadmin = $dataget[1];
-    if ($idadmin == $adminnumber) {
+    $idadmin = trim($dataget[1]);
+    $mainAdminId = trim((string) $adminnumber);
+    if ($idadmin === $mainAdminId) {
         sendmessage($from_id, "❌ امکان حذف ادمین اصلی وجود ندارد", null, 'HTML');
         return;
     }
-    $stmt = $pdo->prepare("DELETE FROM admin WHERE id_admin = :id_admin");
+    $stmt = $pdo->prepare("DELETE FROM admin WHERE TRIM(id_admin) = :id_admin");
     $stmt->bindParam(':id_admin', $idadmin, PDO::PARAM_STR);
     $stmt->execute();
+    if ($stmt->rowCount() === 0) {
+        sendmessage($from_id, "⚠️ ادمینی با این شناسه یافت نشد.", null, 'HTML');
+        return;
+    }
     sendmessage($from_id, "✅ ادمین با موفقیت حذف گردید", null, 'HTML');
 }
 // elseif (preg_match('/activeconfig-(\w+)/', $datain, $dataget)) {
@@ -10178,12 +10452,12 @@ if (isset($update["inline_query"])) {
     ));
     $destination = getcwd();
     $dirsource = "$destination/vpnbot/{$userdate['id_user']}{$userdate['username']}";
-    if (is_dir($dirsource)) {
-        shell_exec("rm -rf $dirsource");
+    if (is_dir($dirsource) && !deleteDirectory($dirsource)) {
+        error_log('Failed to remove existing bot directory: ' . $dirsource);
     }
-    mkdir($dirsource);
-    $command = "cp -r $destination/vpnbot/Default/* $dirsource 2>&1";
-    shell_exec($command);
+    if (!copyDirectoryContents($destination . '/vpnbot/Default', $dirsource)) {
+        error_log('Failed to copy default bot files into: ' . $dirsource);
+    }
     $contentconfig = file_get_contents($dirsource . "/config.php");
     $new_code = str_replace('BotTokenNew', $userdate['token'], $contentconfig);
     file_put_contents($dirsource . "/config.php", $new_code);
@@ -10219,8 +10493,12 @@ if (isset($update["inline_query"])) {
     $contentbto = select("botsaz", "*", "id_user", $id_user, "select");
     $destination = getcwd();
     $dirsource = "$destination/vpnbot/$id_user{$contentbto['username']}";
-    shell_exec("rm -rf $dirsource");
-    file_get_contents("https://api.telegram.org/bot{$contentbto['bot_toekn']}/deletewebhook");
+    if (is_dir($dirsource) && !deleteDirectory($dirsource)) {
+        error_log('Failed to remove bot directory: ' . $dirsource);
+    }
+    if (!empty($contentbto['bot_token'])) {
+        file_get_contents("https://api.telegram.org/bot{$contentbto['bot_token']}/deletewebhook");
+    }
     $stmt = $pdo->prepare("DELETE FROM botsaz WHERE id_user = :id_user");
     $stmt->bindParam(':id_user', $id_user, PDO::PARAM_STR);
     $stmt->execute();

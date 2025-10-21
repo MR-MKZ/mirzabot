@@ -2,8 +2,7 @@
 
 ---
 
-
-![حل مشکل عدم نمایش](https://raw.githubusercontent.com/Mmd-Amir/mirza_pro_stable/refs/heads/main/amozsh/photo_2025-10-19_21-22-54.jpg)
+<img width="678" height="602" alt="image" src="https://github.com/user-attachments/assets/6a4de2ff-c399-439c-9031-6c5b0ffad9eb" />
 
 ---
 
@@ -25,7 +24,9 @@ https://domin.ir/botmirzapanel/table.php
 ## 📚 رفع مشکل "⭕️ موقعیتی یافت نشد در صورت بروز این مشکل با پشتیبانی تماس بگیرید"
 ---
 
-![حل مشکل عدم نمایش](https://raw.githubusercontent.com/Mmd-Amir/mirza_pro_stable/refs/heads/main/amozsh/photo_2025-10-20_00-47-30.jpg)
+
+<img width="602" height="183" alt="image" src="https://github.com/user-attachments/assets/f2de7d4b-5db3-4f79-a44a-7700655220ab" />
+
 
 ---
 

@@ -3328,8 +3328,8 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $config = "";
     $output_config_link = $marzban_list_get['sublink'] == "onsublink" ? $dataoutput['subscription_url'] : "";
     if ($marzban_list_get['config'] == "onconfig" && is_array($dataoutput['configs'])) {
-        foreach ($dataoutput['configs'] as $link) {
-            $config .= "\n" . $link;
+        for ($i = 0; $i < count($dataoutput['configs']); ++$i) {
+            $output_config_link .= "\n" . $dataoutput['configs'][$i];
         }
     }
 

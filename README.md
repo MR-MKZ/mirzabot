@@ -2,6 +2,8 @@
 نسخه‌ی **Pro** این پروژه اکنون به‌صورت **اوپن‌سورس** در دسترس است.  
 از مشارکت، پیشنهادها و همکاری شما برای توسعه‌ی بهتر پروژه استقبال می‌کنیم 🤝
 
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/ExploitNet/mirza_pro/total?style=flat) | ![GitHub Repo stars](https://img.shields.io/github/stars/ExploitNet/mirza_pro?style=flat&label=Stars%20%E2%AD%90)
+
 ---
 
 ## ✏️ مشکلات رایجی که رفع شده

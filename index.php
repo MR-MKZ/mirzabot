@@ -1295,7 +1295,7 @@ $textconnect
     step('home', $from_id);
     return;
 } elseif (preg_match('/subscriptionurl_(\w+)/', $datain, $dataget) || strpos($text, "/sub ") !== false) {
-    if ($text[0] == "/") {
+    if (!empty($text) && $text[0] == "/") {
         $id_invoice = explode(' ', $text)[1];
         $nameloc = select("invoice", "*", "username", $id_invoice, "select");
         if ($nameloc['id_user'] != $from_id) {
@@ -1369,7 +1369,7 @@ $textconnect
     }
     sendmessage($from_id, "📌 سرویس با موفقیت حذف شد", null, 'html');
 } elseif (preg_match('/config_(\w+)/', $datain, $dataget) || strpos($text, "/link ") !== false) {
-    if ($text[0] == "/") {
+    if (!empty($text) && $text[0] == "/") {
         $id_invoice = explode(' ', $text)[1];
         $nameloc = select("invoice", "*", "username", $id_invoice, "select");
         if ($nameloc['id_user'] != $from_id) {
@@ -6963,7 +6963,7 @@ $text_porsant
             'chat_id' => $from_id,
             'emoji' => "🎲",
         ]);
-        sleep(4.5);
+        sleep((int)4.5);
     } else {
         $diceResponse = telegram('sendDice', [
             'chat_id' => $from_id,

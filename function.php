@@ -2053,22 +2053,29 @@ function sendMessageService($panel_info, $config, $sub_link, $username_service, 
         $out_put_qrcode = $config[0];
     }
     if ($STATUS_SEND_MESSAGE_PHOTO) {
-        $urlimage = "$user_id$invoice_id.png";
-        $qrCode = createqrcode($out_put_qrcode);
-        file_put_contents($urlimage, $qrCode->getString());
-        addBackgroundImage($urlimage, $qrCode, $image);
-        telegram('sendphoto', [
-            'chat_id' => $user_id,
-            'photo' => new CURLFile($urlimage),
-            'reply_markup' => $reply_markup,
-            'caption' => $caption,
-            'parse_mode' => "HTML",
-        ]);
-        unlink($urlimage);
         if ($panel_info['type'] == "WGDashboard") {
             $urlimage = "{$panel_info['inboundid']}_{$username_service}.conf";
             file_put_contents($urlimage, $sub_link);
-            sendDocument($user_id, $urlimage, "⚙️ کانفیگ شما");
+            telegram('senddocument', [
+                'chat_id' => $user_id,
+                'document' => new CURLFile($urlimage),
+                'reply_markup' => $reply_markup,
+                'caption' => $caption,
+                'parse_mode' => "HTML",
+            ]);
+            unlink($urlimage);
+        } else {
+            $urlimage = "$user_id$invoice_id.png";
+            $qrCode = createqrcode($out_put_qrcode);
+            file_put_contents($urlimage, $qrCode->getString());
+            addBackgroundImage($urlimage, $qrCode, $image);
+            telegram('sendphoto', [
+                'chat_id' => $user_id,
+                'photo' => new CURLFile($urlimage),
+                'reply_markup' => $reply_markup,
+                'caption' => $caption,
+                'parse_mode' => "HTML",
+            ]);
             unlink($urlimage);
         }
     } else {

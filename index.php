@@ -1316,13 +1316,31 @@ $textconnect
     }
     $subscriptionurl = $DataUserOut['subscription_url'];
     if ($marzban_list_get['type'] == "WGDashboard") {
-        $textsub = "qrcode اشتراک شما";
+    $textsub = "فایل اشتراک شما";
+    $bakinfos = json_encode([
+        'inline_keyboard' => [
+            [
+                ['text' => $textbotlang['users']['stateus']['backinfo'], 'callback_data' => "productcheckdata"],
+            ]
+        ]
+    ]);
+    update("user", "Processing_value", $nameloc['username'], "id", $from_id);
+    $subscriptionurl = $DataUserOut['subscription_url'];
+    $urlimage = "{$marzban_list_get['inboundid']}_{$nameloc['username']}.conf";
+    file_put_contents($urlimage, $subscriptionurl);
+    telegram('senddocument', [
+        'chat_id' => $from_id,
+        'document' => new CURLFile($urlimage),
+        'reply_markup' => $bakinfos,
+        'caption' => $textsub,
+        'parse_mode' => "HTML",
+    ]);
+    unlink($urlimage);
     } else {
-        $textsub = "
+    $textsub = "
 {$textbotlang['users']['stateus']['linksub']}
-            
+           
 <code>$subscriptionurl</code>";
-    }
     $bakinfos = json_encode([
         'inline_keyboard' => [
             [
@@ -1345,11 +1363,6 @@ $textconnect
         'parse_mode' => "HTML",
     ]);
     unlink($urlimage);
-    if ($marzban_list_get['type'] == "WGDashboard") {
-        $urlimage = "{$marzban_list_get['inboundid']}_{$nameloc['username']}.conf";
-        file_put_contents($urlimage, $DataUserOut['subscription_url']);
-        sendDocument($from_id, $urlimage, "⚙️ کانفیگ شما");
-        unlink($urlimage);
     }
 } elseif (preg_match('/removeauto-(\w+)/', $datain, $dataget)) {
     $id_invoice = $dataget[1];

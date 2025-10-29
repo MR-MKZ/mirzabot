@@ -104,7 +104,7 @@ if(isset($uPOST['submit']) && $uPOST['submit']) {
         }
      
         if(file_put_contents($configDirectory,$newConfigData) === false || $count == 0) {
-            $ERROR[] = '✏️❌ خطا در زمان بازنویسی اطلاعات فایل اصلی ربات';
+            $ERROR[] = '✏️❌ خطا در زمان بازنویسی اطلاعات فایل کانفیگ ربات';
             $ERROR[] = "فایل های پروژه را مجددا دانلود و بارگذاری کنید (<a href='https://github.com/mahdiMGF2/mirza_pro'>‎🌐 Github</a>)";
         }
         else {

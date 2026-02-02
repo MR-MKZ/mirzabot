@@ -1,6 +1,5 @@
 <?php
 include('config.php');
-require_once 'function.php';
 ini_set('error_log', 'error_log');
 
 

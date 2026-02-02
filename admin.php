@@ -25,60 +25,6 @@ $miniAppInstructionText = <<<HTML
 مراحل بالا را طی کنید سپس آدرس زیر را ارسال نمایید :
 
 <code>https://{$domainhostsEscaped}/app/</code>
-
-➖➖➖➖➖➖➖➖➖➖➖➖
-⚙️ تنظیم کرون‌جاب‌ها در هاست
-
-<b>🕒 بررسی وضعیت روزانه — هر 15 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/statusday.php</code>
-
-<b>🔔 سرویس اعلان‌ها (Notification Service) — هر 1 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/NoticationsService.php</code>
-
-<b>💳 بررسی انقضای پرداخت‌ها — هر 5 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/payment_expire.php</code>
-
-<b>📩 ارسال پیام‌ها — هر 1 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/sendmessage.php</code>
-
-<b>💰 پردازش پرداخت‌های Plisio — هر 3 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/plisio.php</code>
-
-<b>⚙️ فعال‌سازی تنظیمات جدید — هر 1 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/activeconfig.php</code>
-
-<b>🚫 غیرفعال‌سازی تنظیمات قدیمی — هر 1 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/disableconfig.php</code>
-
-<b>🇮🇷 بررسی وضعیت پرداخت ایران‌پی — هر 1 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/iranpay1.php</code>
-
-<b>🗄 تهیه نسخه‌ی پشتیبان (Backup) — هر 5 ساعت</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/backupbot.php</code>
-
-<b>🎁 ارسال هدایا (Gift System) — هر 2 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/gift.php</code>
-
-<b>👥 بررسی انقضای نمایندگان — هر 30 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/expireagent.php</code>
-
-<b>⏸ بررسی وضعیت سفارش‌های معلق — هر 15 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/on_hold.php</code>
-
-<b>🧪 تست تنظیمات سیستم — هر 2 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/configtest.php</code>
-
-<b>🌐 بررسی Uptime نودها — هر 15 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/uptime_node.php</code>
-
-<b>🖥 بررسی Uptime پنل‌ها — هر 15 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/uptime_panel.php</code>
-
-<b>💳 انجام تراکنش‌های کارت‌به‌کارت — هر 1 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/croncard.php</code>
-
-<b>💳 انجام قرعه کشی شبانه — هر 1 دقیقه</b>
-<code>curl https://{$domainhostsEscaped}/cronbot/lottery.php</code>
 HTML;
 
 if (in_array($text, $textadmin) || $datain == "admin") {
@@ -979,7 +925,7 @@ $paycount
     $statusextend = "on_extend";
     $subvip = "offsubvip";
     $stauts_on_holed = "1";
-    $stmt = $pdo->prepare("INSERT INTO marzban_panel (code_panel,name_panel,sublink,config,MethodUsername,TestAccount,status,limit_panel,namecustom,Methodextend,type,conecton,inboundid,agent,inbound_deactive,inboundstatus,url_panel,username_panel,password_panel,time_usertest,val_usertest,linksubx,priceextravolume,priceextratime,pricecustomvolume,pricecustomtime,mainvolume,maxvolume,maintime,maxtime,status_extend,subvip,changeloc,customvolume,on_hold_test) VALUES (:code_panel,:name_panel,:sublink,:config,:MethodUsername,:TestAccount,:status,:limit_panel,:namecustom,:Methodextend,:type,:conecton,:inboundid,:agent,:inbound_deactive,:inboundstatus,:url_panel,:username_panel,:password_panel,:val_usertest,:time_usertest,:linksubx,:priceextravolume,:priceextratime,:pricecustomvolume,:pricecustomtime,:mainvolume,:maxvolume,:maintime,:maxtime,:status_extend,:subvip,:changeloc,:customvolume,:on_hold_test)");
+    $stmt = $pdo->prepare("INSERT INTO marzban_panel (code_panel,name_panel,sublink,config,MethodUsername,TestAccount,status,limit_panel,namecustom,Methodextend,type,conecton,inboundid,agent,inbound_deactive,inboundstatus,url_panel,username_panel,password_panel,time_usertest,val_usertest,linksubx,priceextravolume,priceextratime,pricecustomvolume,pricecustomtime,mainvolume,maxvolume,maintime,maxtime,status_extend,subvip,changeloc,customvolume,on_hold_test,version_panel) VALUES (:code_panel,:name_panel,:sublink,:config,:MethodUsername,:TestAccount,:status,:limit_panel,:namecustom,:Methodextend,:type,:conecton,:inboundid,:agent,:inbound_deactive,:inboundstatus,:url_panel,:username_panel,:password_panel,:val_usertest,:time_usertest,:linksubx,:priceextravolume,:priceextratime,:pricecustomvolume,:pricecustomtime,:mainvolume,:maxvolume,:maintime,:maxtime,:status_extend,:subvip,:changeloc,:customvolume,:on_hold_test,'0')");
     $stmt->bindParam(':code_panel', $randomString);
     $stmt->bindParam(':name_panel', $userdata['namepanel'], PDO::PARAM_STR);
     $stmt->bindParam(':sublink', $sublink);
@@ -4308,7 +4254,7 @@ $text_expie_agent
         $Check_token = token_panel($marzban_list_get['code_panel'], false);
         if (isset($Check_token['access_token'])) {
             $System_Stats = Get_System_Stats($text);
-            if ($new_marzban) {
+            if ($marzban_list_get['version_panel'] == "1") {
                 $active_users = $System_Stats['active_users']
                     ?? $System_Stats['users_active']
                     ?? $System_Stats['online_users']
@@ -9535,7 +9481,7 @@ f,n.n2", $backadmin, 'HTML');
 } elseif ($user['step'] == "setinboundandprotocol") {
     $panel = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
     if ($panel['type'] == "marzban") {
-        if ($new_marzban) {
+        if ($panel['version_panel'] == "1") {
             $DataUserOut = getuser($text, $user['Processing_value']);
             if (!empty($DataUserOut['error'])) {
                 sendmessage($from_id, $DataUserOut['error'], null, 'HTML');
@@ -10631,6 +10577,9 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
         update("marzban_panel", "subvip", "offsubvip", "code_panel", $panel['code_panel']);
         $panel = select("marzban_panel", "*", "code_panel", $panel['code_panel'], "select");
     }
+    if (!in_array($panel['version_panel'], ['0', '1'])) {
+        $panel['version_panel'] = '0';
+    }
     $customvlume = json_decode($panel['customvolume'], true);
     $statusconfig = [
         'onconfig' => $textbotlang['Admin']['Status']['statuson'],
@@ -10684,6 +10633,10 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
         '1' => $textbotlang['Admin']['Status']['statuson'],
         '0' => $textbotlang['Admin']['Status']['statusoff']
     ][$panel['on_hold_test']];
+    $version_panel_status = [
+        '1' => $textbotlang['Admin']['Status']['statuson'],
+        '0' => $textbotlang['Admin']['Status']['statusoff']
+    ][$panel['version_panel']];
     $Bot_Status = [
         'inline_keyboard' => [
             [
@@ -10712,6 +10665,12 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
             ]
         ]
     ];
+    if (in_array($panel['type'], ['marzban'])) {
+        $Bot_Status['inline_keyboard'][] = [
+            ['text' => $version_panel_status, 'callback_data' => "editpanel-versionpanel-{$panel['version_panel']}-{$panel['code_panel']}"],
+            ['text' => "🎛 پنل پاسارگارد", 'callback_data' => "none"],
+        ];
+    }
     if (!in_array($panel['type'], ['Manualsale', "WGDashboard", 'hiddify'])) {
         $Bot_Status['inline_keyboard'][] = [
             ['text' => $statusconfig, 'callback_data' => "editpanel-stautsconfig-{$panel['config']}-{$panel['code_panel']}"],
@@ -10867,6 +10826,13 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
             $valuenew = "0";
         }
         update("marzban_panel", "on_hold_test", $valuenew, "code_panel", $code_panel);
+    } elseif ($type == "versionpanel") {
+        if ($value == "1") {
+            $valuenew = "0";
+        } else {
+            $valuenew = "1";
+        }
+        update("marzban_panel", "version_panel", $valuenew, "code_panel", $code_panel);
     }
     $panel = select("marzban_panel", "*", "code_panel", $code_panel, "select");
     $customvlume = json_decode($panel['customvolume'], true);
@@ -10922,6 +10888,10 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
         '1' => $textbotlang['Admin']['Status']['statuson'],
         '0' => $textbotlang['Admin']['Status']['statusoff']
     ][$panel['on_hold_test']];
+    $version_panel_status = [
+        '1' => $textbotlang['Admin']['Status']['statuson'],
+        '0' => $textbotlang['Admin']['Status']['statusoff']
+    ][$panel['version_panel']];
     $Bot_Status = [
         'inline_keyboard' => [
             [
@@ -10950,6 +10920,12 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
             ]
         ]
     ];
+    if (in_array($panel['type'], ['marzban'])) {
+        $Bot_Status['inline_keyboard'][] = [
+            ['text' => $version_panel_status, 'callback_data' => "editpanel-versionpanel-{$panel['version_panel']}-{$panel['code_panel']}"],
+            ['text' => "🎛 پنل پاسارگارد", 'callback_data' => "none"],
+        ];
+    }
     if (!in_array($panel['type'], ['Manualsale', "WGDashboard", 'hiddify'])) {
         $Bot_Status['inline_keyboard'][] = [
             ['text' => $statusconfig, 'callback_data' => "editpanel-stautsconfig-{$panel['config']}-{$panel['code_panel']}"],

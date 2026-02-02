@@ -2,7 +2,6 @@
 ini_set('error_log', 'error_log');
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/Marzban.php';
-require_once __DIR__ . '/function.php';
 require_once __DIR__ . '/x-ui_single.php';
 require_once __DIR__ . '/hiddify.php';
 require_once __DIR__ . '/marzneshin.php';
@@ -14,11 +13,11 @@ require_once __DIR__ . '/mikrotik.php';
 
 class ManagePanel
 {
-    public $pdo, $domainhosts, $name_panel, $new_marzban;
+    public $pdo, $domainhosts, $name_panel;
     function createUser($name_panel, $code_product, $usernameC, array $Data_Config)
     {
         $Output = [];
-        global $pdo, $domainhosts, $new_marzban;
+        global $pdo, $domainhosts;
         if (strlen($usernameC) < 3) {
             return array(
                 "status" => "Unsuccessful",
@@ -86,7 +85,7 @@ class ManagePanel
                 if (!preg_match('/^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?((\/[^\s\/]+)+)?$/', $data_Output['subscription_url'])) {
                     $data_Output['subscription_url'] = $Get_Data_Panel['url_panel'] . "/" . ltrim($data_Output['subscription_url'], "/");
                 }
-                if ($new_marzban) {
+                if ($Get_Data_Panel['version_panel'] == "1") {
                     $out_put_link = outputlunk($data_Output['subscription_url']);
                     if (isBase64($out_put_link)) {
                         $data_Output['links'] = base64_decode(outputlunk($data_Output['subscription_url']));
@@ -377,7 +376,7 @@ class ManagePanel
     function DataUser($name_panel, $username)
     {
         $Output = array();
-        global $pdo, $domainhosts, $new_marzban;
+        global $pdo, $domainhosts;
         $Get_Data_Panel = select("marzban_panel", "*", "name_panel", $name_panel, "select");
         if (!$Get_Data_Panel || !is_array($Get_Data_Panel)) {
             return array(
@@ -413,7 +412,7 @@ class ManagePanel
                 if (!preg_match('/^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?((\/[^\s\/]+)+)?$/', $UsernameData['subscription_url'])) {
                     $UsernameData['subscription_url'] = $Get_Data_Panel['url_panel'] . "/" . ltrim($UsernameData['subscription_url'], "/");
                 }
-                if ($new_marzban) {
+                if ($Get_Data_Panel['version_panel'] == "1") {
                     $UsernameData['expire'] = strtotime($UsernameData['expire']);
                     $UsernameData['links'] = base64_decode(outputlunk($UsernameData['subscription_url']));
                     $UsernameData['links'] = explode("\n", $UsernameData['links']);
@@ -444,7 +443,7 @@ class ManagePanel
                 if ($inoice != false) {
                     $UsernameData['subscription_url'] = "https://$domainhosts/sub/" . $inoice['id_invoice'];
                 }
-                if ($new_marzban) {
+                if ($Get_Data_Panel['version_panel'] == "1") {
                     $UsernameData['proxies'] = isset($UsernameData['proxy_settings']) ? $UsernameData['proxy_settings'] : null;
                 }
                 $Output = array(
@@ -1249,11 +1248,10 @@ class ManagePanel
     }
     function Modifyuser($username, $name_panel, $config = array())
     {
-        global $new_marzban;
         $Output = array();
         $Get_Data_Panel = select("marzban_panel", "*", "name_panel", $name_panel, "select");
         if ($Get_Data_Panel['type'] == "marzban") {
-            if ($new_marzban) {
+            if ($Get_Data_Panel['version_panel'] == "1") {
                 $result = getuser($username, $name_panel);
                 $result = json_decode($result['body'], true);
                 $config['proxy_settings'] = $result['proxy_settings'];

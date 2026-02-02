@@ -1,14 +1,13 @@
 <?php
 $version = file_get_contents('version');
 date_default_timezone_set('Asia/Tehran');
-$new_marzban = isset($new_marzban) ? $new_marzban : false;
 ini_set('default_charset', 'UTF-8');
 ini_set('error_log', 'error_log');
 ini_set('memory_limit', '-1');
 require_once 'config.php';
 require_once 'botapi.php';
 require_once 'jdf.php';
-require_once 'function.php';
+require_once 'functions.php';
 require_once 'keyboard.php';
 require_once 'vendor/autoload.php';
 require_once 'panels.php';

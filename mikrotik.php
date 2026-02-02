@@ -1,6 +1,5 @@
 <?php
 
-require_once 'function.php';
 
 function login_mikrotik($url,$username,$password){
     $curl = curl_init();

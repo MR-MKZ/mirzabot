@@ -208,7 +208,6 @@ function revoke_sub($username_account,$location)
 #-----------------------------#
 function adduser($location,$data_limit,$username_ac,$timestamp,$note ='',$data_limit_reset = 'no_reset',$name_product = false)
 {
-    global $pdo,$new_marzban;
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location,"select");
     $Check_token = token_panel($marzban_list_get['code_panel']);
     if(!empty($Check_token['error'])){
@@ -228,7 +227,7 @@ function adduser($location,$data_limit,$username_ac,$timestamp,$note ='',$data_l
         $inbounds = json_decode($marzban_list_get['inbounds'],true);
             }
         }
-    if($new_marzban){
+    if($marzban_list_get['version_panel'] == "1"){
             $data = array(
             "proxy_settings" => json_decode($marzban_list_get['proxies']),
             "data_limit" => $data_limit,

@@ -13,5 +13,4 @@ $adminnumber = '{admin_number}';
 $domainhosts = '{domain_name}';
 $usernamebot = '{username_bot}';
 
-$new_marzban = true;
 ?>

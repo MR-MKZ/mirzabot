@@ -324,7 +324,6 @@ try {
         inboundid varchar(100) NULL,
         type varchar(100) NULL,
         inboundstatus varchar(100) NULL,
-        hosts  JSON  NULL,
         inbound_deactive varchar(100) NULL,
         time_usertest varchar(100) NULL,
         val_usertest varchar(100)  NULL,
@@ -345,6 +344,7 @@ try {
         subvip varchar(60) NULL,
         changeloc varchar(60) NULL,
         on_hold_test varchar(60) NOT NULL,
+        version_panel varchar(60) NOT NULL,
         customvolume TEXT NULL,
         hide_user TEXT NULL)
         ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci");
@@ -414,6 +414,7 @@ try {
         addFieldToTable("marzban_panel", "status", "active", "VARCHAR(50)");
         addFieldToTable("marzban_panel", "sublink", "onsublink", "VARCHAR(50)");
         addFieldToTable("marzban_panel", "config", "offconfig", "VARCHAR(50)");
+        addFieldToTable("marzban_panel", "version_panel", "0", "VARCHAR(60)");
         $max_stmt = $connect->query("SELECT MAX(CAST(SUBSTRING(code_panel, 3) AS UNSIGNED)) as max_num FROM marzban_panel WHERE code_panel LIKE '7e%'");
         $max_row = $max_stmt->fetch_assoc();
         $next_num = $max_row['max_num'] ? (int)$max_row['max_num'] + 1 : 15;

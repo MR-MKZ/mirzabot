@@ -719,7 +719,6 @@ ${ASAS}APIKEY = '${YOUR_BOT_TOKEN}';
 ${ASAS}adminnumber = '${YOUR_CHAT_ID}';
 ${ASAS}domainhosts = '${YOUR_DOMAIN}';
 ${ASAS}usernamebot = '${YOUR_BOTNAME}';
-${ASAS}new_marzban = true;
 ?>
 EOF
             sleep 1
@@ -2649,7 +2648,6 @@ ${ASAS}APIKEY = '${OLD_API_KEY}';
 ${ASAS}adminnumber = '${OLD_ADMIN_ID}';
 ${ASAS}domainhosts = '${DOMAIN_NAME}';
 ${ASAS}usernamebot = '${OLD_BOT_NAME}';
-${ASAS}new_marzban = true;
 ?>
 EOF
 

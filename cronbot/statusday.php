@@ -10,7 +10,7 @@ $setting = select("setting","*",null,null,"select");
 $midnight_time = date("H:i");
 $reportnight = select("topicid","idreport","report","reportnight","select")['idreport'];
 // if(true){
-if ($midnight_time >= "23:45") {
+if ($midnight_time == "23:45") {
 $datefirst = date("Y-m-d") . " 00:00:00";
 $dateend = date("Y-m-d") . " 23:59:59";
 

@@ -1,5 +1,5 @@
 <?php
-require_once 'functions.php';
+require_once 'function.php';
 require_once 'config.php';
 require_once 'botapi.php';
 global $connect;

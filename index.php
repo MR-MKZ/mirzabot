@@ -7,7 +7,7 @@ ini_set('memory_limit', '-1');
 require_once 'config.php';
 require_once 'botapi.php';
 require_once 'jdf.php';
-require_once 'functions.php';
+require_once 'function.php';
 require_once 'keyboard.php';
 require_once 'vendor/autoload.php';
 require_once 'panels.php';

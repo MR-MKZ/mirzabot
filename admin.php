@@ -3055,18 +3055,12 @@ $caption";
 آیدی عددی فعلی شما: {$setting['Channel_Report']}";
     sendmessage($from_id, $textreports, $backadmin, 'HTML');
     step('addchannelid', $from_id);
-} elseif ($user['step'] == "addchannelid") {
+}  elseif ($user['step'] == "addchannelid") {
     $outputcheck = sendmessage($text, $textbotlang['Admin']['Channel']['TestChannel'], null, 'HTML');
-    if (empty($outputcheck['ok'])) {
-        $errorDescription = 'نامشخص';
-        if (is_array($outputcheck) && isset($outputcheck['description'])) {
-            $errorDescription = $outputcheck['description'];
-        } elseif (is_string($outputcheck) && $outputcheck !== '') {
-            $errorDescription = $outputcheck;
-        }
-        $texterror = "❌ اتصال به گروه با موفقیت انجام نشد
+    if (!$outputcheck['ok']) {
+        $texterror = "❌ اتصال به گروه با موفقیت انجام نشد  
 
-خطای دریافتی :  {$errorDescription}";
+خطای دریافتی :  {$outputcheck['description']}";
         sendmessage($from_id, $texterror, null, 'HTML');
         return;
     }
@@ -3074,54 +3068,6 @@ $caption";
         $texterror = "❌ گروه انتخاب شده درحالت انجمن نیست ابتدا قابلیت تاپیک گروه را روشن کرده سپس آیدی عددی گروه را مجددا تنظیم نمایید";
         sendmessage($from_id, $texterror, null, 'HTML');
         return;
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => "🤖 بکاپ ربات نماینده"
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = "❌ ربات ادمین گروه نیست";
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-    if ($reporttest != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "backupfile");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => "📝 گزارش اطلاع رسانی ها"
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = "❌ ربات ادمین گروه نیست";
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-    if ($reporttest != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "reportcron");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => "🌙 گزارش شبانه"
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = "❌ ربات ادمین گروه نیست";
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-    if ($reporttest != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "reportnight");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => "🎁 گزارش پورسانت ها"
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = "❌ ربات ادمین گروه نیست";
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-    if ($reporttest != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "porsantreport");
     }
     $createForumTopic = telegram('createForumTopic', [
         'chat_id' => $text,
@@ -3192,8 +3138,61 @@ $caption";
         sendmessage($from_id, $texterror, null, 'HTML');
         return;
     }
+
     if ($paymentreports != $createForumTopic['result']['message_thread_id']) {
         update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "paymentreport");
+    }
+    $createForumTopic = telegram('createForumTopic', [
+        'chat_id' => $text,
+        'name' => $textbotlang['Admin']['affiliates']['titletopic']
+    ]);
+    if (!$createForumTopic['ok']) {
+        $texterror = "❌ ربات ادمین گروه نیست";
+        sendmessage($from_id, $texterror, null, 'HTML');
+        return;
+    }
+
+    if ($porsantreport != $createForumTopic['result']['message_thread_id']) {
+        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "porsantreport");
+    }
+    $createForumTopic = telegram('createForumTopic', [
+        'chat_id' => $text,
+        'name' => $textbotlang['Admin']['report']['reportnight']
+    ]);
+    if (!$createForumTopic['ok']) {
+        $texterror = "❌ ربات ادمین گروه نیست";
+        sendmessage($from_id, $texterror, null, 'HTML');
+        return;
+    }
+
+    if ($reportnight != $createForumTopic['result']['message_thread_id']) {
+        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "reportnight");
+    }
+    $createForumTopic = telegram('createForumTopic', [
+        'chat_id' => $text,
+        'name' => $textbotlang['Admin']['report']['reportcron']
+    ]);
+    if (!$createForumTopic['ok']) {
+        $texterror = "❌ ربات ادمین گروه نیست";
+        sendmessage($from_id, $texterror, null, 'HTML');
+        return;
+    }
+
+    if ($reportcron != $createForumTopic['result']['message_thread_id']) {
+        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "reportcron");
+    }
+    $createForumTopic = telegram('createForumTopic', [
+        'chat_id' => $text,
+        'name' => "🤖 بکاپ ربات "
+    ]);
+    if (!$createForumTopic['ok']) {
+        $texterror = "❌ ربات ادمین گروه نیست";
+        sendmessage($from_id, $texterror, null, 'HTML');
+        return;
+    }
+
+    if ($reportbackup != $createForumTopic['result']['message_thread_id']) {
+        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "backupfile");
     }
     sendmessage($from_id, $textbotlang['Admin']['Channel']['SetChannelReport'], $setting_panel, 'HTML');
     update("setting", "Channel_Report", $text);

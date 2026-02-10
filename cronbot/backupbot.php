@@ -51,7 +51,7 @@ if ($return_var !== 0) {
             'message_thread_id' => $reportbackup,
             'document' => new CURLFile($zip_file_name),
             'caption' => "📌 خروجی دیتابیس ربات اصلی 
-برای دریافت پسورد به اکانت پشتیبانی پیام دهید.",
+توضیحات : https://t.me/mirzapanel/915",
         ]);
         unlink($zip_file_name);
         unlink($backup_file_name);

@@ -455,10 +455,9 @@ function install_bot() {
         }
         sleep 1
         randomdbpasstxt=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
-        ASAS="$"
-        echo "${ASAS}user = 'root';" >> /root/confmirza/dbrootmirza.txt
-        echo "${ASAS}pass = '${randomdbpasstxt}';" >> /root/confmirza/dbrootmirza.txt
-        echo "${ASAS}path = '${RANDOM_NUMBER}';" >> /root/confmirza/dbrootmirza.txt
+        echo "\$user = 'root';" >> /root/confmirza/dbrootmirza.txt
+        echo "\$pass = '${randomdbpasstxt}';" >> /root/confmirza/dbrootmirza.txt
+        echo "\$path = '${RANDOM_NUMBER}';" >> /root/confmirza/dbrootmirza.txt
         sleep 1
         passs=$(cat /root/confmirza/dbrootmirza.txt | grep '$pass' | cut -d"'" -f2)
         userrr=$(cat /root/confmirza/dbrootmirza.txt | grep '$user' | cut -d"'" -f2)
@@ -706,19 +705,23 @@ EOF
             # CHANGED: Generate config.php with new Pro structure
             cat <<EOF > /var/www/html/mirzaprobotconfig/config.php
 <?php
-${ASAS}dbname = '$dbname';
-${ASAS}usernamedb = '$dbuser';
-${ASAS}passworddb = '$dbpass';
-${ASAS}connect = mysqli_connect("localhost", ${ASAS}usernamedb, ${ASAS}passworddb, ${ASAS}dbname);
-if (${ASAS}connect->connect_error) { die("error" . ${ASAS}connect->connect_error); }
-mysqli_set_charset(${ASAS}connect, "utf8mb4");
-${ASAS}options = [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false, ];
-${ASAS}dsn = "mysql:host=localhost;dbname=${ASAS}dbname;charset=utf8mb4";
-try { ${ASAS}pdo = new PDO(${ASAS}dsn, ${ASAS}usernamedb, ${ASAS}passworddb, ${ASAS}options); } catch (\PDOException ${ASAS}e) { error_log("Database connection failed: " . ${ASAS}e->getMessage()); }
-${ASAS}APIKEY = '${YOUR_BOT_TOKEN}';
-${ASAS}adminnumber = '${YOUR_CHAT_ID}';
-${ASAS}domainhosts = '${YOUR_DOMAIN}';
-${ASAS}usernamebot = '${YOUR_BOTNAME}';
+// This variable added for high load panels which their response time is long and bot can't communicate with online panel!
+// null for default settings
+\$request_exec_timeout = null;
+\$dbhost = 'localhost';
+\$dbname = '$dbname';
+\$usernamedb = '$dbuser';
+\$passworddb = '$dbpass';
+\$connect = mysqli_connect(\$dbhost, \$usernamedb, \$passworddb, \$dbname);
+if (\$connect->connect_error) { die("error" . \$connect->connect_error); }
+mysqli_set_charset(\$connect, "utf8mb4");
+\$options = [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false, ];
+\$dsn = "mysql:host=\$dbhost;dbname=\$dbname;charset=utf8mb4";
+try { \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options); } catch (\PDOException \$e) { error_log("Database connection failed: " . \$e->getMessage()); }
+\$APIKEY = '${YOUR_BOT_TOKEN}';
+\$adminnumber = '${YOUR_CHAT_ID}';
+\$domainhosts = '${YOUR_DOMAIN}';
+\$usernamebot = '${YOUR_BOTNAME}';
 ?>
 EOF
             sleep 1
@@ -1183,27 +1186,27 @@ EOF
 #     secrettoken=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
 #     cat <<EOF > "$BOT_DIR/config.php"
 # <?php
-# ${ASAS}APIKEY = '$YOUR_BOT_TOKEN';
-# ${ASAS}usernamedb = '$dbuser';
-# ${ASAS}passworddb = '$dbpass';
-# ${ASAS}dbname = '$dbname';
-# ${ASAS}domainhosts = '$YOUR_DOMAIN/mirzabotconfig';
-# ${ASAS}adminnumber = '$YOUR_CHAT_ID';
-# ${ASAS}usernamebot = '$YOUR_BOTNAME';
-# ${ASAS}secrettoken = '$secrettoken';
-# ${ASAS}connect = mysqli_connect('127.0.0.1', \$usernamedb, \$passworddb, \$dbname);
-# if (${ASAS}connect->connect_error) {
-#     die('Database connection failed: ' . ${ASAS}connect->connect_error);
+# \$APIKEY = '$YOUR_BOT_TOKEN';
+# \$usernamedb = '$dbuser';
+# \$passworddb = '$dbpass';
+# \$dbname = '$dbname';
+# \$domainhosts = '$YOUR_DOMAIN/mirzabotconfig';
+# \$adminnumber = '$YOUR_CHAT_ID';
+# \$usernamebot = '$YOUR_BOTNAME';
+# \$secrettoken = '$secrettoken';
+# \$connect = mysqli_connect('127.0.0.1', \$usernamedb, \$passworddb, \$dbname);
+# if (\$connect->connect_error) {
+#     die('Database connection failed: ' . \$connect->connect_error);
 # }
-# mysqli_set_charset(${ASAS}connect, 'utf8mb4');
-# ${ASAS}options = [
+# mysqli_set_charset(\$connect, 'utf8mb4');
+# \$options = [
 #     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
 #     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 #     PDO::ATTR_EMULATE_PREPARES   => false,
 # ];
-# ${ASAS}dsn = "mysql:host=127.0.0.1;port=3306;dbname=\$dbname;charset=utf8mb4";
+# \$dsn = "mysql:host=127.0.0.1;port=3306;dbname=\$dbname;charset=utf8mb4";
 # try {
-#     ${ASAS}pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options);
+#     \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options);
 # } catch (\PDOException \$e) {
 #     die('PDO Connection failed: ' . \$e->getMessage());
 # }
@@ -2631,23 +2634,26 @@ function migrate_to_pro() {
 
     # 10. Generate New Config File
     NEW_SECRET_TOKEN=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
-    ASAS="$"
     
     cat <<EOF > "$NEW_BOT_DIR/config.php"
 <?php
-${ASAS}dbname = '$NEW_DB';
-${ASAS}usernamedb = '$NEW_DB_USER';
-${ASAS}passworddb = '$NEW_DB_PASS';
-${ASAS}connect = mysqli_connect("localhost", ${ASAS}usernamedb, ${ASAS}passworddb, ${ASAS}dbname);
-if (${ASAS}connect->connect_error) { die("error" . ${ASAS}connect->connect_error); }
-mysqli_set_charset(${ASAS}connect, "utf8mb4");
-${ASAS}options = [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false, ];
-${ASAS}dsn = "mysql:host=localhost;dbname=${ASAS}dbname;charset=utf8mb4";
-try { ${ASAS}pdo = new PDO(${ASAS}dsn, ${ASAS}usernamedb, ${ASAS}passworddb, ${ASAS}options); } catch (\PDOException ${ASAS}e) { error_log("Database connection failed: " . ${ASAS}e->getMessage()); }
-${ASAS}APIKEY = '${OLD_API_KEY}';
-${ASAS}adminnumber = '${OLD_ADMIN_ID}';
-${ASAS}domainhosts = '${DOMAIN_NAME}';
-${ASAS}usernamebot = '${OLD_BOT_NAME}';
+// This variable added for high load panels which their response time is long and bot can't communicate with online panel!
+// null for default settings
+\$request_exec_timeout = null;
+\$dbhost = 'localhost';
+\$dbname = '$NEW_DB';
+\$usernamedb = '$NEW_DB_USER';
+\$passworddb = '$NEW_DB_PASS';
+\$connect = mysqli_connect(\$dbhost, \$usernamedb, \$passworddb, \$dbname);
+if (\$connect->connect_error) { die("error" . \$connect->connect_error); }
+mysqli_set_charset(\$connect, "utf8mb4");
+\$options = [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false, ];
+\$dsn = "mysql:host=\$dbhost;dbname=\$dbname;charset=utf8mb4";
+try { \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options); } catch (\PDOException \$e) { error_log("Database connection failed: " . \$e->getMessage()); }
+\$APIKEY = '${OLD_API_KEY}';
+\$adminnumber = '${OLD_ADMIN_ID}';
+\$domainhosts = '${DOMAIN_NAME}';
+\$usernamebot = '${OLD_BOT_NAME}';
 ?>
 EOF
 

@@ -502,7 +502,7 @@ class ManagePanel
                     if (($UsernameData['data_limit'] - $UsernameData['used_traffic'] <= 0) and $UsernameData['data_limit'] != null) {
                         $UsernameData['status'] = "limtied";
                     }
-                    $UsernameData['links'] = outputlink$UsernameData['subscription_url']);
+                    $UsernameData['links'] = outputlink($UsernameData['subscription_url']);
                     if (isBase64($UsernameData['links'])) {
                         $UsernameData['links'] = base64_decode($UsernameData['links']);
                     }
@@ -716,7 +716,7 @@ class ManagePanel
                     'expire' => $expire,
                     'online_at' => $status_user,
                     'used_traffic' => $UsernameData['up'] + $UsernameData['down'],
-                    'links' => [outputlink$Get_Data_Panel['linksubx'] . "/{$UsernameData2['subId']}")],
+                    'links' => [outputlink($Get_Data_Panel['linksubx'] . "/{$UsernameData2['subId']}")],
                     'subscription_url' => $Get_Data_Panel['linksubx'] . "/{$UsernameData2['subId']}",
                     'sub_updated_at' => null,
                     'sub_last_user_agent' => null,

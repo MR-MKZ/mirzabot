@@ -394,8 +394,8 @@ function update($table, $field, $newValue, $whereField = null, $whereValue = nul
 function &getSelectCacheStore()
 {
     static $store = [
-    'results' => [],
-    'tableIndex' => [],
+        'results' => [],
+        'tableIndex' => [],
     ];
 
     return $store;
@@ -403,7 +403,7 @@ function &getSelectCacheStore()
 
 function clearSelectCache($table = null)
 {
-    $store =& getSelectCacheStore();
+    $store = &getSelectCacheStore();
 
     if ($table === null) {
         $store['results'] = [];
@@ -441,7 +441,7 @@ function select($table, $field, $whereField = null, $whereValue = null, $type = 
             $type,
         ], JSON_UNESCAPED_UNICODE));
 
-        $store =& getSelectCacheStore();
+        $store = &getSelectCacheStore();
         if (isset($store['results'][$cacheKey])) {
             return $store['results'][$cacheKey];
         }
@@ -491,7 +491,7 @@ function select($table, $field, $whereField = null, $whereValue = null, $type = 
     }
 
     if ($useCache && $cacheKey !== null) {
-        $store =& getSelectCacheStore();
+        $store = &getSelectCacheStore();
         $store['results'][$cacheKey] = $result;
         if (!isset($store['tableIndex'][$table])) {
             $store['tableIndex'][$table] = [];
@@ -1489,34 +1489,55 @@ function outtypepanel($typepanel, $message)
         sendmessage($from_id, $message, $option_mikrotik, 'HTML');
     }
 }
+
 function addBackgroundImage($urlimage, $qrCodeResult, $backgroundPath)
 {
-    // Get QR code as GD resource
-    $qrCodeImage = imagecreatefromstring($qrCodeResult->getString());
+    if (!file_exists($backgroundPath)) {
+        error_log("addBackgroundImage: File not found at $backgroundPath");
+        file_put_contents($urlimage, $qrCodeResult->getString());
+        return;
+    }
 
-    // Load the background image
-    $backgroundImage = imagecreatefromjpeg($backgroundPath);
+    $qrString = $qrCodeResult->getString();
+    $qrCodeImage = imagecreatefromstring($qrString);
+    if (!$qrCodeImage) {
+        error_log("addBackgroundImage: Failed to create QR Code resource");
+        return;
+    }
 
-    // Get the dimensions of the QR code and background images
+    $backgroundImage = null;
+
+    try {
+        $backgroundImage = imagecreatefromjpeg($backgroundPath);
+    } catch (Throwable $t) {
+        error_log("addBackgroundImage::EXCEPTION loading image: " . $t->getMessage());
+    }
+
+    if (!$backgroundImage) {
+        $lastError = error_get_last();
+        error_log("addBackgroundImage::System Error: " . $lastError['message']);
+        
+        imagepng($qrCodeImage, $urlimage);
+        imagedestroy($qrCodeImage);
+        return;
+    }
+
     $qrCodeWidth = imagesx($qrCodeImage);
     $qrCodeHeight = imagesy($qrCodeImage);
     $backgroundWidth = imagesx($backgroundImage);
     $backgroundHeight = imagesy($backgroundImage);
 
-    // Calculate the center position of the QR code on the background
     $x = ($backgroundWidth - $qrCodeWidth) / 2;
     $y = ($backgroundHeight - $qrCodeHeight) / 2;
 
-    // Copy the QR code image onto the background image
     imagecopy($backgroundImage, $qrCodeImage, $x, $y, 0, 0, $qrCodeWidth, $qrCodeHeight);
 
-    // Save the final image as a PNG file
     imagepng($backgroundImage, $urlimage);
 
-    // Destroy the images to free memory
     imagedestroy($qrCodeImage);
     imagedestroy($backgroundImage);
 }
+
 function checktelegramip()
 {
     $clientIp = $_SERVER['REMOTE_ADDR'] ?? '';

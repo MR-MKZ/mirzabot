@@ -1,4 +1,5 @@
 <?php
+require_once 'config.php';
 
 class CurlRequest {
     private $url;
@@ -8,7 +9,9 @@ class CurlRequest {
     private $api_key = null;
     private $cookie = null;
     public function __construct($url) {
+        global $request_exec_timeout;
         $this->url = $url;
+        $this->timeout = $request_exec_timeout;
     }
 
     public function setTimeout($seconds) {
@@ -58,7 +61,7 @@ class CurlRequest {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $finalHeaders);
         }
         if ($this->cookie) {
-         curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookie);   
+            curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookie);   
         }
         if ($data) {
             if (is_array($data)) {

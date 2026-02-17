@@ -48,7 +48,7 @@ class CurlRequest {
     }
 
     private function execute($method, $data = null) {
-        $this->timeout = !$this->timeout  ?  8000 : $this->timeout;
+        $this->timeout = !$this->timeout  ?  10000 : $this->timeout;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));

@@ -708,7 +708,7 @@ function generateUsername($from_id, $Metode, $username, $randomString, $text, $n
         return $usernamecustom . "_" . $user['number_username'];
     }
 }
-function outputlunk($text)
+function outputlink($text)
 {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $text);
@@ -729,12 +729,13 @@ function outputlunk($text)
 
     curl_close($ch);
 }
-function outputlunksub($url)
+function outputlinksub($url)
 {
     $ch = curl_init();
     var_dump($url);
     curl_setopt($ch, CURLOPT_URL, "$url/info");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT_MS, 6000);
     $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
     curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');

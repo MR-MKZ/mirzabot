@@ -633,7 +633,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             sendmessage($from_id, "❌ لینک اشتراک نامعتبر است", $backuser, 'HTML');
             return;
         }
-        $date = outputlunksub($text);
+        $date = outputlinksub($text);
         if (!isset($date)) {
             sendmessage($from_id, "❌ لینک اشتراک نامعتبر است", $backuser, 'HTML');
             return;

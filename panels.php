@@ -925,7 +925,7 @@ class ManagePanel
             } else {
                 $config = new ManagePanel();
                 $Data_User = $config->DataUser($name_panel, $username);
-                $Data_User['links'] = [base64_decode(outputlink$Data_User['subscription_url']))];
+                $Data_User['links'] = [base64_decode(outputlink($Data_User['subscription_url']))];
                 $Output = array(
                     'status' => 'successful',
                     'configs' => $Data_User['links'],
@@ -956,7 +956,7 @@ class ManagePanel
             } else {
                 $Output = array(
                     'status' => 'successful',
-                    'configs' => [outputlink$Get_Data_Panel['linksubx'] . "/{$subId}")],
+                    'configs' => [outputlink($Get_Data_Panel['linksubx'] . "/{$subId}")],
                     'subscription_url' => $Get_Data_Panel['linksubx'] . "/{$subId}",
                 );
             }
@@ -984,7 +984,7 @@ class ManagePanel
             } else {
                 $Output = array(
                     'status' => 'successful',
-                    'configs' => [outputlink$Get_Data_Panel['linksubx'] . "/{$subId}")],
+                    'configs' => [outputlink($Get_Data_Panel['linksubx'] . "/{$subId}")],
                     'subscription_url' => $Get_Data_Panel['linksubx'] . "/{$subId}",
                 );
             }
@@ -1080,7 +1080,7 @@ class ManagePanel
                 $url_sub = $url[0] . ":" . $url[1] . ":" . $setting_app['subPort'] . $setting_app['subPath'] . $username;
                 $Output = array(
                     'status' => 'successful',
-                    'configs' => [outputlink$url_sub)],
+                    'configs' => [outputlink($url_sub)],
                     'subscription_url' => $url_sub,
                 );
             }

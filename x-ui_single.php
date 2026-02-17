@@ -20,9 +20,10 @@ function panel_login_cookie($code_panel)
     ));
     $response = curl_exec($curl);
     if (curl_error($curl)) {
-        $token = [];
-        $token['errror'] = curl_error($curl);
-        return $token;
+        return array(
+            'success' => false,
+            'msg' => curl_error($curl)
+        );
     }
     curl_close($curl);
     return $response;

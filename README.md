@@ -23,13 +23,20 @@ A Powerful Bot for Selling VPN Services with Auto Configuration Build.
 
 ## 📚 Table of Contents
 
-- [✨ Overview](#-overview)
-- [⚙️ Features](#️-features)
-- [🚀 Installation](#-installation)
-  - [Beta Installation](#️-beta-installation)
-  - [Updating the Bot](#-updating-bot)
-  - [Removing the Bot](#-removing)
-- [💵 Financial Support](#-financial-support)
+- [🤖 Bot Mirza Panel](#-bot-mirza-panel)
+  - [📚 Table of Contents](#-table-of-contents)
+  - [✨ Overview](#-overview)
+  - [⚙️ Features](#️-features)
+    - [🔹 **Free Version Features**](#-free-version-features)
+    - [🔹 **Subscription Version Features**](#-subscription-version-features)
+  - [🚀 Installation](#-installation)
+    - [Prerequisites](#prerequisites)
+    - [🔧 Installing the Bot (Stable Version)](#-installing-the-bot-stable-version)
+    - [🐳 Docker Installation (Mirza-Deployer)](#-docker-installation-mirza-deployer)
+  - [🔄 updating bot](#-updating-bot)
+  - [❌ removing](#-removing)
+  - [💵 Financial Support](#-financial-support)
+    - [Contributors](#contributors)
 
 ---
 
@@ -106,6 +113,13 @@ curl -o install.sh -L https://raw.githubusercontent.com/mahdiMGF2/mirzabot/main/
 
 When prompted, **select option 1** to complete the installation.
 
+### 🐳 Docker Installation (Mirza-Deployer)
+
+If you prefer a containerized setup, you can deploy MirzaBot using **Docker** and **Nginx**. The **Mirza Deployer** repository provides an all-in-one Dockerized solution that automates Nginx, MySQL, phpMyAdmin, and SSL generation.
+
+🔗 **Docker Deployer Repository:** [Mr-MKZ/Mirza-Deployer](https://github.com/Mr-MKZ/Mirza-Deployer)
+
+Please visit the deployer repository for detailed, step-by-step instructions on running the bot with Docker Compose.
 
 ---
 
@@ -116,8 +130,8 @@ To update your bot to the latest version, use the following command:
 ```bash
 curl -o install.sh -L https://raw.githubusercontent.com/mahdiMGF2/botmirzapanel/main/install.sh && bash install.sh
 ```
+
 When prompted, **select option update** to remove the bot.
----
 
 ## ❌ removing
 

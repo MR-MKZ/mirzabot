@@ -394,8 +394,8 @@ function update($table, $field, $newValue, $whereField = null, $whereValue = nul
 function &getSelectCacheStore()
 {
     static $store = [
-        'results' => [],
-        'tableIndex' => [],
+    'results' => [],
+    'tableIndex' => [],
     ];
 
     return $store;
@@ -525,7 +525,11 @@ function rate_arze()
 {
     $arze_rate = [];
     $requests_tron = json_decode(file_get_contents('https://api.diadata.org/v1/assetQuotation/Tron/0x0000000000000000000000000000000000000000'), true);
-    $requestsusd = json_decode(file_get_contents('https://api.wallex.ir/v1/markets'), true);
+    $html_read = file_get_contents("https://www.bon-bast.com/");
+    preg_match('/<span>\s*([\d,]+)\s*<\/span>/', $html_read, $matches);
+    if (!empty($matches[1])) {
+        $requestsusd = str_replace(',', '', $matches[1]);
+    }
     $arze_rate['USD'] = intval($requestsusd['result']['symbols']['USDTTMN']['stats']['lastPrice']);
     $arze_rate['TRX'] = intval($requests_tron['Price'] * $arze_rate['USD']);
 
@@ -1517,7 +1521,7 @@ function addBackgroundImage($urlimage, $qrCodeResult, $backgroundPath)
     if (!$backgroundImage) {
         $lastError = error_get_last();
         error_log("addBackgroundImage::System Error: " . $lastError['message']);
-        
+
         imagepng($qrCodeImage, $urlimage);
         imagedestroy($qrCodeImage);
         return;

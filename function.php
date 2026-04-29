@@ -2070,3 +2070,38 @@ function createPayaqayepardakht($price, $order_id)
     curl_close($curl);
     return json_decode($response, true);
 }
+function parseConfigs($input)
+{
+    $lines = explode("\n", $input);
+    $configs = [];
+
+    $currentName = null;
+    $currentData = [];
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+
+        if (strpos($line, '#') === 0) {
+            if ($currentName && $currentData) {
+                $configs[] = [
+                    'name' => $currentName,
+                    'config' => implode("\n", $currentData)
+                ];
+            }
+            $currentName = trim(substr($line, 1));
+            $currentData = [];
+        } else {
+            if ($line !== '') {
+                $currentData[] = $line;
+            }
+        }
+    }
+    if ($currentName && $currentData) {
+        $configs[] = [
+            'name' => $currentName,
+            'config' => implode("\n", $currentData)
+        ];
+    }
+
+    return $configs;
+}

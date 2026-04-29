@@ -3055,7 +3055,7 @@ $caption";
 آیدی عددی فعلی شما: {$setting['Channel_Report']}";
     sendmessage($from_id, $textreports, $backadmin, 'HTML');
     step('addchannelid', $from_id);
-}  elseif ($user['step'] == "addchannelid") {
+} elseif ($user['step'] == "addchannelid") {
     $outputcheck = sendmessage($text, $textbotlang['Admin']['Channel']['TestChannel'], null, 'HTML');
     if (!$outputcheck['ok']) {
         $texterror = "❌ اتصال به گروه با موفقیت انجام نشد  
@@ -8276,20 +8276,9 @@ n2", $backadmin, 'HTML');
     step("home", $from_id);
     update("PaySetting", "ValuePay", $text, "NamePay", "chashbackzarinpal");
 } elseif ($text == "➕ اضافه کردن کانفیگ") {
-    sendmessage($from_id, "📌 برای اضافه کردن کانفیگ ابتدا یک نام ارسال نمایید.", $backadmin, 'HTML');
-    step('getnameconfigm', $from_id);
-    savedata("clear", "namepanel", $user['Processing_value']);
-} elseif ($user['step'] == "getnameconfigm") {
-    $exitsname = select("manualsell", "*", "namerecord", $text, "count");
-    if (intval($exitsname) != 0) {
-        sendmessage($from_id, "این نام وجود دارد", null, 'HTML');
-        return;
-    }
-    $userdata = json_decode($user['Processing_value'], true);
     $product = [];
-    savedata("save", "namerecord", $text);
     $stmt = $pdo->prepare("SELECT * FROM product WHERE Location = :text or Location = '/all' ");
-    $stmt->bindParam(':text', $userdata['namepanel'], PDO::PARAM_STR);
+    $stmt->bindParam(':text', $user['Processing_value'], PDO::PARAM_STR);
     $stmt->execute();
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $product[] = [$row['name_product']];
@@ -8298,44 +8287,59 @@ n2", $backadmin, 'HTML');
         'keyboard' => [],
         'resize_keyboard' => true,
     ];
-    $list_product['keyboard'][] = [
-        ['text' => "🏠 بازگشت به منوی مدیریت"],
-    ];
     foreach ($product as $button) {
         $list_product['keyboard'][] = [
             ['text' => $button[0]]
         ];
     }
+    $list_product['keyboard'][] = [
+        ['text' => "🏠 بازگشت به منوی مدیریت"],
+    ];
     $json_list_product_list_admin = json_encode($list_product);
     sendmessage($from_id, "📌 نام محصول خود را ارسال نمایید در صورتی که میخواهید  برای اکانت تست تنظیم کنید متن تست را ارسال کنید.", $json_list_product_list_admin, 'HTML');
     step('getnameproduct', $from_id);
-    savedata("save", "namerecord", $text);
+    savedata("clear", "namepanel", $user['Processing_value']);
 } elseif ($user['step'] == "getnameproduct") {
-    if ($text != "تست") {
-        $product = select("product", "*", "name_product", $text, "select");
-        if ($product == false) {
-            sendmessage($from_id, "محصول در ربات وجود ندارد", $backadmin, 'HTML');
-            return;
-        }
-        savedata("save", "codeproduct", $product['code_product']);
-    } else {
-        savedata("save", "codeproduct", "usertest");
+    $product_check = select("product", "*", "name_product", $text, "select");
+    if ($product_check == false && $text != "تست") {
+        sendmessage($from_id, "محصولی با این نام یافت نشد. لطفا نام محصول را دقیق ارسال کنید یا برای تنظیم کانفیگ تست متن تست را ارسال کنید.", $backadmin, 'HTML');
+        return;
     }
-    sendmessage($from_id, "📌 کانفیگ یا متن دیگر خود را ارسال نمایید", $backadmin, 'HTML');
-    step('getconfigtext', $from_id);
+    if ($text == "تست") {
+        savedata("save", "name_product", "usertest");
+    } else {
+        savedata("save", "name_product", $product_check['code_product']);
+    }
+    sendmessage($from_id, "📌 کانفیگ های خود مثل مثال زیر ارسال نمایید.
+
+# نام کانفیگ ( فقط در یک خط همراه با # اول نام )
+کانفیگ ( در چند خط 
+
+# نام کانفیگ ( فقط در یک خط همراه با # اول نام )
+
+trojan://xyz", $backadmin, 'HTML');
+    step("getconfigtext", $from_id);
 } elseif ($user['step'] == "getconfigtext") {
-    sendmessage($from_id, "✅ کانفیگ با موفقیت ذخیره گردید.", $optionManualsale, 'HTML');
-    step('home', $from_id);
     $userdata = json_decode($user['Processing_value'], true);
+    step('home', $from_id);
+    $config = parseConfigs($text);
+    sendmessage($from_id, "✅ تعداد کانفیگ های ذخیره شده: " . count($config), $optionManualsale, 'HTML');
     $panel = select("marzban_panel", "*", "name_panel", $userdata['namepanel'], "select");
+    if ($panel == false) {
+        sendmessage($from_id, "❌ خطا در ذخیره سازی کانفیگ رخ داد. لطفا مجددا تلاش کنید.", $backadmin, 'HTML');
+        return;
+    }
     $status = "active";
-    $stmt = $pdo->prepare("INSERT IGNORE INTO manualsell (codepanel,namerecord,contentrecord,status,codeproduct) VALUES (:codepanel,:namerecord,:contentrecord,:status,:codeproduct)");
-    $stmt->bindParam(':codepanel', $panel['code_panel']);
-    $stmt->bindParam(':namerecord', $userdata['namerecord']);
-    $stmt->bindParam(':contentrecord', $text);
-    $stmt->bindParam(':status', $status);
-    $stmt->bindParam(':codeproduct', $userdata['codeproduct']);
-    $stmt->execute();
+    foreach ($config as $content_config) {
+
+        $stmt = $pdo->prepare("INSERT IGNORE INTO manualsell (codepanel,namerecord,contentrecord,status,codeproduct) VALUES (:codepanel,:namerecord,:contentrecord,:status,:codeproduct)");
+        $stmt->bindParam(':codepanel', $panel['code_panel']);
+        $stmt->bindParam(':namerecord', $content_config['name']);
+        $stmt->bindParam(':contentrecord', $content_config['config']);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':codeproduct', $userdata['name_product']);
+        $stmt->execute();
+    }
     update("user", "Processing_value", $panel['name_panel'], "id", $from_id);
 } elseif ($text == "❌ حذف کانفیگ") {
     $panel = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");

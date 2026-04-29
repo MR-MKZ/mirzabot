@@ -1409,8 +1409,8 @@ function plisio($order_id, $price)
     $api_key = $apinowpayments;
 
     $url = 'https://api.plisio.net/api/v1/invoices/new';
-    $url .= '?currency=TRX';
-    $url .= '&amount=' . urlencode($price);
+    $url .= '?source_currency=USD';
+    $url .= '&source_amount=' . urlencode($price);
     $url .= '&order_number=' . urlencode($order_id);
     $url .= '&email=customer@plisio.net';
     $url .= '&order_name=plisio';

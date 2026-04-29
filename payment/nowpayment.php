@@ -51,7 +51,6 @@ $text_reportpayment = "💵 پرداخت جدید
 - 👤 نام کاربری کاربر : @{$Balance_id['username']}
 - ‏🆔آیدی عددی کاربر : {$Balance_id['id']}
 - 💸 مبلغ تراکنش {$Payment_report['price']}
-- 🔗 <a href = \"https://tronscan.org/#/transaction/{$pay['payin_hash']}\">لینک پرداخت </a>
 - 📥 مبلغ واریز شده ترون. : {$pay['actually_paid']}
 - 💳 روش پرداخت :  nowpayment";
          if (strlen($setting['Channel_Report']) > 0) {

@@ -37,20 +37,11 @@ if ($return_var !== 0) {
         'text' => "❌❌❌❌❌❌ خطا در بکاپ گیری ",
     ]);
 } else {
-    $zip = new ZipArchive();
-    if ($zip->open($zip_file_name, ZipArchive::CREATE) === TRUE) {
-        $zip->addFile($backup_file_name, basename($backup_file_name));
-        $zip->setEncryptionName(basename($backup_file_name), ZipArchive::EM_AES_256, "mirzapro2026#$");
-        $zip->close();
-
-        telegram('sendDocument', [
-            'chat_id' => $setting['Channel_Report'],
-            'message_thread_id' => $reportbackup,
-            'document' => new CURLFile($zip_file_name),
-            'caption' => "📌 خروجی دیتابیس ربات اصلی 
-توضیحات : https://t.me/mirzapanel/915",
-        ]);
-        unlink($zip_file_name);
-        unlink($backup_file_name);
-    }
+    telegram('sendDocument', [
+        'chat_id' => $setting['Channel_Report'],
+        'message_thread_id' => $reportbackup,
+        'document' => new CURLFile($backup_file_name),
+        'caption' => "📌 خروجی دیتابیس ربات اصلی ",
+    ]);
+    unlink($backup_file_name);
 }

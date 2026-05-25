@@ -176,8 +176,6 @@ try {
         linkappstatus varchar(45)  NULL,
         wheelagent varchar(45)  NULL,
         Lotteryagent varchar(45)  NULL,
-        languageen varchar(45)  NULL,
-        languageru varchar(45)  NULL,
         statusfirstwheel varchar(45)  NULL,
         statuslimitchangeloc varchar(45)  NULL,
         Debtsettlement varchar(45)  NULL,

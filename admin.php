@@ -2210,14 +2210,6 @@ $caption";
         true => $textbotlang['Admin']['Status']['statuson'],
         false => $textbotlang['Admin']['Status']['statusoff']
     ][$status_cron['on_hold']];
-    $languagestatus = [
-        '1' => $textbotlang['Admin']['Status']['statuson'],
-        '0' => $textbotlang['Admin']['Status']['statusoff']
-    ][$setting['languageen']];
-    $languagestatusru = [
-        '1' => $textbotlang['Admin']['Status']['statuson'],
-        '0' => $textbotlang['Admin']['Status']['statusoff']
-    ][$setting['languageru']];
     $wheelagent = [
         '1' => $textbotlang['Admin']['Status']['statuson'],
         '0' => $textbotlang['Admin']['Status']['statusoff']
@@ -2601,28 +2593,6 @@ $caption";
             $valuenew = "1";
         }
         update("setting", "linkappstatus", $valuenew);
-    } elseif ($type == "btnstautslanguage") {
-        if ($setting['languageru'] == "1") {
-            sendmessage($from_id, "زبان روسیه ای روشن است و نمی توانید زبان انگلیسی را تغییر وضعیت دهید", null, 'HTML');
-            return;
-        }
-        if ($value == "1") {
-            $valuenew = "0";
-        } else {
-            $valuenew = "1";
-        }
-        update("setting", "languageen", $valuenew);
-    } elseif ($type == "btnstautslanguageru") {
-        if ($setting['languageen'] == "1") {
-            sendmessage($from_id, "زبان انگلیسی روشن است و نمی توانید زبان روسیه ای را تغییر وضعیت دهید", null, 'HTML');
-            return;
-        }
-        if ($value == "1") {
-            $valuenew = "0";
-        } else {
-            $valuenew = "1";
-        }
-        update("setting", "languageru", $valuenew);
     } elseif ($type == "wheelagentfirst") {
         if ($value == "1") {
             $valuenew = "0";
@@ -2829,14 +2799,6 @@ $caption";
         true => $textbotlang['Admin']['Status']['statuson'],
         false => $textbotlang['Admin']['Status']['statusoff']
     ][$status_cron['on_hold']];
-    $languagestatus = [
-        '1' => $textbotlang['Admin']['Status']['statuson'],
-        '0' => $textbotlang['Admin']['Status']['statusoff']
-    ][$setting['languageen']];
-    $languagestatusru = [
-        '1' => $textbotlang['Admin']['Status']['statuson'],
-        '0' => $textbotlang['Admin']['Status']['statusoff']
-    ][$setting['languageru']];
     $wheelagent = [
         '1' => $textbotlang['Admin']['Status']['statuson'],
         '0' => $textbotlang['Admin']['Status']['statusoff']

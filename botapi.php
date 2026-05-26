@@ -41,7 +41,6 @@ function telegram($method, $datas = [], $token = null)
     }
 
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
 
     $decodedResponse = json_decode($rawResponse, true);
     if (!is_array($decodedResponse)) {

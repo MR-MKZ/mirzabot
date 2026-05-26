@@ -199,7 +199,7 @@ numbercount,statusnewuser,statusagentrequest,volumewarn,inlinebtnmain,
 verifystart,statussupportpv,statusnamecustom,statuscategorygenral,
 agentreqprice,cronvolumere,bulkbuy,on_hold_day,verifybucodeuser,
 scorestatus,Lottery_prize,wheelـluck,wheelـluck_price,daywarn,
-categoryhelp,linkappstatus,languageen,languageru,wheelagent,
+categoryhelp,linkappstatus,wheelagent,
 Lotteryagent,statusfirstwheel,statuslimitchangeloc,limitnumber,
 Debtsettlement,Dice,keyboardmain,statusnoteforf,statuscopycart,
 timeauto_not_verify,status_keyboard_config,cron_status
@@ -230,8 +230,6 @@ timeauto_not_verify,status_keyboard_config,cron_status
         addFieldToTable("setting", "statusfirstwheel", "0", "varchar(45)");
         addFieldToTable("setting", "Lotteryagent", "1", "varchar(45)");
         addFieldToTable("setting", "wheelagent", "1", "varchar(45)");
-        addFieldToTable("setting", "languageru", "0", "varchar(45)");
-        addFieldToTable("setting", "languageen", "0", "varchar(45)");
         addFieldToTable("setting", "linkappstatus", "0", "varchar(45)");
         addFieldToTable("setting", "categoryhelp", "0", "varchar(45)");
         addFieldToTable("setting", "daywarn", "2", "varchar(45)");

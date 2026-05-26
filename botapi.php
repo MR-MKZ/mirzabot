@@ -28,7 +28,6 @@ function telegram($method, $datas = [], $token = null)
     $rawResponse = curl_exec($ch);
     if ($rawResponse === false) {
         $curlError = curl_error($ch);
-        curl_close($ch);
 
         if ($curlError !== '') {
             error_log('Telegram request failed: ' . $curlError);

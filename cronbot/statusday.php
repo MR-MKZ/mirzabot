@@ -96,14 +96,14 @@ $params = [
 
 $stmt = executeQuery($pdo, $sqlTopAgents, $params);
 $listagentuser = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$textagent = $textbotlang['hardcoded']['cron_statusday_0001'];
+$textagent = $textbotlang['hardcoded']['dailyTopAgentsTitle'];
 foreach ($listagentuser as $agent) {
-    $textagent .= sprintf($textbotlang['hardcoded']['cron_statusday_0002'], $agent['id'], $agent['username'], $agent['total_spent']);
+    $textagent .= sprintf($textbotlang['hardcoded']['dailyTopAgentRow'], $agent['id'], $agent['username'], $agent['total_spent']);
 }
 
 // Fetch panel reports
 $panels = select("marzban_panel", "*", null, null, "fetchAll");
-$textpanel = $textbotlang['hardcoded']['cron_statusday_0003'];
+$textpanel = $textbotlang['hardcoded']['dailyPanelsReportTitle'];
 foreach ($panels as $panel) {
     $sqlPanel = "SELECT COUNT(*) AS orders, SUM(price_product) AS total_price, SUM(Volume) AS total_volume 
                  FROM invoice 
@@ -119,11 +119,11 @@ foreach ($panels as $panel) {
     $total_price = $result['total_price'] ?? 0;
     $total_volume = $result['total_volume'] ?? 0;
 
-    $textpanel .= sprintf($textbotlang['hardcoded']['cron_statusday_0004'], $panel['name_panel'], $orders, $total_price, $total_volume);
+    $textpanel .= sprintf($textbotlang['hardcoded']['dailyPanelReportRow'], $panel['name_panel'], $orders, $total_price, $total_volume);
 }
 
 // Daily report text
-$textreport = sprintf($textbotlang['hardcoded']['cron_statusday_0005'], $countextendday, $sumcountextend, $dayListSell, $suminvoiceday, $dayListSelltest, $sumvolume, $usernew);
+$textreport = sprintf($textbotlang['hardcoded']['dailyBotReport'], $countextendday, $sumcountextend, $dayListSell, $suminvoiceday, $dayListSelltest, $sumvolume, $usernew);
 
 // Send reports to Telegram
 if (!empty($setting['Channel_Report'])) {

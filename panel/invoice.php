@@ -29,46 +29,46 @@ try {
 } catch (Exception $e) {
   $total = 0;
   $invoices = [];
-  flash('error', $textbotlang['panel']['invoice_0001'] . $e->getMessage());
+  flash('error', $textbotlang['panel']['invoiceDbError'] . $e->getMessage());
 }
 $totalPages = max(1, (int) ceil($total / $perPage));
 
 $statusMap = [
-  'active' => ['tag-ok', $textbotlang['panel']['invoice_0002']],
-  'end_of_time' => ['tag-warn', $textbotlang['panel']['invoice_0003']],
-  'end_of_volume' => ['tag-no', $textbotlang['panel']['invoice_0004']],
-  'sendedwarn' => ['tag-warn', $textbotlang['panel']['invoice_0005']],
-  'send_on_hold' => ['tag-plain', $textbotlang['panel']['invoice_0006']],
-  'unpaid' => ['tag-plain', $textbotlang['panel']['invoice_0007']],
-  'Unsuccessful' => ['tag-plain', $textbotlang['panel']['invoice_0008']],
+  'active' => ['tag-ok', $textbotlang['panel']['invoiceStatusActive']],
+  'end_of_time' => ['tag-warn', $textbotlang['panel']['invoiceNotifTimeExpire']],
+  'end_of_volume' => ['tag-no', $textbotlang['panel']['invoiceNotifVolumeExpire']],
+  'sendedwarn' => ['tag-warn', $textbotlang['panel']['invoiceNotifAllSent']],
+  'send_on_hold' => ['tag-plain', $textbotlang['panel']['invoiceNotifNotConnectedSent']],
+  'unpaid' => ['tag-plain', $textbotlang['panel']['invoiceStatusUnpaid']],
+  'Unsuccessful' => ['tag-plain', $textbotlang['panel']['invoiceDataFetchError']],
 ];
 
-$pageTitle = $textbotlang['panel']['invoice_0009'];
-$pageLede = $textbotlang['panel']['invoice_0010'];
+$pageTitle = $textbotlang['panel']['invoiceOrdersTitle'];
+$pageLede = $textbotlang['panel']['invoiceOrdersSubtitle'];
 $activeNav = 'invoice';
 include __DIR__ . '/inc/layout_head.php';
 ?>
 
 <div class="card fade-up">
   <div class="toolbar">
-    <div class="toolbar-title"><?= $textbotlang['panel']['invoice_html_0001'] ?> <small>(<?= number_format($total) ?>)</small></div>
+    <div class="toolbar-title"><?= $textbotlang['panel']['invoiceOrdersHeading'] ?> <small>(<?= number_format($total) ?>)</small></div>
     <form method="GET" id="invoiceForm" class="toolbar-end">
       <select name="status" class="select" style="width:auto"
         onchange="document.getElementById('invoiceForm').submit()">
-        <option value=""><?= $textbotlang['panel']['invoice_html_0002'] ?></option>
+        <option value=""><?= $textbotlang['panel']['invoiceAllStatuses'] ?></option>
         <?php foreach ($statusMap as $k => [$_, $lbl]): ?>
           <option value="<?= $k ?>" <?= $status === $k ? 'selected' : '' ?>><?= $lbl ?></option>
         <?php endforeach; ?>
       </select>
       <div class="search-box" style="min-width:240px">
         <?= icon('search', 14) ?>
-        <input type="text" name="q" placeholder=$textbotlang['panel']['invoice_0011'] value="<?= htmlspecialchars($search) ?>"
+        <input type="text" name="q" placeholder=$textbotlang['panel']['invoiceSearchOrderPlaceholder'] value="<?= htmlspecialchars($search) ?>"
           autocomplete="off">
         <button type="button" class="search-clear">✕</button>
-        <button type="submit" class="search-btn"><?= $textbotlang['panel']['invoice_html_0003'] ?></button>
+        <button type="submit" class="search-btn"><?= $textbotlang['panel']['invoiceSearchBtn'] ?></button>
       </div>
       <?php if ($search || $status): ?>
-        <a href="invoice.php" class="btn-link" style="font-size:.78rem"><?= $textbotlang['panel']['invoice_html_0004'] ?></a>
+        <a href="invoice.php" class="btn-link" style="font-size:.78rem"><?= $textbotlang['panel']['invoiceClearBtn'] ?></a>
       <?php endif; ?>
     </form>
   </div>
@@ -78,11 +78,11 @@ include __DIR__ . '/inc/layout_head.php';
       <thead>
         <tr>
           <th>#</th>
-          <th><?= $textbotlang['panel']['invoice_html_0005'] ?></th>
-          <th><?= $textbotlang['panel']['invoice_html_0006'] ?></th>
-          <th><?= $textbotlang['panel']['invoice_html_0007'] ?></th>
-          <th><?= $textbotlang['panel']['invoice_html_0008'] ?></th>
-          <th><?= $textbotlang['panel']['invoice_html_0009'] ?></th>
+          <th><?= $textbotlang['panel']['invoiceColUser'] ?></th>
+          <th><?= $textbotlang['panel']['invoiceColProduct'] ?></th>
+          <th><?= $textbotlang['panel']['invoiceColPrice'] ?></th>
+          <th><?= $textbotlang['panel']['invoiceColStatus'] ?></th>
+          <th><?= $textbotlang['panel']['invoiceColDate'] ?></th>
         </tr>
       </thead>
       <tbody>
@@ -97,7 +97,7 @@ include __DIR__ . '/inc/layout_head.php';
                   <rect x="45" y="66" width="60" height="6" rx="3" fill="var(--bd)" />
                   <rect x="45" y="80" width="35" height="6" rx="3" fill="var(--bd)" />
                 </svg>
-                <p><?= $search ? $textbotlang['panel']['invoice_0012'] : $textbotlang['panel']['invoice_0013'] ?></p>
+                <p><?= $search ? $textbotlang['panel']['invoiceNoOrderFound'] : $textbotlang['panel']['invoiceNoOrderYet'] ?></p>
               </div>
             </td>
           </tr>
@@ -111,7 +111,7 @@ include __DIR__ . '/inc/layout_head.php';
               <td class="cf"><?= $i++ ?></td>
               <td class="cm"><?= htmlspecialchars($inv['id_user'] ?? '—') ?></td>
               <td class="cs"><?= htmlspecialchars(trunc($inv['name_product'] ?? '—', 28)) ?></td>
-              <td class="cn cs"><?= number_format((int) ($inv['price_product'] ?? 0)) ?> <span class="cf"><?= $textbotlang['panel']['invoice_html_0010'] ?></span></td>
+              <td class="cn cs"><?= number_format((int) ($inv['price_product'] ?? 0)) ?> <span class="cf"><?= $textbotlang['panel']['invoiceColTrackingCode'] ?></span></td>
               <td class="cf"><?= safe_date($inv['time_sell'] ?? null, 'Y/m/d') ?></td>
               <td><span class="tag <?= $cls ?>"><?= $lbl ?></span></td>
             </tr>
@@ -121,7 +121,7 @@ include __DIR__ . '/inc/layout_head.php';
   </div>
 
   <div class="tbl-foot">
-    <span><?= number_format($total) ?> <?= $textbotlang['panel']['invoice_html_0011'] ?> <?= $page ?> <?= $textbotlang['panel']['invoice_html_0012'] ?> <?= $totalPages ?></span>
+    <span><?= number_format($total) ?> <?= $textbotlang['panel']['invoiceColService'] ?> <?= $page ?> <?= $textbotlang['panel']['invoiceColPanel'] ?> <?= $totalPages ?></span>
     <div class="pager">
       <?php $qs = fn($p) => '?q=' . urlencode($search) . '&status=' . urlencode($status) . '&page=' . $p; ?>
       <a class="<?= $page <= 1 ? 'dis' : '' ?>" href="<?= $qs(max(1, $page - 1)) ?>">‹</a>

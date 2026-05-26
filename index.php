@@ -229,8 +229,8 @@ if (strpos($text, "/start ") !== false && $user['step'] != "gettextSystemMessage
                 return;
             }
             $useraffiliates = select("user", "*", 'id', $affiliatesid, "select");
-            sendmessage($from_id, sprintf($textbotlang['hardcoded']['index_0001'], $useraffiliates['username']), $keyboard, 'html');
-            sendmessage($affiliatesid, sprintf($textbotlang['hardcoded']['index_0002'], $username), $keyboard, 'html');
+            sendmessage($from_id, sprintf($textbotlang['hardcoded']['affiliateWelcomeInvited'], $useraffiliates['username']), $keyboard, 'html');
+            sendmessage($affiliatesid, sprintf($textbotlang['hardcoded']['affiliateNewReferralJoined'], $username), $keyboard, 'html');
             $addcountaffiliates = intval($useraffiliates['affiliatescount']) + 1;
             update("user", "affiliatescount", $addcountaffiliates, "id", $affiliatesid);
             $stmt = $connect->prepare("INSERT IGNORE INTO reagent_report (user_id, get_gift,time,reagent) VALUES (?, ?,?, ?)");
@@ -252,7 +252,7 @@ if (strpos($text, "/start ") !== false && $user['step'] != "gettextSystemMessage
     }
 }
 if (intval($user['verify']) == 0 && !in_array($from_id, $admin_ids) && $setting['verifystart'] == "onverify") {
-    $textverify = sprintf($textbotlang['hardcoded']['index_0003'], $setting['id_support']);
+    $textverify = sprintf($textbotlang['hardcoded']['accountNotVerifiedNotice'], $setting['id_support']);
     sendmessage($from_id, $textverify, null, 'html');
     return;
 }
@@ -894,7 +894,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     }
     if ($marzban['type'] == "Manualsale") {
         $userinfo = select("manualsell", "*", "username", $nameloc['username'], "select");
-        $textinfo = sprintf($textbotlang['hardcoded']['index_0004'], $status_var, $DataUserOut['username'], $nameloc['id_invoice'], $userinfo['contentrecord']);
+        $textinfo = sprintf($textbotlang['hardcoded']['serviceInfoBasic'], $status_var, $DataUserOut['username'], $nameloc['id_invoice'], $userinfo['contentrecord']);
         if ($user['step'] == "getuseragnetservice") {
             sendmessage($from_id, $textinfo, $keyboardsetting, 'html');
         } elseif ($datain == "productcheckdata") {
@@ -933,7 +933,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $statusshowconfig = select("shopSetting", "*", "Namevalue", "configshow", "select")['value'];
     $statusremoveserveice = select("shopSetting", "*", "Namevalue", "backserviecstatus", "select")['value'];
     if (!in_array($status, ["active", "on_hold", "disabled", "Unknown"])) {
-        $textinfo = sprintf($textbotlang['hardcoded']['index_0005'], $status_var, $DataUserOut['username'], $nameloc['Service_location'], $nameloc['name_product'], $lastonline, $LastTraffic, $usedTrafficGb, $RemainingVolume, $Percent, $expirationDate, $day, $nameconfig);
+        $textinfo = sprintf($textbotlang['hardcoded']['serviceInfoDetailed'], $status_var, $DataUserOut['username'], $nameloc['Service_location'], $nameloc['name_product'], $lastonline, $LastTraffic, $usedTrafficGb, $RemainingVolume, $Percent, $expirationDate, $day, $nameconfig);
 
         $keyboardsetting = [
             'inline_keyboard' => [
@@ -1021,7 +1021,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
                 'callback_data' => "disorder-"
             )
         );
-        if ($nameloc['name_product'] == $textbotlang['hardcoded']['index_0006']) {
+        if ($nameloc['name_product'] == $textbotlang['hardcoded']['testServiceName']) {
             unset($keyboarddate['transfor']);
             unset($keyboarddate['Extra_time']);
             unset($keyboarddate['removeservice']);
@@ -1095,13 +1095,13 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         $keyboardsetting['inline_keyboard'][] = [['text' => $textbotlang['users']['status']['backlist'], 'callback_data' => 'backorder']];
         $keyboardsetting = json_encode($keyboardsetting);
         if ($DataUserOut['sub_updated_at'] !== null) {
-            $textconnect = sprintf($textbotlang['hardcoded']['index_0007'], $lastonline, $lastupdate, $DataUserOut['sub_last_user_agent']);
+            $textconnect = sprintf($textbotlang['hardcoded']['serviceConnectionInfo'], $lastonline, $lastupdate, $DataUserOut['sub_last_user_agent']);
         } elseif ($marzban['type'] == "WGDashboard") {
             $textconnect = "";
         } else {
             $textconnect = strtr($textbotlang['extracted']['index_php']['lastOnlineTime'], ['{lastonline}' => $lastonline]);
         }
-        $textinfo = sprintf($textbotlang['hardcoded']['index_0008'], $status_var, $DataUserOut['username'], $userpassword, $nameconfig, $nameloc['Service_location'], $nameloc['name_product'], $LastTraffic, $usedTrafficGb, $RemainingVolume, $Percent, $expirationDate, $day, $textconnect);
+        $textinfo = sprintf($textbotlang['hardcoded']['serviceInfoFull'], $status_var, $DataUserOut['username'], $userpassword, $nameconfig, $nameloc['Service_location'], $nameloc['name_product'], $LastTraffic, $usedTrafficGb, $RemainingVolume, $Percent, $expirationDate, $day, $textconnect);
     }
     if ($user['step'] == "getuseragnetservice") {
         sendmessage($from_id, $textinfo, $keyboardsetting, 'html');
@@ -1189,7 +1189,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $nameloc['Service_location'], "select");
     $ManagePanel->RemoveUser($nameloc['Service_location'], $nameloc['username']);
     update('invoice', 'status', 'removebyuser', 'id_invoice', $id_invoice);
-    $tetremove = sprintf($textbotlang['hardcoded']['index_0009'], $nameloc['username']);
+    $tetremove = sprintf($textbotlang['hardcoded']['adminUserDeletedService'], $nameloc['username']);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -1305,7 +1305,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
                 ]
             ]
         ]);
-        Editmessagetext($from_id, $message_id, $textbotlang['hardcoded']['index_0010'], $confirmdisableaccount);
+        Editmessagetext($from_id, $message_id, $textbotlang['hardcoded']['confirmDisableConfigPrompt'], $confirmdisableaccount);
     } else {
         $confirmdisableaccount = json_encode([
             'inline_keyboard' => [
@@ -1317,7 +1317,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
                 ]
             ]
         ]);
-        Editmessagetext($from_id, $message_id, $textbotlang['hardcoded']['index_0011'], $confirmdisableaccount);
+        Editmessagetext($from_id, $message_id, $textbotlang['hardcoded']['confirmEnableConfigPrompt'], $confirmdisableaccount);
     }
 } elseif (preg_match('/confirmaccountdisable_(\w+)/', $datain, $dataget)) {
     $id_invoice = $dataget[1];
@@ -1376,14 +1376,14 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $product = $stmt->rowCount();
     savedata("clear", "id_invoice", $nameloc['id_invoice']);
     if ($product == 0) {
-        $textcustom = sprintf($textbotlang['hardcoded']['index_0012'], $custompricevalue, $mainvolume, $maxvolume);
+        $textcustom = sprintf($textbotlang['hardcoded']['customVolumePrompt'], $custompricevalue, $mainvolume, $maxvolume);
         sendmessage($from_id, $textcustom, $backuser, 'html');
         deletemessage($from_id, $message_id);
         step('gettimecustomvolomforextend', $from_id);
         return;
     }
     if ($nameloc['name_product'] == $textbotlang['extracted']['index_php']['customVolumeButton'] || $nameloc['name_product'] == $textbotlang['extracted']['index_php']['customServiceButton']) {
-        $textcustom = sprintf($textbotlang['hardcoded']['index_0013'], $custompricevalue, $mainvolume, $maxvolume);
+        $textcustom = sprintf($textbotlang['hardcoded']['customVolumePrompt2'], $custompricevalue, $mainvolume, $maxvolume);
         sendmessage($from_id, $textcustom, $backuser, 'html');
         deletemessage($from_id, $message_id);
         step('gettimecustomvolomforextend', $from_id);
@@ -1452,7 +1452,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $eextraprice = json_decode($marzban_list_get['pricecustomtime'], true);
     $customtimevalueprice = $eextraprice[$user['agent']];
     savedata("save", "volume", $text);
-    $textcustom = sprintf($textbotlang['hardcoded']['index_0014'], $customtimevalueprice, $maintime, $maxtime);
+    $textcustom = sprintf($textbotlang['hardcoded']['customTimePrompt'], $customtimevalueprice, $maintime, $maxtime);
     sendmessage($from_id, $textcustom, $backuser, 'html');
     step('getvolumecustomuserforextend', $from_id);
 } elseif (preg_match('/productextendmonths_(\w+)/', $datain, $dataget)) {
@@ -1583,7 +1583,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     } else {
         $pricelastextend = $product['price_product'];
     }
-    $textextend = sprintf($textbotlang['hardcoded']['index_0015'], $nameloc['username'], $product['name_product'], $pricelastextend, $product['Service_time'], $product['Volume_constraint'], $product['note'], $user['Balance']);
+    $textextend = sprintf($textbotlang['hardcoded']['renewInvoiceCreated'], $nameloc['username'], $product['name_product'], $pricelastextend, $product['Service_time'], $product['Volume_constraint'], $product['note'], $user['Balance']);
     if ($user['step'] == "getvolumecustomuserforextend") {
         sendmessage($from_id, $textextend, $keyboardextend, 'HTML');
     } else {
@@ -1663,7 +1663,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         $info_product['Service_time'] = $textbotlang['users']['status']['unlimited'];
     if ($info_product['price_product'] < 0)
         $info_product['price_product'] = 0;
-    $textextend = sprintf($textbotlang['hardcoded']['index_0016'], $nameloc['username'], $info_product['name_product'], $info_product['price_product'], $info_product['Service_time'], $info_product['Volume_constraint'], $info_product['note'], $user['Balance']);
+    $textextend = sprintf($textbotlang['hardcoded']['renewInvoiceCreated2'], $nameloc['username'], $info_product['name_product'], $info_product['price_product'], $info_product['Service_time'], $info_product['Volume_constraint'], $info_product['note'], $user['Balance']);
     $keyboardextend = json_encode([
         'inline_keyboard' => [
             [
@@ -1796,14 +1796,14 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             return;
         }
     }
-    if ($nameloc['name_product'] == $textbotlang['hardcoded']['index_0017']) {
+    if ($nameloc['name_product'] == $textbotlang['hardcoded']['testServiceName2']) {
         update("invoice", "name_product", $prodcut['name_product'], "id_invoice", $nameloc['id_invoice']);
         update("invoice", "price_product", $prodcut['price_product'], "id_invoice", $nameloc['id_invoice']);
     }
     $extend = $ManagePanel->extend($marzban_list_get['Methodextend'], $prodcut['Volume_constraint'], $prodcut['Service_time'], $nameloc['username'], $prodcut['code_product'], $marzban_list_get['code_panel']);
     if ($extend['status'] == false) {
         $extend['msg'] = json_encode($extend['msg']);
-        $textreports = sprintf($textbotlang['hardcoded']['index_0018'], $marzban_list_get['name_panel'], $nameloc['username'], $extend['msg']);
+        $textreports = sprintf($textbotlang['hardcoded']['renewServiceError'], $marzban_list_get['name_panel'], $nameloc['username'], $extend['msg']);
         sendmessage($from_id, $textbotlang['extracted']['index_php']['renewServiceError'], null, 'HTML');
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
@@ -1823,7 +1823,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     if (intval($valurcashbackextend) != 0 and intval($pricelastextend) != 0) {
         $result = ($prodcut['price_product'] * $valurcashbackextend) / 100;
         $pricelastextend = $pricelastextend - $result;
-        sendmessage($from_id, sprintf($textbotlang['hardcoded']['index_0019'], $result), null, 'HTML');
+        sendmessage($from_id, sprintf($textbotlang['hardcoded']['renewGiftCharged'], $result), null, 'HTML');
     }
     $Balance_Low_user = $user['Balance'] - $pricelastextend;
     update("user", "Balance", $Balance_Low_user, "id", $from_id);
@@ -1862,7 +1862,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $priceproductformat = number_format($pricelastextend);
     $balanceformatsell = number_format(select("user", "Balance", "id", $from_id, "select")['Balance'], 0);
     $balanceformatsellbefore = number_format($user['Balance'], 0);
-    $textextend = sprintf($textbotlang['hardcoded']['index_0020'], $nameloc['username'], $prodcut['name_product'], $priceproductformat);
+    $textextend = sprintf($textbotlang['hardcoded']['renewServiceSuccess'], $nameloc['username'], $prodcut['name_product'], $priceproductformat);
     sendmessage($from_id, $textextend, $keyboardextendfnished, 'HTML');
     $timejalali = jdate('Y/m/d H:i:s');
     $Response = json_encode([
@@ -1872,7 +1872,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             ],
         ]
     ]);
-    $text_report = sprintf($textbotlang['hardcoded']['index_0021'], $from_id, $username, $nameloc['username'], $first_name, $nameloc['Service_location'], $prodcut['name_product'], $prodcut['Volume_constraint'], $prodcut['Service_time'], $prodcut['price_product'], $balanceformatsellbefore, $balanceformatsell, $timejalali);
+    $text_report = sprintf($textbotlang['hardcoded']['renewReportAdmin'], $from_id, $username, $nameloc['username'], $first_name, $nameloc['Service_location'], $prodcut['name_product'], $prodcut['Volume_constraint'], $prodcut['Service_time'], $prodcut['price_product'], $balanceformatsellbefore, $balanceformatsell, $timejalali);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -1933,7 +1933,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         Editmessagetext($from_id, $message_id, $textconfig, $bakinfos);
     }
     $timejalali = jdate('Y/m/d H:i:s');
-    $text_report = sprintf($textbotlang['hardcoded']['index_0022'], $from_id, $username, $nameloc['username'], $first_name, $marzban_list_get['name_panel'], $user['agent'], $timejalali);
+    $text_report = sprintf($textbotlang['hardcoded']['changeLinkReportAdmin'], $from_id, $username, $nameloc['username'], $first_name, $marzban_list_get['name_panel'], $user['agent'], $timejalali);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -1959,7 +1959,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $eextraprice = json_decode($marzban_list_get['priceextravolume'], true);
     $extrapricevalue = $eextraprice[$user['agent']];
     update("user", "Processing_value", $nameloc['id_invoice'], "id", $from_id);
-    $textextra = sprintf($textbotlang['hardcoded']['index_0023'], $extrapricevalue);
+    $textextra = sprintf($textbotlang['hardcoded']['extraVolumePrompt'], $extrapricevalue);
     $bakinfos = json_encode([
         'inline_keyboard' => [
             [
@@ -1992,7 +1992,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     ]);
     $priceextra = number_format($priceextra, 0);
     $extrapricevalues = number_format($extrapricevalue, 0);
-    $textextra = sprintf($textbotlang['hardcoded']['index_0024'], $extrapricevalues, $text, $priceextra);
+    $textextra = sprintf($textbotlang['hardcoded']['extraVolumeInvoiceCreated'], $extrapricevalues, $text, $priceextra);
     sendmessage($from_id, $textextra, $keyboardsetting, 'HTML');
     step('home', $from_id);
 } elseif (preg_match('/confirmaextra-(\w+)/', $datain, $dataget)) {
@@ -2062,7 +2062,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $extra_volume = $ManagePanel->extra_volume($nameloc['username'], $marzban_list_get['code_panel'], $data_limit);
     if ($extra_volume['status'] == false) {
         $extra_volume['msg'] = json_encode($extra_volume['msg']);
-        $textreports = sprintf($textbotlang['hardcoded']['index_0025'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_volume['msg']);
+        $textreports = sprintf($textbotlang['hardcoded']['extraVolumeError'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_volume['msg']);
         sendmessage($from_id, $textbotlang['extracted']['index_php']['extraVolumeServiceError'], null, 'HTML');
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
@@ -2101,9 +2101,9 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     }
     $volumesformat = number_format($volumepricelast, 0);
     $volumes = $volume / $extrapricevalue;
-    $textvolume = sprintf($textbotlang['hardcoded']['index_0026'], $nameloc['username'], $volumes, $volumesformat);
+    $textvolume = sprintf($textbotlang['hardcoded']['extraVolumeSuccess'], $nameloc['username'], $volumes, $volumesformat);
     sendmessage($from_id, $textvolume, $keyboardextrafnished, 'HTML');
-    $text_report = sprintf($textbotlang['hardcoded']['index_0027'], $from_id, $volumes, $volumesformat, $nameloc['username'], $user['Balance']);
+    $text_report = sprintf($textbotlang['hardcoded']['extraVolumeReportAdmin'], $from_id, $volumes, $volumesformat, $nameloc['username'], $user['Balance']);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -2140,7 +2140,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     if ($userlimitlastfree < 0)
         $userlimitlastfree = 0;
     $Pricechange = select("marzban_panel", "*", "code_panel", $dataget[1], "select")['priceChangeloc'];
-    $textchange = sprintf($textbotlang['hardcoded']['index_0028'], $Pricechange, $userlimitlast, $userlimitlastfree);
+    $textchange = sprintf($textbotlang['hardcoded']['changeLocationConfirmPrompt'], $Pricechange, $userlimitlast, $userlimitlastfree);
     $keyboardextend = json_encode([
         'inline_keyboard' => [
             [
@@ -2293,7 +2293,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         if ($dataoutput['username'] == null) {
             $dataoutput['msg'] = json_encode($dataoutput['msg']);
             sendmessage($from_id, $textbotlang['users']['sell']['errorConfig'], $keyboard, 'HTML');
-            $texterros = sprintf($textbotlang['hardcoded']['index_0029'], $dataoutput['msg'], $from_id, $username, $marzban_list_get['name_panel'], $marzban_list_get_new['name_panel']);
+            $texterros = sprintf($textbotlang['hardcoded']['changeLocationError'], $dataoutput['msg'], $from_id, $username, $marzban_list_get['name_panel'], $marzban_list_get_new['name_panel']);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -2319,7 +2319,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     }
     $limitnew = $user['limitchangeloc'] + 1;
     update("user", "limitchangeloc", $limitnew, "id", $from_id);
-    $textchangeloc = sprintf($textbotlang['hardcoded']['index_0030'], $marzban_list_get_new['name_panel'], $nameloc['username'], $RemainingVolume, $expirationDate, $day, $output_config_link);
+    $textchangeloc = sprintf($textbotlang['hardcoded']['changeLocationSuccess'], $marzban_list_get_new['name_panel'], $nameloc['username'], $RemainingVolume, $expirationDate, $day, $output_config_link);
     if (intval($Pricechange) != 0) {
         $Balance_Low_user = $user['Balance'] - $Pricechange;
         update("user", "Balance", $Balance_Low_user, "id", $from_id);
@@ -2331,7 +2331,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     Editmessagetext($from_id, $message_id, $textchangeloc, $keyboardextend);
     $balanceformatsell = number_format(select("user", "Balance", "id", $from_id, "select")['Balance'], 0);
     $format_byte = formatBytes($data_limit);
-    $textreport = sprintf($textbotlang['hardcoded']['index_0031'], $from_id, $username, $marzban_list_get['name_panel'], $marzban_list_get_new['name_panel'], $nameloc['username'], $format_byte, $balanceformatsell);
+    $textreport = sprintf($textbotlang['hardcoded']['changeLocationReportAdmin'], $from_id, $username, $marzban_list_get['name_panel'], $marzban_list_get_new['name_panel'], $nameloc['username'], $format_byte, $balanceformatsell);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -2349,7 +2349,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         sendmessage($from_id, $textbotlang['users']['status']['error'], null, 'html');
         return;
     }
-    $textdisorder = $textbotlang['hardcoded']['index_0032'];
+    $textdisorder = $textbotlang['hardcoded']['disruptionReportPrompt'];
     $keyboarddisorder = json_encode([
         'inline_keyboard' => [
             [
@@ -2367,7 +2367,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         sendmessage($from_id, $textbotlang['users']['status']['error'], null, 'html');
         return;
     }
-    $textdisorder = $textbotlang['hardcoded']['index_0033'];
+    $textdisorder = $textbotlang['hardcoded']['disruptionReportConfirmPrompt'];
     $keyboarddisorder = json_encode([
         'inline_keyboard' => [
             [
@@ -2390,7 +2390,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             ],
         ]
     ]);
-    $textdisorder = sprintf($textbotlang['hardcoded']['index_0034'], $username, $from_id, $nameloc['username'], $nameloc['name_product'], $nameloc['Service_location'], $user['Processing_value']);
+    $textdisorder = sprintf($textbotlang['hardcoded']['disruptionReportAdmin'], $username, $from_id, $nameloc['username'], $nameloc['name_product'], $nameloc['Service_location'], $user['Processing_value']);
     $DataUserOut = $ManagePanel->DataUser($nameloc['Service_location'], $nameloc['username']);
     if ($DataUserOut['online_at'] == "online") {
         $lastonline = $textbotlang['extracted']['index_php']['statusOnline'];
@@ -2442,7 +2442,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     if ($Percent < 0)
         $Percent = -($Percent);
     $Percent = round($Percent, 2);
-    $textdisorder .= sprintf($textbotlang['hardcoded']['index_0035'], $status_var, $LastTraffic, $usedTrafficGb, $RemainingVolume, $Percent, $expirationDate, $day, $DataUserOut['subscription_url'], $lastonline, $lastupdate, $DataUserOut['sub_last_user_agent']);
+    $textdisorder .= sprintf($textbotlang['hardcoded']['serviceStatusSummary'], $status_var, $LastTraffic, $usedTrafficGb, $RemainingVolume, $Percent, $expirationDate, $day, $DataUserOut['subscription_url'], $lastonline, $lastupdate, $DataUserOut['sub_last_user_agent']);
     foreach ($admin_ids as $admin) {
         $adminrulecheck = select("admin", "*", "id_admin", $admin, "select");
         if ($adminrulecheck['rule'] == "Seller")
@@ -2478,7 +2478,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $eextraprice = json_decode($marzban_list_get['priceextratime'], true);
     $extratimepricevalue = $eextraprice[$user['agent']];
     update("user", "Processing_value", $nameloc['id_invoice'], "id", $from_id);
-    $textextra = sprintf($textbotlang['hardcoded']['index_0036'], $extratimepricevalue);
+    $textextra = sprintf($textbotlang['hardcoded']['extraTimePrompt'], $extratimepricevalue);
     $bakinfos = json_encode([
         'inline_keyboard' => [
             [
@@ -2509,7 +2509,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     ]);
     $priceextratime = number_format($priceextratime, 0);
     $extrapricevalues = number_format($extrapricevalue, 0);
-    $textextra = sprintf($textbotlang['hardcoded']['index_0037'], $extratimepricevalue, $text, $priceextratime);
+    $textextra = sprintf($textbotlang['hardcoded']['extraTimeInvoiceCreated'], $extratimepricevalue, $text, $priceextratime);
     sendmessage($from_id, $textextra, $keyboardsetting, 'HTML');
     step('home', $from_id);
 } elseif (preg_match('/confirmaextratime-(\w+)/', $datain, $dataget)) {
@@ -2583,7 +2583,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $extra_time = $ManagePanel->extra_time($nameloc['username'], $marzban_list_get['code_panel'], $extratimeday);
     if ($extra_time['status'] == false) {
         $extra_time['msg'] = json_encode($extra_time['msg']);
-        $textreports = sprintf($textbotlang['hardcoded']['index_0038'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_time['msg']);
+        $textreports = sprintf($textbotlang['hardcoded']['extraTimeError'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_time['msg']);
         sendmessage($from_id, $textbotlang['extracted']['index_php']['extraVolumeServiceError'], null, 'HTML');
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
@@ -2623,10 +2623,10 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         update("user", "score", $scorenew, "id", $from_id);
     }
     $volumesformat = number_format($tmieextra);
-    $textextratime = sprintf($textbotlang['hardcoded']['index_0039'], $nameloc['username'], $extratimeday, $volumesformat);
+    $textextratime = sprintf($textbotlang['hardcoded']['extraTimeSuccess'], $nameloc['username'], $extratimeday, $volumesformat);
     sendmessage($from_id, $textextratime, $keyboardextrafnished, 'HTML');
     $volumes = $tmieextra / $extratimepricevalue;
-    $text_report = sprintf($textbotlang['hardcoded']['index_0040'], $from_id, $volumes, $volumesformat, $nameloc['username']);
+    $text_report = sprintf($textbotlang['hardcoded']['extraTimeReportAdmin'], $from_id, $volumes, $volumesformat, $nameloc['username']);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -2653,7 +2653,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $id_invoice = $userdata['id_invoice'];
     savedata("save", "descritionsremove", $text);
     $nameloc = select("invoice", "*", "id_invoice", $id_invoice, "select");
-    if ($nameloc['name_product'] == $textbotlang['hardcoded']['index_0041']) {
+    if ($nameloc['name_product'] == $textbotlang['hardcoded']['testServiceName3']) {
         sendmessage($from_id, $textbotlang['users']['status']['errorusertest'], null, 'html');
         return;
     }
@@ -2746,7 +2746,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $timeDiff = $DataUserOut['expire'] - time();
     $day = $DataUserOut['expire'] ? floor($timeDiff / 86400) . $textbotlang['users']['status']['day'] : $textbotlang['users']['status']['unlimited'];
     #-----------------------------#
-    $textinfoadmin = sprintf($textbotlang['hardcoded']['index_0042'], $from_id, $username, $nameloc['username'], $status_var, $nameloc['Service_location'], $nameloc['id_invoice'], $lastonline, $usedTrafficGb, $LastTraffic, $RemainingVolume, $expirationDate, $day, $userdata['descritionsremove']);
+    $textinfoadmin = sprintf($textbotlang['hardcoded']['deleteServiceRequestAdmin'], $from_id, $username, $nameloc['username'], $status_var, $nameloc['Service_location'], $nameloc['id_invoice'], $lastonline, $usedTrafficGb, $LastTraffic, $RemainingVolume, $expirationDate, $day, $userdata['descritionsremove']);
     $confirmremoveadmin = json_encode([
         'inline_keyboard' => [
             [
@@ -2765,7 +2765,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
 } elseif (preg_match('/transfer_(\w+)/', $datain, $dataget)) {
     $id_invoice = $dataget[1];
     $nameloc = select("invoice", "*", "id_invoice", $id_invoice, "select");
-    if ($nameloc['name_product'] == $textbotlang['hardcoded']['index_0043']) {
+    if ($nameloc['name_product'] == $textbotlang['hardcoded']['testServiceName4']) {
         sendmessage($from_id, $textbotlang['Admin']['transfer']['transferNotValid'], null, 'html');
         return;
     }
@@ -2948,7 +2948,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     ));
     $stmt = $connect->prepare("INSERT IGNORE INTO invoice (id_user, id_invoice, username,time_sell, Service_location, name_product, price_product, Volume, Service_time,Status,notifctions) VALUES (?, ?,  ?, ?, ?, ?, ?,?,?,?,?)");
     $Status = "active";
-    $info_product['name_product'] = $textbotlang['hardcoded']['index_0044'];
+    $info_product['name_product'] = $textbotlang['hardcoded']['testServiceName5'];
     $info_product['price_product'] = "0";
     $Status = "active";
     $stmt->bind_param("sssssssssss", $from_id, $randomString, $username_ac, $date, $marzban_list_get['name_panel'], $info_product['name_product'], $info_product['price_product'], $marzban_list_get['val_usertest'], $marzban_list_get['time_usertest'], $Status, $notifctions);
@@ -2958,7 +2958,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     if ($dataoutput['username'] == null) {
         $dataoutput['msg'] = json_encode($dataoutput['msg']);
         sendmessage($from_id, $textbotlang['users']['usertest']['errorcreat'], $keyboard, 'html');
-        $texterros = sprintf($textbotlang['hardcoded']['index_0045'], $dataoutput['msg'], $from_id, $username, $marzban_list_get['name_panel']);
+        $texterros = sprintf($textbotlang['hardcoded']['testAccountCreateError'], $dataoutput['msg'], $from_id, $username, $marzban_list_get['name_panel']);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -2988,11 +2988,11 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         ]
     ]);
     if ($marzban_list_get['type'] == "WGDashboard") {
-        $textbotlang['textbot']['afterText'] = $textbotlang['hardcoded']['index_0046'];
+        $textbotlang['textbot']['afterText'] = $textbotlang['hardcoded']['serviceCreatedSuccess'];
     }
     $textbotlang['textbot']['afterText'] = $marzban_list_get['type'] == "ibsng" || $marzban_list_get['type'] == "mikrotik" ? $textbotlang['textbot']['afterPayIbsng'] : $textbotlang['textbot']['afterText'];
     $textcreatuser = str_replace('{username}', $dataoutput['username'], $textbotlang['textbot']['afterText']);
-    $textcreatuser = str_replace('{name_service}', $textbotlang['hardcoded']['index_0047'], $textcreatuser);
+    $textcreatuser = str_replace('{name_service}', $textbotlang['hardcoded']['testLabel'], $textcreatuser);
     $textcreatuser = str_replace('{location}', $marzban_list_get['name_panel'], $textcreatuser);
     $textcreatuser = str_replace('{day}', $marzban_list_get['time_usertest'], $textcreatuser);
     $textcreatuser = str_replace('{volume}', $marzban_list_get['val_usertest'], $textcreatuser);
@@ -3022,7 +3022,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         ]
     ]);
     $timejalali = jdate('Y/m/d H:i:s');
-    $text_report = sprintf($textbotlang['hardcoded']['index_0048'], $from_id, $username, $username_ac, $first_name, $marzban_list_get['name_panel'], $marzban_list_get['time_usertest'], $marzban_list_get['val_usertest'], $randomString, $user['agent'], $user['number'], $timejalali);
+    $text_report = sprintf($textbotlang['hardcoded']['testAccountReportAdmin'], $from_id, $username, $username_ac, $first_name, $marzban_list_get['name_panel'], $marzban_list_get['time_usertest'], $marzban_list_get['val_usertest'], $randomString, $user['agent'], $user['number'], $timejalali);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -3182,7 +3182,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     if ($video) {
         sendvideo($departeman['idsupport'], $videoid, null);
     }
-    $textsuppoer = sprintf($textbotlang['hardcoded']['index_0049'], $from_id, $from_id, $timejalali, $username, $departeman['name_departman'], $text, $caption);
+    $textsuppoer = sprintf($textbotlang['hardcoded']['supportMessageFromUser'], $from_id, $from_id, $timejalali, $username, $departeman['name_departman'], $text, $caption);
     $Response = json_encode([
         'inline_keyboard' => [
             [
@@ -3209,7 +3209,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $time = date('Y/m/d H:i:s');
     update("support_message", "status", "Answered", "Tracking", $user['Processing_value']);
     update("support_message", "result", $text, "Tracking", $user['Processing_value']);
-    $textSendAdminToUser = sprintf($textbotlang['hardcoded']['index_0050'], $text);
+    $textSendAdminToUser = sprintf($textbotlang['hardcoded']['messageFromAdmin'], $text);
     $Response = json_encode([
         'inline_keyboard' => [
             [
@@ -3242,7 +3242,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $stmt->bindParam(':time', $time);
     $stmt->bindParam(':status', $status);
     $stmt->execute();
-    $textsuppoer = sprintf($textbotlang['hardcoded']['index_0051'], $from_id, $from_id, $timejalali, $username, $trakingdetail['name_departman'], $text);
+    $textsuppoer = sprintf($textbotlang['hardcoded']['supportMessageFromUser2'], $from_id, $from_id, $timejalali, $username, $trakingdetail['name_departman'], $text);
     $Response = json_encode([
         'inline_keyboard' => [
             [
@@ -3281,7 +3281,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     } else {
         $numberphone = $numberphone;
     }
-    $stmt = $pdo->prepare($textbotlang['hardcoded']['index_0052']);
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND name_product != 'سرویس تست' AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold')");
     $stmt->execute([
         ':id_user' => $from_id
     ]);
@@ -3304,9 +3304,9 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     }
     $textinvite = "";
     if ($setting['verifybucodeuser'] == "onverify" and $setting['verifystart'] == "onverify") {
-        $textscore = sprintf($textbotlang['hardcoded']['index_0053'], $usernamebot, $user['codeInvitation']);
+        $textscore = sprintf($textbotlang['hardcoded']['referralLinkText'], $usernamebot, $user['codeInvitation']);
     }
-    $text_account = sprintf($textbotlang['hardcoded']['index_0054'], $from_id, $first_name, $user['codeInvitation'], $numberphone, $userjoin, $Balanceuser, $countorder, $countpayment, $user['affiliatescount'], $groupuser, $textscore, $textinvite, $dateacc, $timeacc);
+    $text_account = sprintf($textbotlang['hardcoded']['accountInfoText'], $from_id, $first_name, $user['codeInvitation'], $numberphone, $userjoin, $Balanceuser, $countorder, $countpayment, $user['affiliatescount'], $groupuser, $textscore, $textinvite, $dateacc, $timeacc);
     if ($datain == "account") {
         Editmessagetext($from_id, $message_id, $text_account, $keyboardPanel);
     } else {
@@ -3388,7 +3388,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             $maxvolume = $maxvolume[$user['agent']];
             $nullproduct = select("product", "*", null, null, "count");
             if ($nullproduct == 0) {
-                $textcustom = sprintf($textbotlang['hardcoded']['index_0055'], $custompricevalue, $mainvolume, $maxvolume);
+                $textcustom = sprintf($textbotlang['hardcoded']['customVolumePrompt3'], $custompricevalue, $mainvolume, $maxvolume);
                 sendmessage($from_id, $textcustom, $backuser, 'html');
                 step('gettimecustomvol', $from_id);
                 return;
@@ -3491,7 +3491,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         $mainvolume = $mainvolume[$user['agent']];
         $maxvolume = json_decode($marzban_list_get['maxvolume'], true);
         $maxvolume = $maxvolume[$user['agent']];
-        $textcustom = sprintf($textbotlang['hardcoded']['index_0056'], $custompricevalue, $mainvolume, $maxvolume);
+        $textcustom = sprintf($textbotlang['hardcoded']['customVolumePrompt4'], $custompricevalue, $mainvolume, $maxvolume);
         sendmessage($from_id, $textcustom, $backuser, 'html');
         step('gettimecustomvol', $from_id);
         return;
@@ -3596,7 +3596,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $mainvolume = $mainvolume[$user['agent']];
     $maxvolume = json_decode($marzban_list_get['maxvolume'], true);
     $maxvolume = $maxvolume[$user['agent']];
-    $textcustom = sprintf($textbotlang['hardcoded']['index_0057'], $custompricevalue, $mainvolume, $maxvolume);
+    $textcustom = sprintf($textbotlang['hardcoded']['customVolumePrompt5'], $custompricevalue, $mainvolume, $maxvolume);
     sendmessage($from_id, $textcustom, $backuser, 'html');
     deletemessage($from_id, $message_id);
     step('gettimecustomvol', $from_id);
@@ -3624,7 +3624,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $eextraprice = json_decode($marzban_list_get['pricecustomtime'], true);
     $customtimevalueprice = $eextraprice[$user['agent']];
     update("user", "Processing_value_one", $text, "id", $from_id);
-    $textcustom = sprintf($textbotlang['hardcoded']['index_0058'], $customtimevalueprice, $maintime, $maxtime);
+    $textcustom = sprintf($textbotlang['hardcoded']['customTimePrompt2'], $customtimevalueprice, $maintime, $maxtime);
     sendmessage($from_id, $textcustom, $backuser, 'html');
     if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
         step('getvolumecustomusername', $from_id);
@@ -3747,9 +3747,9 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     ];
     $textin = strtr($textbotlang['textbot']['preInvoice'], $replacements);
     if (intval($info_product['Volume_constraint']) == 0) {
-        $textin = str_replace($textbotlang['hardcoded']['index_0119'], "", $textin);
+        $textin = str_replace($textbotlang['hardcoded']['unitGig'], "", $textin);
     }
-    if ($user['step'] != "getvolumecustomuser" && !in_array($marzban_list_get['MethodUsername'], [$textbotlang['hardcoded']['index_0059'], $textbotlang['hardcoded']['index_0060']])) {
+    if ($user['step'] != "getvolumecustomuser" && !in_array($marzban_list_get['MethodUsername'], [$textbotlang['hardcoded']['customUsernameLabel'], $textbotlang['hardcoded']['customUsernameRandomLabel']])) {
         Editmessagetext($from_id, $message_id, $textin, $payment);
     } else {
         sendmessage($from_id, $textin, $payment, 'HTML');
@@ -3921,7 +3921,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         }
         $dataoutput['msg'] = $errorMessage;
         sendmessage($from_id, $textbotlang['users']['sell']['errorConfig'], $keyboard, 'HTML');
-        $texterros = sprintf($textbotlang['hardcoded']['index_0061'], $dataoutput['msg'], $from_id, $username, $marzban_list_get['name_panel']);
+        $texterros = sprintf($textbotlang['hardcoded']['subscriptionCreateError'], $dataoutput['msg'], $from_id, $username, $marzban_list_get['name_panel']);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -3959,7 +3959,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $textcreatuser = str_replace('{links}', $config, $textcreatuser);
     $textcreatuser = str_replace('{links2}', $output_config_link, $textcreatuser);
     if (intval($info_product['Volume_constraint']) == 0) {
-        $textcreatuser = str_replace($textbotlang['hardcoded']['index_0120'], "", $textcreatuser);
+        $textcreatuser = str_replace($textbotlang['hardcoded']['unitGigabyte'], "", $textcreatuser);
     }
     if ($marzban_list_get['type'] == "Manualsale" || $marzban_list_get['type'] == "ibsng" || $marzban_list_get['type'] == "mikrotik") {
         $textcreatuser = str_replace('{password}', $dataoutput['subscription_url'], $textcreatuser);
@@ -3981,7 +3981,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     }
     $affiliatescommission = select("affiliates", "*", null, null, "select");
     $marzbanporsant_one_buy = select("affiliates", "*", null, null, "select");
-    $stmt = $pdo->prepare($textbotlang['hardcoded']['index_0062']);
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != 'سرویس تست'  AND id_user = :id_user AND Status != 'Unpaid'");
     $stmt->bindParam(':id_user', $from_id);
     $stmt->execute();
     $countinvoice = $stmt->rowCount();
@@ -3999,8 +3999,8 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
                 update("user", "Balance", $Balance_prim, "id", $user['affiliates']);
                 $result = number_format($result);
                 $dateacc = date('Y/m/d H:i:s');
-                $textadd = sprintf($textbotlang['hardcoded']['index_0063'], $result);
-                $textreportport = sprintf($textbotlang['hardcoded']['index_0064'], $result, $user['affiliates'], $from_id, $dateacc);
+                $textadd = sprintf($textbotlang['hardcoded']['affiliateCommissionPaidUser'], $result);
+                $textreportport = sprintf($textbotlang['hardcoded']['affiliateCommissionPaidLog'], $result, $user['affiliates'], $from_id, $dateacc);
                 if (strlen($setting['Channel_Report']) > 0) {
                     telegram('sendmessage', [
                         'chat_id' => $setting['Channel_Report'],
@@ -4024,8 +4024,8 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             update("user", "Balance", $Balance_prim, "id", $user['affiliates']);
             $result = number_format($result);
             $dateacc = date('Y/m/d H:i:s');
-            $textadd = sprintf($textbotlang['hardcoded']['index_0065'], $result);
-            $textreportport = sprintf($textbotlang['hardcoded']['index_0066'], $result, $user['affiliates'], $from_id, $dateacc);
+            $textadd = sprintf($textbotlang['hardcoded']['affiliateCommissionPaidUser2'], $result);
+            $textreportport = sprintf($textbotlang['hardcoded']['affiliateCommissionPaidLog2'], $result, $user['affiliates'], $from_id, $dateacc);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -4056,7 +4056,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         ]
     ]);
     $timejalali = jdate('Y/m/d H:i:s');
-    $text_report = sprintf($textbotlang['hardcoded']['index_0067'], $textonebuy, $from_id, $username, $username_ac, $first_name, $userdate['name_panel'], $info_product['name_product'], $info_product['Service_time'], $info_product['Volume_constraint'], $balanceformatsellbefore, $balanceformatsell, $randomString, $user['agent'], $user['number'], $info_product['category'], $info_product['price_product'], $priceproduct, $timejalali);
+    $text_report = sprintf($textbotlang['hardcoded']['accountCreateReportAdmin'], $textonebuy, $from_id, $username, $username_ac, $first_name, $userdate['name_panel'], $info_product['name_product'], $info_product['Service_time'], $info_product['Volume_constraint'], $balanceformatsellbefore, $balanceformatsell, $randomString, $user['agent'], $user['number'], $info_product['category'], $info_product['price_product'], $priceproduct, $timejalali);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -4119,7 +4119,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         return;
     }
     if ($SellDiscountlimit['usefirst'] == "1") {
-        $countinvoice = mysqli_query($connect, sprintf($textbotlang['hardcoded']['index_0068'], $from_id));
+        $countinvoice = mysqli_query($connect, sprintf("SELECT * FROM invoice WHERE id_user = '%s' AND name_product != 'سرویس تست' AND  (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold')", $from_id));
         if (mysqli_num_rows($countinvoice) != 0) {
             sendmessage($from_id, $textbotlang['users']['Discount']['firstdiscount'], null, 'HTML');
             return;
@@ -4152,7 +4152,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         $info_product['Volume_constraint'] = $textbotlang['users']['status']['unlimited'];
     if ($info_product['price_product'] < 0)
         $info_product['price_product'] = 0;
-    $textin = sprintf($textbotlang['hardcoded']['index_0069'], $user['Processing_value_tow'], $info_product['name_product'], $info_product['Service_time'], $info_productmain, $info_product['price_product'], $info_product['Volume_constraint'], $user['Balance']);
+    $textin = sprintf($textbotlang['hardcoded']['preInvoiceText'], $user['Processing_value_tow'], $info_product['name_product'], $info_product['Service_time'], $info_productmain, $info_product['price_product'], $info_product['Volume_constraint'], $user['Balance']);
     $paymentDiscount = json_encode([
         'inline_keyboard' => [
             [['text' => $textbotlang['keyboard']['payAndGetService'], 'callback_data' => "confirmandgetserviceDiscount"]],
@@ -4224,7 +4224,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
     $eextraprice = json_decode($marzban_list_get['pricecustomvolume'], true);
     $custompricevalue = $eextraprice[$user['agent']];
-    $textcustom = sprintf($textbotlang['hardcoded']['index_0070'], $custompricevalue);
+    $textcustom = sprintf($textbotlang['hardcoded']['serviceVolumePrompt'], $custompricevalue);
     sendmessage($from_id, $textcustom, $backuser, 'html');
     deletemessage($from_id, $message_id);
     step('gettimecustomvolom', $from_id);
@@ -4250,7 +4250,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         return;
     }
     update("user", "Processing_value_one", $text, "id", $from_id);
-    $textcustom = sprintf($textbotlang['hardcoded']['index_0071'], $customtimevalueprice, $maintime, $maxtime);
+    $textcustom = sprintf($textbotlang['hardcoded']['serviceTimePrompt'], $customtimevalueprice, $maintime, $maxtime);
     sendmessage($from_id, $textcustom, $backuser, 'html');
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
     if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
@@ -4341,7 +4341,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $info_product['price_product'] = intval($info_product['price_product']) * intval($user['Processing_value_four']);
     $price_product_format = number_format($info_product['price_product']);
     $userbalancepish = number_format($user['Balance']);
-    $textin = sprintf($textbotlang['hardcoded']['index_0072'], $username_ac, $info_product['name_product'], $info_product['Service_time'], $price_product_format, $info_product['Volume_constraint'], $userbalancepish, $user['Processing_value_four']);
+    $textin = sprintf($textbotlang['hardcoded']['preInvoiceText2'], $username_ac, $info_product['name_product'], $info_product['Service_time'], $price_product_format, $info_product['Volume_constraint'], $userbalancepish, $user['Processing_value_four']);
     sendmessage($from_id, $textin, $paymentom, 'HTML');
     step('payments', $from_id);
 } elseif ($user['step'] == "payments" && $datain == "confirmandgetservice") {
@@ -4454,7 +4454,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         if ($dataoutput['username'] == null) {
             $dataoutput['msg'] = json_encode($dataoutput['msg']);
             sendmessage($from_id, $textbotlang['users']['sell']['errorConfig'], $keyboard, 'HTML');
-            $texterros = sprintf($textbotlang['hardcoded']['index_0073'], $dataoutput['msg'], $from_id, $username, $marzban_list_get['name_panel']);
+            $texterros = sprintf($textbotlang['hardcoded']['bulkAccountCreateError'], $dataoutput['msg'], $from_id, $username, $marzban_list_get['name_panel']);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -4482,7 +4482,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         }
         $textbotlang['textbot']['afterPay'] = $marzban_list_get['type'] == "Manualsale" ? $textbotlang['textbot']['manual'] : $textbotlang['textbot']['afterPay'];
         if ($marzban_list_get['type'] == "WGDashboard") {
-            $textbotlang['textbot']['afterPay'] = $textbotlang['hardcoded']['index_0074'];
+            $textbotlang['textbot']['afterPay'] = $textbotlang['hardcoded']['serviceCreatedSuccess2'];
         }
         $textcreatuser = str_replace('{username}', "<code>{$dataoutput['username']}</code>", $textbotlang['textbot']['afterPay']);
         $textcreatuser = str_replace('{name_service}', $info_product['name_product'], $textcreatuser);
@@ -4503,7 +4503,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     $pricebulk = $info_product['price_product'] * intval($user['Processing_value_four']);
     $count_service = $user['Processing_value_four'];
     $timejalali = jdate('Y/m/d H:i:s');
-    $text_report = sprintf($textbotlang['hardcoded']['index_0075'], $from_id, $username, $username_ac, $count_service, $first_name, $user['Processing_value'], $info_product['name_product'], $info_product['Service_time'], $info_product['Volume_constraint'], $balanceformatsellbefore, $balanceformatsell, $randomString, $user['agent'], $user['number'], $info_product['price_product'], $info_product['price_product'], $user['Processing_value_four'], $timejalali);
+    $text_report = sprintf($textbotlang['hardcoded']['bulkAccountReportAdmin'], $from_id, $username, $username_ac, $count_service, $first_name, $user['Processing_value'], $info_product['name_product'], $info_product['Service_time'], $info_product['Volume_constraint'], $balanceformatsellbefore, $balanceformatsell, $randomString, $user['agent'], $user['number'], $info_product['price_product'], $info_product['price_product'], $user['Processing_value_four'], $timejalali);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -4534,7 +4534,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             ]
         ]
     ]);
-    Editmessagetext($from_id, $message_id, sprintf($textbotlang['hardcoded']['index_0076'], $minbalance, $maxbalance), $bakinfos, 'HTML');
+    Editmessagetext($from_id, $message_id, sprintf($textbotlang['hardcoded']['enterAmountToman'], $minbalance, $maxbalance), $bakinfos, 'HTML');
     step('getprice', $from_id);
     update("user", 'Processing_value', $message_id, "id", $from_id);
 } elseif ($user['step'] == "getprice") {
@@ -4547,13 +4547,13 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     if ($text > $maxbalance or $text < $minbalance) {
         $minbalance = number_format($minbalance);
         $maxbalance = number_format($maxbalance);
-        sendmessage($from_id, sprintf($textbotlang['hardcoded']['index_0077'], $minbalance, $maxbalance), null, 'HTML');
+        sendmessage($from_id, sprintf($textbotlang['hardcoded']['amountRangeError'], $minbalance, $maxbalance), null, 'HTML');
         return;
     }
     if ($user['Balance'] < 0 and intval($setting['Debtsettlement']) == 1) {
         $balancruser = abs($user['Balance']);
         if ($text < $balancruser) {
-            sendmessage($from_id, sprintf($textbotlang['hardcoded']['index_0078'], $balancruser), null, 'HTML');
+            sendmessage($from_id, sprintf($textbotlang['hardcoded']['debtPaymentRequired'], $balancruser), null, 'HTML');
             return;
         }
     }
@@ -4691,7 +4691,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             $text_error = json_encode($pay);
             sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
             step('home', $from_id);
-            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['index_0079'], $text_error, $from_id, $username);
+            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['aqayePardakhtLinkError'], $text_error, $from_id, $username);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -4715,7 +4715,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             ]
         ]);
         $price_format = number_format($user['Processing_value'], 0);
-        $textnowpayments = sprintf($textbotlang['hardcoded']['index_0080'], $randomString, $price_format);
+        $textnowpayments = sprintf($textbotlang['hardcoded']['paymentInvoiceCreated'], $randomString, $price_format);
         $gethelp = select("PaySetting", "ValuePay", "NamePay", "helpaqayepardakht", "select")['ValuePay'];
         if ($gethelp != 2) {
             $data = json_decode($gethelp, true);
@@ -4750,7 +4750,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             $text_error = json_encode($pay['errors']);
             sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
             step('home', $from_id);
-            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['index_0081'], $text_error, $from_id, $username);
+            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['zarinpalLinkError'], $text_error, $from_id, $username);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -4776,7 +4776,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             ]
         ]);
         $price_format = number_format($user['Processing_value'], 0);
-        $textnowpayments = sprintf($textbotlang['hardcoded']['index_0082'], $randomString, $price_format);
+        $textnowpayments = sprintf($textbotlang['hardcoded']['paymentInvoiceCreated2'], $randomString, $price_format);
         $gethelp = select("PaySetting", "ValuePay", "NamePay", "helpzarinpal", "select")['ValuePay'];
         if ($gethelp != 2) {
             $data = json_decode($gethelp, true);
@@ -4828,7 +4828,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             $text_error = $pay['message'];
             sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
             step('home', $from_id);
-            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['index_0083'], $text_error, $from_id, $username);
+            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['cryptoPaymentLinkErrorAdmin'], $text_error, $from_id, $username);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -4848,7 +4848,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         ]);
         $price_format = number_format($user['Processing_value'], 0);
         $USD = number_format($usd);
-        $textnowpayments = sprintf($textbotlang['hardcoded']['index_0084'], $randomString, $price_format, $USD);
+        $textnowpayments = sprintf($textbotlang['hardcoded']['cryptoPaymentInstruction'], $randomString, $price_format, $USD);
         $gethelp = select("PaySetting", "ValuePay", "NamePay", "helpplisio", "select")['ValuePay'];
         if ($gethelp != 2) {
             $data = json_decode($gethelp, true);
@@ -4896,7 +4896,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             $text_error = json_encode($pay);
             sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
             step('home', $from_id);
-            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['index_0085'], $text_error, $from_id, $username);
+            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['cryptoPaymentLinkErrorAdmin2'], $text_error, $from_id, $username);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -4916,7 +4916,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         ]);
         $price_format = number_format($user['Processing_value'], 0);
         $USD = number_format($usd);
-        $textnowpayments = sprintf($textbotlang['hardcoded']['index_0086'], $randomString, $price_format, $USD);
+        $textnowpayments = sprintf($textbotlang['hardcoded']['cryptoPaymentInstruction2'], $randomString, $price_format, $USD);
         $gethelp = select("PaySetting", "ValuePay", "NamePay", "helpnowpayment", "select")['ValuePay'];
         if ($gethelp != 2) {
             $data = json_decode($gethelp, true);
@@ -4964,7 +4964,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             $text_error = $pay['message'];
             sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
             step('home', $from_id);
-            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['index_0087'], $text_error, $from_id, $Payment_Method, $username);
+            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['paymentLinkErrorAdmin'], $text_error, $from_id, $Payment_Method, $username);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -4984,7 +4984,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             ]
         ]);
         $pricetoman = number_format($user['Processing_value'], 0);
-        $textnowpayments = sprintf($textbotlang['hardcoded']['index_0088'], $randomString, $pricetoman);
+        $textnowpayments = sprintf($textbotlang['hardcoded']['transactionCreated'], $randomString, $pricetoman);
         $gethelp = select("PaySetting", "ValuePay", "NamePay", "helpiranpay1", "select")['ValuePay'];
         if ($gethelp != 2) {
             $data = json_decode($gethelp, true);
@@ -5032,7 +5032,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             $text_error = json_encode($payment);
             sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
             step('home', $from_id);
-            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['index_0089'], $text_error, $from_id, $Payment_Method, $username);
+            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['paymentLinkErrorAdmin2'], $text_error, $from_id, $Payment_Method, $username);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -5051,7 +5051,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             ]
         ]);
         $pricetoman = number_format($user['Processing_value'], 0);
-        $textnowpayments = sprintf($textbotlang['hardcoded']['index_0090'], $randomString, $pricetoman);
+        $textnowpayments = sprintf($textbotlang['hardcoded']['transactionCreated2'], $randomString, $pricetoman);
         $gethelp = select("PaySetting", "ValuePay", "NamePay", "helpiranpay2", "select")['ValuePay'];
         if ($gethelp != 2) {
             $data = json_decode($gethelp, true);
@@ -5072,7 +5072,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         $stmt->execute();
         $sumpayment = $stmt->fetch(PDO::FETCH_ASSOC);
         if (intval($sumpayment['price']) > 1000000) {
-            sendmessage($from_id, $textbotlang['hardcoded']['index_0091'], null, 'HTML');
+            sendmessage($from_id, $textbotlang['hardcoded']['paymentQueueBusyNotice'], null, 'HTML');
             return;
         }
         $rates = rate_arze();
@@ -5108,7 +5108,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             $text_error = $paylink['message'];
             sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
             step('home', $from_id);
-            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['index_0092'], $text_error, $from_id, $Payment_Method, $username);
+            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['paymentLinkErrorAdmin3'], $text_error, $from_id, $Payment_Method, $username);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -5128,7 +5128,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
                 ],
             ]
         ]);
-        $textnowpayments = sprintf($textbotlang['hardcoded']['index_0093'], $randomString, $pricetoman);
+        $textnowpayments = sprintf($textbotlang['hardcoded']['transactionCreated3'], $randomString, $pricetoman);
         $gethelp = select("PaySetting", "ValuePay", "NamePay", "helpiranpay3", "select")['ValuePay'];
         if ($gethelp != 2) {
             $data = json_decode($gethelp, true);
@@ -5185,7 +5185,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             ]
         ]);
         $formatprice = number_format($user['Processing_value'], 0);
-        $textnowpayments = sprintf($textbotlang['hardcoded']['index_0094'], $randomString, $affilnecurrency, $trxprice, $formatprice);
+        $textnowpayments = sprintf($textbotlang['hardcoded']['transactionCreatedTron'], $randomString, $affilnecurrency, $trxprice, $formatprice);
         $gethelp = getPaySettingValue('helpofflinearze');
         if ($gethelp !== null && $gethelp != 2) {
             $data = json_decode($gethelp, true);
@@ -5246,7 +5246,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             $text_error = json_encode($straCreateLink);
             sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
             step('home', $from_id);
-            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['index_0095'], $text_error, $from_id, $Payment_Method, $username);
+            $ErrorsLinkPayment = sprintf($textbotlang['hardcoded']['starInvoiceError'], $text_error, $from_id, $Payment_Method, $username);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -5265,7 +5265,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
             ]
         ]);
         $formatprice = number_format($user['Processing_value'], 0);
-        $textstar = sprintf($textbotlang['hardcoded']['index_0096'], $randomString, $starAmount, $formatprice, $formatprice);
+        $textstar = sprintf($textbotlang['hardcoded']['transactionCreatedStar'], $randomString, $starAmount, $formatprice, $formatprice);
         $gethelp = select("PaySetting", "ValuePay", "NamePay", "helpstar", "select")['ValuePay'];
         if (intval($gethelp) != 2) {
             $data = json_decode($gethelp, true);
@@ -5306,7 +5306,7 @@ if (preg_match('/Confirmpay_user_(\w+)_(\w+)/', $datain, $dataget)) {
         DirectPayment($Payment_report['id_order']);
         $Balance_id = mysqli_fetch_assoc(mysqli_query($connect, "SELECT * FROM user WHERE id = '{$Payment_report['id_user']}' LIMIT 1"));
         $Payment_report['price'] = number_format($Payment_report['price'], 0);
-        $text_report = sprintf($textbotlang['hardcoded']['index_0097'], $from_id, $Payment_report['price']);
+        $text_report = sprintf($textbotlang['hardcoded']['newPaymentAdmin'], $from_id, $Payment_report['price']);
         $pricecashback = select("PaySetting", "ValuePay", "NamePay", "chashbackiranpay2", "select")['ValuePay'];
         if ($pricecashback != "0") {
             $result = ($Payment_report['price'] * $pricecashback) / 100;
@@ -5432,7 +5432,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
             sendmessage($from_id, $textbotlang['extracted']['index_php']['purchaseOrPaymentRestart'], $keyboard, 'HTML');
             return;
         }
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0098'], $get_invoice['username'], $get_invoice['name_product'], $get_invoice['Volume'], $get_invoice['Service_time'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentNewService'], $get_invoice['username'], $get_invoice['name_product'], $get_invoice['Volume'], $get_invoice['Service_time'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
     } elseif ($user['Processing_value_tow'] == "getextenduser") {
         $partsdic = explode("%", $user['Processing_value_one']);
         $usernamepanel = $partsdic[0];
@@ -5480,20 +5480,20 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
                 ]
             ]
         ]);
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0099'], $usernamepanel, $prodcut['name_product'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentRenew'], $usernamepanel, $prodcut['name_product'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
     } elseif ($user['Processing_value_tow'] == "getextravolumeuser") {
         $partsdic = explode("%", $user['Processing_value_one']);
         $usernamepanel = $partsdic[0];
         $volumes = $partsdic[1];
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0100'], $usernamepanel, $volumes, $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentExtraVolume'], $usernamepanel, $volumes, $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
     } elseif ($user['Processing_value_tow'] == "getextratimeuser") {
         $partsdic = explode("%", $user['Processing_value_one']);
         $usernamepanel = $partsdic[0];
         $time = $partsdic[1];
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0101'], $usernamepanel, $time, $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentExtraTime'], $usernamepanel, $time, $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
     } else {
 
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0102'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentBalanceCharge'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $Paymentusercount, $format_price_cart, $caption, $text);
     }
     foreach ($admin_ids as $id_admin) {
         $adminrulecheck = select("admin", "*", "id_admin", $id_admin, "select");
@@ -5551,7 +5551,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
             return;
         }
         $textdiscount = "";
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0103'], $get_invoice['username'], $get_invoice['name_product'], $get_invoice['Volume'], $get_invoice['Service_time'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentNewService2'], $get_invoice['username'], $get_invoice['name_product'], $get_invoice['Volume'], $get_invoice['Service_time'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
         sendmessage($from_id, $textbotlang['users']['Balance']['sendReceiptAndConfig'], $keyboard, 'HTML');
     } elseif ($split_data[0] == "getextenduser") {
         $partsdic = explode("%", $split_data[1]);
@@ -5600,23 +5600,23 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
                 ]
             ]
         ]);
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0104'], $usernamepanel, $prodcut['name_product'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentRenew2'], $usernamepanel, $prodcut['name_product'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
         sendmessage($from_id, $textbotlang['extracted']['index_php']['receiptSentRenewPending'], $keyboard, 'HTML');
     } elseif ($split_data[0] == "getextravolumeuser") {
         $partsdic = explode("%", $split_data[1]);
         $usernamepanel = $partsdic[0];
         $volumes = $partsdic[1];
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0105'], $usernamepanel, $volumes, $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentExtraVolume2'], $usernamepanel, $volumes, $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
         sendmessage($from_id, $textbotlang['extracted']['index_php']['receiptSentExtraVolumePending'], $keyboard, 'HTML');
     } elseif ($split_data[0] == "getextratimeuser") {
         $partsdic = explode("%", $split_data[1]);
         $usernamepanel = $partsdic[0];
         $time = $partsdic[1];
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0106'], $usernamepanel, $time, $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentExtraTime2'], $usernamepanel, $time, $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
         sendmessage($from_id, $textbotlang['extracted']['index_php']['receiptSentExtraTimePending'], $keyboard, 'HTML');
     } else {
 
-        $textsendrasid = sprintf($textbotlang['hardcoded']['index_0107'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
+        $textsendrasid = sprintf($textbotlang['hardcoded']['newPaymentBalanceCharge2'], $first_name, $from_id, $from_id, $format_balance, $PaymentReport['id_order'], $username, $format_price_cart);
         sendmessage($from_id, $textbotlang['users']['Balance']['sendReceipt'], $keyboard, 'HTML');
     }
     foreach ($admin_ids as $id_admin) {
@@ -5714,7 +5714,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
         ]);
     }
     $affiliatescommission = select("affiliates", "*", null, null, "select");
-    $sqlPanel = sprintf($textbotlang['hardcoded']['index_0108'], $from_id);
+    $sqlPanel = sprintf("SELECT COUNT(*) AS orders, SUM(price_product) AS total_price\n                 FROM invoice \n                 WHERE Status IN ('active', 'end_of_time', 'sendedwarn', 'send_on_hold') \n                 AND refral = '%s'\n                 AND name_product != 'سرویس تست'", $from_id);
     $stmt = $pdo->prepare($sqlPanel);
     $stmt->execute();
     $inforefral = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -5732,12 +5732,12 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
     $Percent_porsant = $setting['affiliatespercentage'];
     $sum_order = number_format($inforefral['total_price'], 0);
     if ($affiliatescommission['Discount'] == "onDiscountaffiliates") {
-        $text_start = sprintf($textbotlang['hardcoded']['index_0109'], $affiliatescommission['price_Discount']);
+        $text_start = sprintf($textbotlang['hardcoded']['membershipGiftInfo'], $affiliatescommission['price_Discount']);
     }
     if ($affiliatescommission['status_commission'] == "oncommission") {
-        $text_porsant = sprintf($textbotlang['hardcoded']['index_0110'], $Percent_porsant);
+        $text_porsant = sprintf($textbotlang['hardcoded']['purchaseCommissionInfo'], $Percent_porsant);
     }
-    $textaffiliates = sprintf($textbotlang['hardcoded']['index_0111'], $text_start, $text_porsant, $user['affiliatescount'], $inforefral['orders'], $sum_order);
+    $textaffiliates = sprintf($textbotlang['hardcoded']['affiliateWelcomeGiftInfo'], $text_start, $text_porsant, $user['affiliatescount'], $inforefral['orders'], $sum_order);
 
     sendmessage($from_id, $textaffiliates, $keyboard_share, 'HTML');
 } elseif ($datain == "get_gift_start") {
@@ -5757,7 +5757,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
     }
     update("reagent_report", "get_gift", true, "user_id", $from_id);
     if ($reagent['get_gift']) {
-        sendmessage($from_id, $textbotlang['hardcoded']['index_0112'], $keyboard, 'HTML');
+        sendmessage($from_id, $textbotlang['hardcoded']['membershipGiftAlreadyClaimed'], $keyboard, 'HTML');
         return;
     }
     $reagent['get_gift'] = true;
@@ -5771,7 +5771,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
     $addbalancediscount = number_format($price_gift_Start, 0);
     sendmessage($reagent['reagent'], $textbotlang['extracted']['index_php']['affiliateJoinedGift'], null, 'html');
     sendmessage($from_id, $textbotlang['extracted']['index_php']['affiliateJoinGiftActivated'], null, 'html');
-    $report_join_gift = sprintf($textbotlang['hardcoded']['index_0113'], $from_id, $username, $reagent['reagent'], $user['Balance'], $Balance_add_user, $useraffiliates['Balance'], $Balance_add_regent);
+    $report_join_gift = sprintf($textbotlang['hardcoded']['membershipGiftPaidLog'], $from_id, $username, $reagent['reagent'], $user['Balance'], $Balance_add_user, $useraffiliates['Balance'], $Balance_add_regent);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -5885,7 +5885,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
     $extra_volume = $ManagePanel->extra_volume($user['Processing_value'], $marzban_list_get['code_panel'], $data_limit_new);
     if ($extra_volume['status'] == false) {
         $extra_volume['msg'] = json_encode($extra_volume['msg']);
-        $textreports = sprintf($textbotlang['hardcoded']['index_0114'], $user['Processing_value_one'], $user['Processing_value'], $extra_volume['msg']);
+        $textreports = sprintf($textbotlang['hardcoded']['extraVolumeError2'], $user['Processing_value_one'], $user['Processing_value'], $extra_volume['msg']);
         sendmessage($from_id, $textbotlang['extracted']['index_php']['extraVolumeServiceError'], null, 'HTML');
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
@@ -6078,7 +6078,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
         sendmessage($from_id, $textbotlang['extracted']['index_php']['buttonDisabledForYou'], null, 'HTML');
         return;
     }
-    $stmt = $pdo->prepare($textbotlang['hardcoded']['index_0115']);
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != 'سرویس تست'  AND id_user = :id_user AND status != 'Unpaid'");
     $stmt->bindParam(':id_user', $from_id);
     $stmt->execute();
     $countinvoice = $stmt->rowCount();
@@ -6392,7 +6392,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
     sendmessage($from_id, $textbotlang['users']['note']['changednote'], $backinfoss, "html");
     step("home", $from_id);
     $timejalali = jdate('Y/m/d H:i:s');
-    $textreport = sprintf($textbotlang['hardcoded']['index_0116'], $invoice['username'], $invoice['note'], $text, $timejalali);
+    $textreport = sprintf($textbotlang['hardcoded']['serviceNoteChangedAdmin'], $invoice['username'], $invoice['note'], $text, $timejalali);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -6560,7 +6560,7 @@ if (isset($update['message']['successful_payment'])) {
     $extend = $ManagePanel->extend($marzban_list_get['Methodextend'], $prodcut['Volume_constraint'], $prodcut['Service_time'], $usernamePanelExtends, $prodcut['code_product'], $marzban_list_get['code_panel']);
     if ($extend['status'] == false) {
         $extend['msg'] = json_encode($extend['msg']);
-        $textreports = sprintf($textbotlang['hardcoded']['index_0117'], $marzban_list_get['name_panel'], $usernamePanelExtends, $extend['msg']);
+        $textreports = sprintf($textbotlang['hardcoded']['renewServiceError2'], $marzban_list_get['name_panel'], $usernamePanelExtends, $extend['msg']);
         sendmessage($from_id, $textbotlang['extracted']['index_php']['renewServiceError'], null, 'HTML');
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
@@ -6593,7 +6593,7 @@ if (isset($update['message']['successful_payment'])) {
     ]);
     $prodcut['price_product'] = number_format($prodcut['price_product']);
     $balanceformatsell = number_format(select("user", "Balance", "id", $from_id, "select")['Balance'], 0);
-    $textextend = sprintf($textbotlang['hardcoded']['index_0118'], $usernamePanelExtends, $prodcut['name_product'], $prodcut['price_product']);
+    $textextend = sprintf($textbotlang['hardcoded']['renewServiceSuccess2'], $usernamePanelExtends, $prodcut['name_product'], $prodcut['price_product']);
     sendmessage($from_id, $textextend, $keyboard, 'HTML');
     $timejalali = jdate('Y/m/d H:i:s');
     $text_report = sprintf($textbotlang['Admin']['reportgroup']['renewalDetails'], $from_id, $username, $usernamePanelExtends, $first_name, $marzban_list_get['name_panel'], $prodcut['name_product'], $prodcut['Volume_constraint'], $prodcut['Service_time'], $prodcut['price_product'], $balanceformatsell, $timejalali);

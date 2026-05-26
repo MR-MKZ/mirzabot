@@ -26,7 +26,7 @@ if ($method == "POST" && is_array($keyboard)) {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><?= $textbotlang['panel']['keyboard_html_0001'] ?></title>
+    <title><?= $textbotlang['panel']['keyboardManageTitle'] ?></title>
 
     <script type="module" crossorigin src="js/sort_keyboard.js"></script>
     <link rel="stylesheet" crossorigin href="css/sort_keyboard.css">
@@ -71,8 +71,8 @@ if ($method == "POST" && is_array($keyboard)) {
 </head>
 
 <body>
-    <a class="btnback" href="index.php"><?= $textbotlang['panel']['keyboard_html_0002'] ?></a>
-    <a class="btndefult" href="keyboard.php?action=reaset"><?= $textbotlang['panel']['keyboard_html_0003'] ?></a>
+    <a class="btnback" href="index.php"><?= $textbotlang['panel']['keyboardSortHint'] ?></a>
+    <a class="btndefult" href="keyboard.php?action=reaset"><?= $textbotlang['panel']['keyboardSaveBtn'] ?></a>
     <div id="root"></div>
 </body>
 

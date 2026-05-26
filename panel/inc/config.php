@@ -66,7 +66,7 @@ function csrf_check_post(): void
     $token = $_POST['_csrf'] ?? '';
     if (!hash_equals($_SESSION['csrf'] ?? '', $token)) {
         http_response_code(403);
-        die($textbotlang['panel']['config_invalid_request']);
+        die($textbotlang['panel']['configInvalidRequest']);
     }
 }
 
@@ -76,7 +76,7 @@ function csrf_check_get(): void
     $token = $_GET['_csrf'] ?? '';
     if (!hash_equals($_SESSION['csrf'] ?? '', $token)) {
         http_response_code(403);
-        die($textbotlang['panel']['config_invalid_request']);
+        die($textbotlang['panel']['configInvalidRequest']);
     }
 }
 
@@ -133,10 +133,10 @@ function user_role_label(string $agent): string
 {
     global $textbotlang;
     return match ($agent) {
-        'n' => $textbotlang['panel']['config_role_n'],
-        'n2' => $textbotlang['panel']['config_role_n2'],
-        'all' => $textbotlang['panel']['config_role_all'],
-        default => $textbotlang['panel']['config_role_default'],
+        'n' => $textbotlang['panel']['configRoleN'],
+        'n2' => $textbotlang['panel']['configRoleN2'],
+        'all' => $textbotlang['panel']['configRoleAll'],
+        default => $textbotlang['panel']['configRoleDefault'],
     };
 }
 

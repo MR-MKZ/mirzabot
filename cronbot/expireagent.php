@@ -14,11 +14,11 @@ $stmt->execute();
 while ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $time_expire = $user['expire'] - time();
     if($time_expire < 0){
-    $textexpire = $textbotlang['hardcoded']['cron_expagent_0001'];
+    $textexpire = $textbotlang['hardcoded']['agentExpiredNotice'];
     sendmessage($user['id'],$textexpire, null, 'HTML');
     update("user","agent","f","id",$user['id']);
     update("user","expire",null,"id",$user['id']);
-    $textreport = sprintf($textbotlang['hardcoded']['cron_expagent_0002'], $user['id'], $user['username']);
+    $textreport = sprintf($textbotlang['hardcoded']['agentExpiredGroupChangedLog'], $user['id'], $user['username']);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
             'chat_id' => $setting['Channel_Report'],

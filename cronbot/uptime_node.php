@@ -23,7 +23,7 @@ $Getdnodes = json_decode($Getdnodes['body'],true);
 if(count($Getdnodes) == 0)return;
 foreach($Getdnodes as $data){
     if(!in_array($data['status'],["connected","disabled"])){
-            $textnode = sprintf($textbotlang['hardcoded']['cron_uptnode_0001'], $data['name'], $data['status'], $data['message']);
+            $textnode = sprintf($textbotlang['hardcoded']['nodeDownNotice'], $data['name'], $data['status'], $data['message']);
         if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
         'chat_id' => $setting['Channel_Report'],

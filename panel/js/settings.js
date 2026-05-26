@@ -4,7 +4,7 @@ window.pickTheme = function (t) {
         c.classList.toggle('active', c.dataset.tk === t);
     });
     var nameEl = document.querySelector('[data-tk="' + t + '"] .theme-name');
-    toast(window.t('js_theme_activated', { name: (nameEl ? nameEl.textContent : t) }), 'info', 2200);
+    toast(window.t('jsThemeActivated', { name: (nameEl ? nameEl.textContent : t) }), 'info', 2200);
 };
 
 window.setSidebarMode = function (collapsed) {
@@ -20,7 +20,7 @@ window.setSidebarMode = function (collapsed) {
     });
     var btn = document.getElementById(collapsed ? 'modeCollapsed' : 'modeExpanded');
     if (btn) { btn.style.borderColor = 'var(--ac)'; btn.style.color = 'var(--ac)'; }
-    toast(collapsed ? window.t('js_sidebar_collapsed') : window.t('js_sidebar_expanded'), 'info', 1800);
+    toast(collapsed ? window.t('jsSidebarCollapsed') : window.t('jsSidebarExpanded'), 'info', 1800);
 };
 
 window.togglePw = function (id, btn) {
@@ -48,16 +48,16 @@ window.checkPwStr = function (val) {
     if (/[^A-Za-z0-9]/.test(val)) score++;
 
     var levels = [
-        { w: '0%', c: 'var(--no)', t: window.t('js_pw_very_weak') },
-        { w: '25%', c: 'var(--no)', t: window.t('js_pw_weak') },
-        { w: '50%', c: 'var(--warn)', t: window.t('js_pw_medium') },
-        { w: '75%', c: 'var(--ok)', t: window.t('js_pw_good') },
-        { w: '100%', c: 'var(--ok)', t: window.t('js_pw_excellent') },
+        { w: '0%', c: 'var(--no)', t: window.t('jsPwVeryWeak') },
+        { w: '25%', c: 'var(--no)', t: window.t('jsPwWeak') },
+        { w: '50%', c: 'var(--warn)', t: window.t('jsPwMedium') },
+        { w: '75%', c: 'var(--ok)', t: window.t('jsPwGood') },
+        { w: '100%', c: 'var(--ok)', t: window.t('jsPwExcellent') },
     ];
     var lv = levels[Math.min(score, 4)];
     bar.style.width = lv.w;
     bar.style.background = lv.c;
-    hint.textContent = val.length ? lv.t : window.t('js_pw_min_hint');
+    hint.textContent = val.length ? lv.t : window.t('jsPwMinHint');
     hint.style.color = lv.c;
 };
 

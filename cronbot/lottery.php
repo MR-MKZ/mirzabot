@@ -41,7 +41,7 @@ if (intval($setting['scorestatus']) == 1) {
         $stmt->execute();
 
         $count = 0;
-        $textlotterygroup = $textbotlang['hardcoded']['cron_lottery_0001'];
+        $textlotterygroup = $textbotlang['hardcoded']['lotteryAdminReport'];
 
         $textJson = json_decode(file_get_contents('../text.json'), true);
         if (!is_array($textJson)) {
@@ -68,10 +68,10 @@ if (intval($setting['scorestatus']) == 1) {
             $balanceFormatted = number_format($prizeAmount);
             $rank = $count + 1;
 
-            $textlottery = sprintf($textbotlang['hardcoded']['cron_lottery_0002'], $rank, $balanceFormatted);
+            $textlottery = sprintf($textbotlang['hardcoded']['lotteryWinnerNotice'], $rank, $balanceFormatted);
             sendmessage($result['id'], $textlottery, null, 'html');
 
-            $textlotterygroup .= sprintf($textbotlang['hardcoded']['cron_lottery_0003'], $result['username'], $result['id'], $balanceFormatted, $rank);
+            $textlotterygroup .= sprintf($textbotlang['hardcoded']['lotteryWinnerRow'], $result['username'], $result['id'], $balanceFormatted, $rank);
 
             $count++;
         }

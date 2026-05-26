@@ -674,11 +674,11 @@ function formatBytes($bytes, $precision = 2): string
     $base = log($bytes, 1024);
     $power = $bytes > 0 ? floor($base) : 0;
     $suffixes = [
-        $textbotlang['hardcoded']['function_0044'],
-        $textbotlang['hardcoded']['function_0045'],
-        $textbotlang['hardcoded']['function_0046'],
-        $textbotlang['hardcoded']['function_0047'],
-        $textbotlang['hardcoded']['function_0048'],
+        $textbotlang['hardcoded']['unitByte'],
+        $textbotlang['hardcoded']['unitKilobyte'],
+        $textbotlang['hardcoded']['unitMegabyte'],
+        $textbotlang['hardcoded']['unitGigabyteFn'],
+        $textbotlang['hardcoded']['unitTerabyte'],
     ];
     return round(pow(1024, $base - $power), $precision) . ' ' . $suffixes[$power];
 }
@@ -801,8 +801,8 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $balance = $Balance_id['Balance'] + $Payment_report['price'];
             update("user", "Balance", $balance, "id", $Balance_id['id']);
             sendmessage($Balance_id['id'], $textbotlang['users']['sell']['errorConfig'], $keyboard, 'HTML');
-            sendmessage($Balance_id['id'], sprintf($textbotlang['hardcoded']['function_0003'], $balance), $keyboard, 'HTML');
-            $texterros = sprintf($textbotlang['hardcoded']['function_0004'], $dataoutput['msg'], $Balance_id['id'], $Balance_id['username'], $marzban_list_get['name_panel']);
+            sendmessage($Balance_id['id'], sprintf($textbotlang['hardcoded']['serviceCreateFailedRefund'], $balance), $keyboard, 'HTML');
+            $texterros = sprintf($textbotlang['hardcoded']['configCreateError'], $dataoutput['msg'], $Balance_id['id'], $Balance_id['username'], $marzban_list_get['name_panel']);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -855,7 +855,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $stmt->bindParam(':id_user', $Balance_id['id']);
             $stmt->bindParam(':code', $partsdic[1]);
             $stmt->execute();
-            $text_report = sprintf($textbotlang['hardcoded']['function_0005'], $Balance_id['username'], $Balance_id['id'], $partsdic[1]);
+            $text_report = sprintf($textbotlang['hardcoded']['discountCodeUsedAdmin'], $Balance_id['username'], $Balance_id['id'], $partsdic[1]);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -866,7 +866,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         }
         $affiliatescommission = select("affiliates", "*", null, null, "select");
         $marzbanporsant_one_buy = select("affiliates", "*", null, null, "select");
-        $stmt = $pdo->prepare($textbotlang['hardcoded']['function_0006']);
+        $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != 'سرویس تست'  AND id_user = :id_user AND Status != 'Unpaid'");
         $stmt->bindParam(':id_user', $Balance_id['id']);
         $stmt->execute();
         $countinvoice = $stmt->rowCount();
@@ -884,8 +884,8 @@ function DirectPayment($order_id, $image = 'images.jpg')
                     $dateacc = date('Y/m/d H:i:s');
                     update("user", "Balance", $Balance_prim, "id", $Balance_id['affiliates']);
                     $result = number_format($result);
-                    $textadd = sprintf($textbotlang['hardcoded']['function_0008'], $result);
-                    $textreportport = sprintf($textbotlang['hardcoded']['function_0009'], $result, $Balance_id['affiliates'], $Balance_id['id'], $dateacc);
+                    $textadd = sprintf($textbotlang['hardcoded']['affiliateCommissionPaidUserFn'], $result);
+                    $textreportport = sprintf($textbotlang['hardcoded']['affiliateCommissionPaidLogFn'], $result, $Balance_id['affiliates'], $Balance_id['id'], $dateacc);
                     if (strlen($setting['Channel_Report']) > 0) {
                         telegram('sendmessage', [
                             'chat_id' => $setting['Channel_Report'],
@@ -909,8 +909,8 @@ function DirectPayment($order_id, $image = 'images.jpg')
                 $dateacc = date('Y/m/d H:i:s');
                 update("user", "Balance", $Balance_prim, "id", $Balance_id['affiliates']);
                 $result = number_format($result);
-                $textadd = sprintf($textbotlang['hardcoded']['function_0011'], $result);
-                $textreportport = sprintf($textbotlang['hardcoded']['function_0012'], $result, $Balance_id['affiliates'], $Balance_id['id'], $dateacc);
+                $textadd = sprintf($textbotlang['hardcoded']['affiliateCommissionPaidUserFn2'], $result);
+                $textreportport = sprintf($textbotlang['hardcoded']['affiliateCommissionPaidLogFn2'], $result, $Balance_id['affiliates'], $Balance_id['id'], $dateacc);
                 if (strlen($setting['Channel_Report']) > 0) {
                     telegram('sendmessage', [
                         'chat_id' => $setting['Channel_Report'],
@@ -949,7 +949,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
                 ],
             ]
         ]);
-        $text_report = sprintf($textbotlang['hardcoded']['function_0014'], $textonebuy, $Balance_id['id'], $Balance_id['username'], $username_ac, $get_invoice['Service_location'], $get_invoice['Service_time'], $get_invoice['name_product'], $get_invoice['Volume'], $balancebefore, $balanceformatsell, $get_invoice['id_invoice'], $Balance_id['agent'], $Balance_id['number'], $get_invoice['price_product'], $Payment_report['price'], $timejalali);
+        $text_report = sprintf($textbotlang['hardcoded']['accountCreateReportAfterPay'], $textonebuy, $Balance_id['id'], $Balance_id['username'], $username_ac, $get_invoice['Service_location'], $get_invoice['Service_time'], $get_invoice['name_product'], $get_invoice['Volume'], $balancebefore, $balanceformatsell, $get_invoice['id_invoice'], $Balance_id['agent'], $Balance_id['number'], $get_invoice['price_product'], $Payment_report['price'], $timejalali);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -967,7 +967,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         update("invoice", "Status", "active", "username", $get_invoice['username']);
         if ($Payment_report['Payment_Method'] == "cart to cart" or $Payment_report['Payment_Method'] == "arze digital offline") {
             update("invoice", "Status", "active", "id_invoice", $get_invoice['id_invoice']);
-            $textconfrom = sprintf($textbotlang['hardcoded']['function_0016'], $username_ac, $get_invoice['Service_location'], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart, $Payment_report['dec_not_confirmed']);
+            $textconfrom = sprintf($textbotlang['hardcoded']['paymentConfirmedNewService'], $username_ac, $get_invoice['Service_location'], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart, $Payment_report['dec_not_confirmed']);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
     } elseif ($steppay[0] == "getextenduser") {
@@ -983,7 +983,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         $data_order = $stmt->fetch(PDO::FETCH_ASSOC);
         $service_other = $data_order;
         if ($service_other == false) {
-            sendmessage($Balance_id['id'], $textbotlang['hardcoded']['function_0043'], $keyboard, 'HTML');
+            sendmessage($Balance_id['id'], $textbotlang['hardcoded']['renewGenericError'], $keyboard, 'HTML');
             return;
         }
         $service_other = json_decode($service_other['value'], true);
@@ -1001,7 +1001,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $stmt->execute();
             $prodcut = $stmt->fetch(PDO::FETCH_ASSOC);
         }
-        if ($nameloc['name_product'] == $textbotlang['hardcoded']['function_0017']) {
+        if ($nameloc['name_product'] == $textbotlang['hardcoded']['testServiceNameFn']) {
             update("invoice", "name_product", $prodcut['name_product'], "id_invoice", $nameloc['id_invoice']);
             update("invoice", "price_product", $prodcut['price_product'], "id_invoice", $nameloc['id_invoice']);
         }
@@ -1014,9 +1014,9 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $balance = $Balance_id['Balance'] + $Payment_report['price'];
             update("user", "Balance", $balance, "id", $Balance_id['id']);
             sendmessage($Balance_id['id'], $textbotlang['users']['sell']['errorConfig'], $keyboard, 'HTML');
-            sendmessage($Balance_id['id'], sprintf($textbotlang['hardcoded']['function_0018'], $balance), $keyboard, 'HTML');
+            sendmessage($Balance_id['id'], sprintf($textbotlang['hardcoded']['serviceRenewFailedRefund'], $balance), $keyboard, 'HTML');
             $extend['msg'] = json_encode($extend['msg']);
-            $textreports = sprintf($textbotlang['hardcoded']['function_0019'], $marzban_list_get['name_panel'], $nameloc['username'], $extend['msg']);
+            $textreports = sprintf($textbotlang['hardcoded']['renewServiceErrorFn'], $marzban_list_get['name_panel'], $nameloc['username'], $extend['msg']);
             sendmessage($nameloc['id_user'], $textbotlang['extracted']['index_php']['renewServiceError'], null, 'HTML');
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
@@ -1040,7 +1040,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $stmt->bindParam(':id_user', $Balance_id['id']);
             $stmt->bindParam(':code', $partsdic[1]);
             $stmt->execute();
-            $text_report = sprintf($textbotlang['hardcoded']['function_0021'], $Balance_id['username'], $Balance_id['id'], $partsdic[1]);
+            $text_report = sprintf($textbotlang['hardcoded']['discountCodeUsedAdminFn'], $Balance_id['username'], $Balance_id['id'], $partsdic[1]);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -1068,10 +1068,10 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $result = ($prodcut['price_product'] * $valurcashbackextend) / 100;
             $pricelastextend = $result;
             update("user", "Balance", $pricelastextend, "id", $Balance_id['id']);
-            sendmessage($Balance_id['id'], sprintf($textbotlang['hardcoded']['function_0022'], $result), null, 'HTML');
+            sendmessage($Balance_id['id'], sprintf($textbotlang['hardcoded']['renewGiftChargedFn'], $result), null, 'HTML');
         }
         $priceproductformat = number_format($prodcut['price_product']);
-        $textextend = sprintf($textbotlang['hardcoded']['function_0023'], $usernamepanel, $prodcut['name_product'], $priceproductformat);
+        $textextend = sprintf($textbotlang['hardcoded']['renewServiceSuccessFn'], $usernamepanel, $prodcut['name_product'], $priceproductformat);
         sendmessage($Balance_id['id'], $textextend, $keyboardextendfnished, 'HTML');
         if (intval($setting['scorestatus']) == 1 and !in_array($Balance_id['id'], $admin_ids)) {
             sendmessage($Balance_id['id'], $textbotlang['extracted']['index_php']['earned2Points'], null, 'html');
@@ -1079,7 +1079,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
             update("user", "score", $scorenew, "id", $Balance_id['id']);
         }
         $timejalali = jdate('Y/m/d H:i:s');
-        $text_report = sprintf($textbotlang['hardcoded']['function_0025'], $Balance_id['id'], $Balance_id['username'], $usernamepanel, $nameloc['Service_location'], $prodcut['name_product'], $prodcut['Volume_constraint'], $prodcut['Service_time'], $priceproductformat, $balanceformatsell, $timejalali);
+        $text_report = sprintf($textbotlang['hardcoded']['renewReportAdminFn'], $Balance_id['id'], $Balance_id['username'], $usernamepanel, $nameloc['Service_location'], $prodcut['name_product'], $prodcut['Volume_constraint'], $prodcut['Service_time'], $priceproductformat, $balanceformatsell, $timejalali);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -1091,7 +1091,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         update("invoice", "Status", "active", "id_invoice", $nameloc['id_invoice']);
         if ($Payment_report['Payment_Method'] == "cart to cart" or $Payment_report['Payment_Method'] == "arze digital offline") {
 
-            $textconfrom = sprintf($textbotlang['hardcoded']['function_0026'], $usernamepanel, $prodcut['name_product'], $nameloc['Service_location'], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart, $Payment_report['dec_not_confirmed']);
+            $textconfrom = sprintf($textbotlang['hardcoded']['paymentConfirmedRenew'], $usernamepanel, $prodcut['name_product'], $nameloc['Service_location'], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart, $Payment_report['dec_not_confirmed']);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
     } elseif ($steppay[0] == "getextravolumeuser") {
@@ -1116,7 +1116,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         $extra_volume = $ManagePanel->extra_volume($nameloc['username'], $marzban_list_get['code_panel'], $volume);
         if ($extra_volume['status'] == false) {
             $extra_volume['msg'] = json_encode($extra_volume['msg']);
-            $textreports = sprintf($textbotlang['hardcoded']['function_0027'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_volume['msg']);
+            $textreports = sprintf($textbotlang['hardcoded']['extraVolumeErrorFn'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_volume['msg']);
             sendmessage($nameloc['id_user'], $textbotlang['extracted']['index_php']['extraVolumeServiceError'], null, 'HTML');
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
@@ -1150,15 +1150,15 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $scorenew = $Balance_id['score'] + 1;
             update("user", "score", $scorenew, "id", $Balance_id['id']);
         }
-        $textvolume = sprintf($textbotlang['hardcoded']['function_0030'], $steppay[0], $volume, $volumesformat);
+        $textvolume = sprintf($textbotlang['hardcoded']['extraVolumeSuccessFn'], $steppay[0], $volume, $volumesformat);
         sendmessage($Balance_id['id'], $textvolume, $keyboardextrafnished, 'HTML');
         $volumes = $volume;
         if ($Payment_report['Payment_Method'] == "cart to cart") {
-            $textconfrom = sprintf($textbotlang['hardcoded']['function_0031'], $volumes, $steppay[0], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart);
+            $textconfrom = sprintf($textbotlang['hardcoded']['paymentConfirmedExtraVolume'], $volumes, $steppay[0], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
         update("invoice", "Status", "active", "id_invoice", $nameloc['id_invoice']);
-        $text_report = sprintf($textbotlang['hardcoded']['function_0032'], $Balance_id['id'], $volumes, $Payment_report['price'], $steppay[0], $Balance_id['Balance']);
+        $text_report = sprintf($textbotlang['hardcoded']['extraVolumeReportAdminFn'], $Balance_id['id'], $volumes, $Payment_report['price'], $steppay[0], $Balance_id['Balance']);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -1191,7 +1191,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         $extra_time = $ManagePanel->extra_time($nameloc['username'], $marzban_list_get['code_panel'], $tmieextra);
         if ($extra_time['status'] == false) {
             $extra_time['msg'] = json_encode($extra_time['msg']);
-            $textreports = sprintf($textbotlang['hardcoded']['function_0033'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_time['msg']);
+            $textreports = sprintf($textbotlang['hardcoded']['extraTimeErrorFn'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_time['msg']);
             sendmessage($from_id, $textbotlang['extracted']['index_php']['extraVolumeServiceError'], null, 'HTML');
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
@@ -1225,15 +1225,15 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $scorenew = $Balance_id['score'] + 1;
             update("user", "score", $scorenew, "id", $Balance_id['id']);
         }
-        $textextratime = sprintf($textbotlang['hardcoded']['function_0036'], $steppay[0], $tmieextra, $volumesformat);
+        $textextratime = sprintf($textbotlang['hardcoded']['extraTimeSuccessFn'], $steppay[0], $tmieextra, $volumesformat);
         sendmessage($Balance_id['id'], $textextratime, $keyboardextrafnished, 'HTML');
         if ($Payment_report['Payment_Method'] == "cart to cart") {
             $volumes = $tmieextra;
-            $textconfrom = sprintf($textbotlang['hardcoded']['function_0037'], $volumes, $steppay[0], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart);
+            $textconfrom = sprintf($textbotlang['hardcoded']['paymentConfirmedExtraTime'], $volumes, $steppay[0], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
         update("invoice", "Status", "active", "id_invoice", $nameloc['id_invoice']);
-        $text_report = sprintf($textbotlang['hardcoded']['function_0038'], $Balance_id['id'], $volumes, $Payment_report['price'], $steppay[0]);
+        $text_report = sprintf($textbotlang['hardcoded']['extraTimeReportAdminFn'], $Balance_id['id'], $volumes, $Payment_report['price'], $steppay[0]);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -1248,10 +1248,10 @@ function DirectPayment($order_id, $image = 'images.jpg')
         $Payment_report['price'] = number_format($Payment_report['price'], 0);
         $format_price_cart = $Payment_report['price'];
         if ($Payment_report['Payment_Method'] == "cart to cart" or $Payment_report['Payment_Method'] == "arze digital offline") {
-            $textconfrom = sprintf($textbotlang['hardcoded']['function_0039'], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $format_price_cart, $Balance_id['Balance'], $Payment_report['dec_not_confirmed']);
+            $textconfrom = sprintf($textbotlang['hardcoded']['newPaymentBalanceChargeFn'], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $format_price_cart, $Balance_id['Balance'], $Payment_report['dec_not_confirmed']);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
-        sendmessage($Payment_report['id_user'], sprintf($textbotlang['hardcoded']['function_0040'], $Payment_report['price'], $Payment_report['id_order']), null, 'HTML');
+        sendmessage($Payment_report['id_user'], sprintf($textbotlang['hardcoded']['balanceChargedThanks'], $Payment_report['price'], $Payment_report['id_order']), null, 'HTML');
     }
 }
 function plisio($order_id, $price)
@@ -1794,7 +1794,7 @@ function sendMessageService($panel_info, $config, $sub_link, $username_service, 
     }
     if ($panel_info['config'] == "onconfig" && $setting['status_keyboard_config'] == "1") {
         if (is_array($config)) {
-            sendmessage($user_id, $textbotlang['hardcoded']['function_0041'], keyboard_config($config, $invoice_id, false), 'HTML');
+            sendmessage($user_id, $textbotlang['hardcoded']['getConfigHint'], keyboard_config($config, $invoice_id, false), 'HTML');
         }
     }
 }
@@ -1803,7 +1803,7 @@ function isValidInvitationCode($setting, $fromId, $verfy_status)
     global $textbotlang;
 
     if ($setting['verifybucodeuser'] == "onverify" && $verfy_status != 1) {
-        sendmessage($fromId, $textbotlang['hardcoded']['function_0042'], null, 'html');
+        sendmessage($fromId, $textbotlang['hardcoded']['accountVerifiedSuccess'], null, 'html');
         update("user", "verify", "1", "id", $fromId);
         update("user", "cardpayment", "1", "id", $fromId);
     }

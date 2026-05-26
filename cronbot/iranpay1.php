@@ -27,10 +27,10 @@ while ($Payment_report = mysqli_fetch_assoc($list_service)) {
         $result = ($Payment_report['price'] * $pricecashback) / 100;
         $Balance_confrim = intval($Balance_id['Balance']) +$result ;
         update("user","Balance",$Balance_confrim, "id",$Balance_id['id']); 
-        $text_report = sprintf($textbotlang['hardcoded']['cron_iranpay1_0001'], $result);
+        $text_report = sprintf($textbotlang['hardcoded']['iranpayGiftDepositNotice'], $result);
         sendmessage($Balance_id['id'], $text_report, null, 'HTML');
     }
-        $text_reportpayment = sprintf($textbotlang['hardcoded']['cron_iranpay1_0002'], $Balance_id['username'], $Balance_id['id'], $Payment_report['price']);
+        $text_reportpayment = sprintf($textbotlang['hardcoded']['iranpayNewPaymentLog'], $Balance_id['username'], $Balance_id['id'], $Payment_report['price']);
          if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
         'chat_id' => $setting['Channel_Report'],

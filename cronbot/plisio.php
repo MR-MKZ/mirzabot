@@ -33,7 +33,7 @@ while ($row = mysqli_fetch_assoc($list_service)) {
     if($Payment_report['dec_not_confirmed'] == null)continue;
     $StatusPayment = statusplisio($Payment_report['id_order']);
     if($StatusPayment['data']['operations'][0]['status'] == null || $StatusPayment['data']['operations'][0]['status'] == "cancelled"){
-    $textexpire = sprintf($textbotlang['hardcoded']['cron_plisio_0001'], $Payment_report['id_order'], $Payment_report['price']);
+    $textexpire = sprintf($textbotlang['hardcoded']['plisioTransactionExpired'], $Payment_report['id_order'], $Payment_report['price']);
     sendmessage($Payment_report['id_user'], $textexpire, null, 'html');
     update("Payment_report","payment_Status","expire","id_order",$Payment_report['id_order']);
 }
@@ -46,10 +46,10 @@ while ($row = mysqli_fetch_assoc($list_service)) {
         $Balance_confrim = intval($Balance_id['Balance']) +$result;
         update("user","Balance",$Balance_confrim, "id",$Balance_id['id']); 
         $pricecashback =  number_format($pricecashback);
-        $text_report = sprintf($textbotlang['hardcoded']['cron_plisio_0002'], $result);
+        $text_report = sprintf($textbotlang['hardcoded']['plisioGiftDepositNotice'], $result);
         sendmessage($Balance_id['id'], $text_report, null, 'HTML');
     }
-    $text_reportpayment = sprintf($textbotlang['hardcoded']['cron_plisio_0003'], $Balance_id['username'], $Balance_id['id'], $Payment_report['price'], $StatusPayment['tx_url'][0], $StatusPayment['invoice_url'], $StatusPayment['invoice_total_sum']);
+    $text_reportpayment = sprintf($textbotlang['hardcoded']['plisioNewPaymentLog'], $Balance_id['username'], $Balance_id['id'], $Payment_report['price'], $StatusPayment['tx_url'][0], $StatusPayment['invoice_url'], $StatusPayment['invoice_total_sum']);
          if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
         'chat_id' => $setting['Channel_Report'],

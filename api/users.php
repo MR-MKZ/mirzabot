@@ -331,10 +331,10 @@ switch ($data['actions'] ?? '') {
         }
         if ($data['type_block'] == "block") {
             $typeblock = "block";
-            $text_report = sprintf($textbotlang['hardcoded']['api_users_0001'], $data['chat_id']);
+            $text_report = sprintf($textbotlang['hardcoded']['userBlockedByApiLog'], $data['chat_id']);
         } else {
-            $text_report = sprintf($textbotlang['hardcoded']['api_users_0002'], $data['chat_id']);
-            sendmessage($data['chat_id'], $textbotlang['hardcoded']['api_users_0003'], null, 'HTML');
+            $text_report = sprintf($textbotlang['hardcoded']['userUnblockedByApiLog'], $data['chat_id']);
+            sendmessage($data['chat_id'], $textbotlang['hardcoded']['accountUnblockedNotice'], null, 'HTML');
             $typeblock = "Active";
         }
         update("user", "description_blocking", $data['description'], "id", $data['chat_id']);
@@ -353,7 +353,7 @@ switch ($data['actions'] ?? '') {
             $type_verify = "0";
         } else {
             $type_verify = "1";
-            sendmessage($data['chat_id'], $textbotlang['hardcoded']['api_users_0004'], null, 'HTML');
+            sendmessage($data['chat_id'], $textbotlang['hardcoded']['accountVerifiedNotice'], null, 'HTML');
         }
         update("user", "verify", $type_verify, "id", $data['chat_id']);
         sendJsonResponse(true, "Successful");
@@ -390,7 +390,7 @@ switch ($data['actions'] ?? '') {
         $stmt->bindValue(':user_id', intval($data['chat_id']), PDO::PARAM_INT);
         $stmt->bindValue(':amount', intval($data['amount']), PDO::PARAM_INT);
         $stmt->execute();
-        $text_balance = sprintf($textbotlang['hardcoded']['api_users_0005'], $data['amount']);
+        $text_balance = sprintf($textbotlang['hardcoded']['balanceAddedNotice'], $data['amount']);
         sendmessage($data['chat_id'], $text_balance, null, 'html');
         sendJsonResponse(true, "Successful");
         break;
@@ -408,7 +408,7 @@ switch ($data['actions'] ?? '') {
         $stmt->bindValue(':user_id', intval($data['chat_id']), PDO::PARAM_INT);
         $stmt->bindValue(':amount', intval($data['amount']), PDO::PARAM_INT);
         $stmt->execute();
-        $text_balance = sprintf($textbotlang['hardcoded']['api_users_0006'], $data['amount']);
+        $text_balance = sprintf($textbotlang['hardcoded']['balanceDeductedNotice'], $data['amount']);
         sendmessage($data['chat_id'], $text_balance, null, 'html');
         sendJsonResponse(true, "Successful");
         break;
@@ -687,7 +687,7 @@ switch ($data['actions'] ?? '') {
         $new_code = str_replace('BotTokenNew', $data['token'], $contentconfig);
         file_put_contents($dirsource . "/config.php", $new_code);
         file_get_contents("https://api.telegram.org/bot{$data['token']}/setwebhook?url=https://$domainhosts/vpnbot/{$data['chat_id']}{$getInfoToken['result']['username']}/index.php");
-        file_get_contents(sprintf($textbotlang['hardcoded']['api_users_0007'], $data['token'], $data['chat_id']));
+        file_get_contents(sprintf($textbotlang['hardcoded']['botActivatedTelegramUrl'], $data['token'], $data['chat_id']));
         $datasetting = json_encode(array(
             "minpricetime" => 4000,
             "pricetime" => 4000,
@@ -695,7 +695,7 @@ switch ($data['actions'] ?? '') {
             "pricevolume" => 4000,
             "support_username" => "@support",
             "Channel_Report" => 0,
-            "cart_info" => $textbotlang['hardcoded']['api_users_0008'],
+            "cart_info" => $textbotlang['hardcoded']['cardPaymentInstruction'],
             'show_product' => true,
         ));
         $value = "{}";

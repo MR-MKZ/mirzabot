@@ -21,7 +21,7 @@ foreach($marzbanlist as $location){
     $port = empty($parsed_url['port']) ? 443 : $parsed_url['port'];
     if (!checkConnection($address, $port)) {
        foreach ($admin_ids as $admin) {
-            $textnode = sprintf($textbotlang['hardcoded']['cron_uptpanel_0001'], $location['name_panel']);
+            $textnode = sprintf($textbotlang['hardcoded']['panelDownNotice'], $location['name_panel']);
         sendmessage($admin, $textnode, null, 'html');
     }
     }

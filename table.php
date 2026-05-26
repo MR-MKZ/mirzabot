@@ -3,6 +3,7 @@ require_once 'function.php';
 require_once 'config.php';
 require_once 'botapi.php';
 global $connect;
+$textbotlang = json_decode(file_get_contents(__DIR__ . '/text.json'), true)['fa'];
 //-----------------------------------------------------------------
 try {
 
@@ -415,7 +416,7 @@ try {
         addFieldToTable("marzban_panel", "maxvolume", $valuemax, "VARCHAR(500)");
         addFieldToTable("marzban_panel", "maintime", $valuemain, "VARCHAR(500)");
         addFieldToTable("marzban_panel", "maxtime", $valuemax_time, "VARCHAR(500)");
-        addFieldToTable("marzban_panel", "MethodUsername", "آیدی عددی + حروف و عدد رندوم", "VARCHAR(100)");
+        addFieldToTable("marzban_panel", "MethodUsername", $textbotlang['keyboard']['numericIdRandom'], "VARCHAR(100)");
         addFieldToTable("marzban_panel", "datelogin", null, "TEXT");
         addFieldToTable("marzban_panel", "val_usertest", "100", "VARCHAR(50)");
         addFieldToTable("marzban_panel", "time_usertest", "1", "VARCHAR(50)");
@@ -427,7 +428,7 @@ try {
         addFieldToTable("marzban_panel", "linksubx", null, "VARCHAR(200)");
         addFieldToTable("marzban_panel", "conecton", "offconecton", "VARCHAR(100)");
         addFieldToTable("marzban_panel", "type", "marzban", "VARCHAR(50)");
-        addFieldToTable("marzban_panel", "Methodextend", "ریست حجم و زمان", "VARCHAR(100)");
+        addFieldToTable("marzban_panel", "Methodextend", $textbotlang['keyboard']['resetVolumeTime'], "VARCHAR(100)");
         addFieldToTable("marzban_panel", "namecustom", "vpn", "VARCHAR(100)");
         addFieldToTable("marzban_panel", "limit_panel", "unlimted", "VARCHAR(50)");
         addFieldToTable("marzban_panel", "TestAccount", "ONTestAccount", "VARCHAR(50)");
@@ -677,7 +678,7 @@ try {
         ['Cartstatus', 'oncard'],
         ['CartDirect', '@cart'],
         ['cardnumber', '603700000000'],
-        ['namecard', 'تنظیم نشده'],
+        ['namecard', $textbotlang['db_defaults']['namecardNotSet']],
         ['Cartstatuspv', 'offcardpv'],
         ['apinowpayment', '0'],
         ['nowpaymentstatus', 'offnowpayment'],
@@ -1122,7 +1123,7 @@ try {
             name_departman VARCHAR(600) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci");
         $stmt->execute();
-        $connect->query("INSERT INTO departman (idsupport,name_departman) VALUES ('$adminnumber','☎️ بخش عمومی')");
+        $connect->query("INSERT INTO departman (idsupport,name_departman) VALUES ('$adminnumber','" . $connect->real_escape_string($textbotlang['db_defaults']['departmanGeneral']) . "')");
     }
 } catch (PDOException $e) {
     file_put_contents('error_log departman', $e->getMessage());

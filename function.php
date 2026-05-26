@@ -670,9 +670,16 @@ function trnado($order_id, $price)
 }
 function formatBytes($bytes, $precision = 2): string
 {
+    global $textbotlang;
     $base = log($bytes, 1024);
     $power = $bytes > 0 ? floor($base) : 0;
-    $suffixes = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت', 'ترابایت'];
+    $suffixes = [
+        $textbotlang['hardcoded']['function_0044'],
+        $textbotlang['hardcoded']['function_0045'],
+        $textbotlang['hardcoded']['function_0046'],
+        $textbotlang['hardcoded']['function_0047'],
+        $textbotlang['hardcoded']['function_0048'],
+    ];
     return round(pow(1024, $base - $power), $precision) . ' ' . $suffixes[$power];
 }
 function generateUsername($from_id, $Metode, $username, $randomString, $text, $namecustome, $usernamecustom)
@@ -759,7 +766,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         $stmt->bindParam(':Service_location', $get_invoice['Service_location'], PDO::PARAM_STR);
         $stmt->execute();
         $info_product = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($get_invoice['name_product'] == "🛍 حجم دلخواه" || $get_invoice['name_product'] == "⚙️ سرویس دلخواه") {
+        if ($get_invoice['name_product'] == $textbotlang['extracted']['index_php']['customVolumeButton'] || $get_invoice['name_product'] == $textbotlang['extracted']['index_php']['customServiceButton']) {
             $info_product['data_limit_reset'] = "no_reset";
             $info_product['Volume_constraint'] = $get_invoice['Volume'];
             $info_product['name_product'] = $textbotlang['users']['customSellVolume']['title'];
@@ -794,14 +801,8 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $balance = $Balance_id['Balance'] + $Payment_report['price'];
             update("user", "Balance", $balance, "id", $Balance_id['id']);
             sendmessage($Balance_id['id'], $textbotlang['users']['sell']['errorConfig'], $keyboard, 'HTML');
-            sendmessage($Balance_id['id'], "💎  کاربر عزیز بدلیل ساخته نشدن سرویس مبلغ $balance تومان به کیف پول شما اضافه گردید.", $keyboard, 'HTML');
-            $texterros = "
-⭕️ خطا در ساخت کانفیگ
-✍️ دلیل خطا : 
-{$dataoutput['msg']}
-آیدی کابر : {$Balance_id['id']}
-نام کاربری کاربر : @{$Balance_id['username']}
-نام پنل : {$marzban_list_get['name_panel']}";
+            sendmessage($Balance_id['id'], sprintf($textbotlang['hardcoded']['function_0003'], $balance), $keyboard, 'HTML');
+            $texterros = sprintf($textbotlang['hardcoded']['function_0004'], $dataoutput['msg'], $Balance_id['id'], $Balance_id['username'], $marzban_list_get['name_panel']);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -854,7 +855,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $stmt->bindParam(':id_user', $Balance_id['id']);
             $stmt->bindParam(':code', $partsdic[1]);
             $stmt->execute();
-            $text_report = "⭕️ یک کاربر با نام کاربری @{$Balance_id['username']}  و آیدی عددی {$Balance_id['id']} از کد تخفیف {$partsdic[1]} استفاده کرد.";
+            $text_report = sprintf($textbotlang['hardcoded']['function_0005'], $Balance_id['username'], $Balance_id['id'], $partsdic[1]);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -865,7 +866,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         }
         $affiliatescommission = select("affiliates", "*", null, null, "select");
         $marzbanporsant_one_buy = select("affiliates", "*", null, null, "select");
-        $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != 'سرویس تست'  AND id_user = :id_user AND Status != 'Unpaid'");
+        $stmt = $pdo->prepare($textbotlang['hardcoded']['function_0006']);
         $stmt->bindParam(':id_user', $Balance_id['id']);
         $stmt->execute();
         $countinvoice = $stmt->rowCount();
@@ -875,7 +876,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
                     $result = ($Payment_report['price'] * $setting['affiliatespercentage']) / 100;
                     $user_Balance = select("user", "*", "id", $Balance_id['affiliates'], "select");
                     if (intval($setting['scorestatus']) == 1 and !in_array($Balance_id['affiliates'], $admin_ids)) {
-                        sendmessage($Balance_id['affiliates'], "📌شما 2 امتیاز جدید کسب کردید.", null, 'html');
+                        sendmessage($Balance_id['affiliates'], $textbotlang['extracted']['index_php']['earned2Points'], null, 'html');
                         $scorenew = $user_Balance['score'] + 2;
                         update("user", "score", $scorenew, "id", $Balance_id['affiliates']);
                     }
@@ -883,12 +884,8 @@ function DirectPayment($order_id, $image = 'images.jpg')
                     $dateacc = date('Y/m/d H:i:s');
                     update("user", "Balance", $Balance_prim, "id", $Balance_id['affiliates']);
                     $result = number_format($result);
-                    $textadd = "🎁  پرداخت پورسانت 
-        
-        مبلغ $result تومان به حساب شما از طرف  زیر مجموعه تان به کیف پول شما واریز گردید";
-                    $textreportport = "
-مبلغ $result به کاربر {$Balance_id['affiliates']} برای پورسانت از کاربر {$Balance_id['id']} واریز گردید 
-تایم : $dateacc";
+                    $textadd = sprintf($textbotlang['hardcoded']['function_0008'], $result);
+                    $textreportport = sprintf($textbotlang['hardcoded']['function_0009'], $result, $Balance_id['affiliates'], $Balance_id['id'], $dateacc);
                     if (strlen($setting['Channel_Report']) > 0) {
                         telegram('sendmessage', [
                             'chat_id' => $setting['Channel_Report'],
@@ -904,7 +901,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
                 $result = ($Payment_report['price'] * $setting['affiliatespercentage']) / 100;
                 $user_Balance = select("user", "*", "id", $Balance_id['affiliates'], "select");
                 if (intval($setting['scorestatus']) == 1 and !in_array($Balance_id['affiliates'], $admin_ids)) {
-                    sendmessage($Balance_id['affiliates'], "📌شما 2 امتیاز جدید کسب کردید.", null, 'html');
+                    sendmessage($Balance_id['affiliates'], $textbotlang['extracted']['index_php']['earned2Points'], null, 'html');
                     $scorenew = $user_Balance['score'] + 2;
                     update("user", "score", $scorenew, "id", $Balance_id['affiliates']);
                 }
@@ -912,12 +909,8 @@ function DirectPayment($order_id, $image = 'images.jpg')
                 $dateacc = date('Y/m/d H:i:s');
                 update("user", "Balance", $Balance_prim, "id", $Balance_id['affiliates']);
                 $result = number_format($result);
-                $textadd = "🎁  پرداخت پورسانت 
-        
-        مبلغ $result تومان به حساب شما از طرف  زیر مجموعه تان به کیف پول شما واریز گردید";
-                $textreportport = "
-مبلغ $result به کاربر {$Balance_id['affiliates']} برای پورسانت از کاربر {$Balance_id['id']} واریز گردید 
-تایم : $dateacc";
+                $textadd = sprintf($textbotlang['hardcoded']['function_0011'], $result);
+                $textreportport = sprintf($textbotlang['hardcoded']['function_0012'], $result, $Balance_id['affiliates'], $Balance_id['id'], $dateacc);
                 if (strlen($setting['Channel_Report']) > 0) {
                     telegram('sendmessage', [
                         'chat_id' => $setting['Channel_Report'],
@@ -947,7 +940,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         $timejalali = jdate('Y/m/d H:i:s');
         $textonebuy = "";
         if ($countinvoice == 1) {
-            $textonebuy = "📌 خرید اول کاربر";
+            $textonebuy = $textbotlang['extracted']['index_php']['firstPurchaseLabel'];
         }
         $Response = json_encode([
             'inline_keyboard' => [
@@ -956,24 +949,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
                 ],
             ]
         ]);
-        $text_report = "📣 جزئیات ساخت اکانت در ربات بعد پرداخت ثبت شد .
-
-$textonebuy
-▫️آیدی عددی کاربر : <code>{$Balance_id['id']}</code>
-▫️نام کاربری کاربر :@{$Balance_id['username']}
-▫️نام کاربری کانفیگ :$username_ac
-▫️لوکیشن سرویس : {$get_invoice['Service_location']}
-▫️زمان خریداری شده :{$get_invoice['Service_time']} روز
-▫️نام محصول خریداری شده :{$get_invoice['name_product']}
-▫️حجم خریداری شده : {$get_invoice['Volume']} GB
-▫️موجودی قبل خرید : $balancebefore تومان
-▫️موجودی بعد خرید : $balanceformatsell تومان
-▫️کد پیگیری: {$get_invoice['id_invoice']}
-▫️نوع کاربر : {$Balance_id['agent']}
-▫️شماره تلفن کاربر : {$Balance_id['number']}
-▫️قیمت محصول : {$get_invoice['price_product']} تومان
-▫️قیمت نهایی : {$Payment_report['price']} تومان
-▫️زمان خرید : $timejalali";
+        $text_report = sprintf($textbotlang['hardcoded']['function_0014'], $textonebuy, $Balance_id['id'], $Balance_id['username'], $username_ac, $get_invoice['Service_location'], $get_invoice['Service_time'], $get_invoice['name_product'], $get_invoice['Volume'], $balancebefore, $balanceformatsell, $get_invoice['id_invoice'], $Balance_id['agent'], $Balance_id['number'], $get_invoice['price_product'], $Payment_report['price'], $timejalali);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -984,25 +960,14 @@ $textonebuy
             ]);
         }
         if (intval($setting['scorestatus']) == 1 and !in_array($Balance_id['id'], $admin_ids)) {
-            sendmessage($Balance_id['id'], "📌شما 1 امتیاز جدید کسب کردید.", null, 'html');
+            sendmessage($Balance_id['id'], $textbotlang['extracted']['index_php']['earned1Point'], null, 'html');
             $scorenew = $Balance_id['score'] + 1;
             update("user", "score", $scorenew, "id", $Balance_id['id']);
         }
         update("invoice", "Status", "active", "username", $get_invoice['username']);
         if ($Payment_report['Payment_Method'] == "cart to cart" or $Payment_report['Payment_Method'] == "arze digital offline") {
             update("invoice", "Status", "active", "id_invoice", $get_invoice['id_invoice']);
-            $textconfrom = "✅ پرداخت تایید شده
- 🛍خرید سرویس 
- ▫️نام کاربری کانفیگ :$username_ac
-▫️لوکیشن سرویس : {$get_invoice['Service_location']}
-👤 شناسه کاربر: <code>{$Balance_id['id']}</code>
-🛒 کد پیگیری پرداخت: {$Payment_report['id_order']}
-⚜️ نام کاربری: @{$Balance_id['username']}
-💎 موجودی قبل خرید  : {$Balance_id['Balance']}
-💸 مبلغ پرداختی: $format_price_cart تومان
-✍️ توضیحات : {$Payment_report['dec_not_confirmed']}
-
-";
+            $textconfrom = sprintf($textbotlang['hardcoded']['function_0016'], $username_ac, $get_invoice['Service_location'], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart, $Payment_report['dec_not_confirmed']);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
     } elseif ($steppay[0] == "getextenduser") {
@@ -1018,7 +983,7 @@ $textonebuy
         $data_order = $stmt->fetch(PDO::FETCH_ASSOC);
         $service_other = $data_order;
         if ($service_other == false) {
-            sendmessage($Balance_id['id'], '❌ خطایی در هنگام تمدید رخ داده با پشتیبانی در ارتباط باشید', $keyboard, 'HTML');
+            sendmessage($Balance_id['id'], $textbotlang['hardcoded']['function_0043'], $keyboard, 'HTML');
             return;
         }
         $service_other = json_decode($service_other['value'], true);
@@ -1036,7 +1001,7 @@ $textonebuy
             $stmt->execute();
             $prodcut = $stmt->fetch(PDO::FETCH_ASSOC);
         }
-        if ($nameloc['name_product'] == "سرویس تست") {
+        if ($nameloc['name_product'] == $textbotlang['hardcoded']['function_0017']) {
             update("invoice", "name_product", $prodcut['name_product'], "id_invoice", $nameloc['id_invoice']);
             update("invoice", "price_product", $prodcut['price_product'], "id_invoice", $nameloc['id_invoice']);
         }
@@ -1049,14 +1014,10 @@ $textonebuy
             $balance = $Balance_id['Balance'] + $Payment_report['price'];
             update("user", "Balance", $balance, "id", $Balance_id['id']);
             sendmessage($Balance_id['id'], $textbotlang['users']['sell']['errorConfig'], $keyboard, 'HTML');
-            sendmessage($Balance_id['id'], "💎  کاربر عزیز بدلیل تمدید نشدن سرویس مبلغ $balance تومان به کیف پول شما اضافه گردید.", $keyboard, 'HTML');
+            sendmessage($Balance_id['id'], sprintf($textbotlang['hardcoded']['function_0018'], $balance), $keyboard, 'HTML');
             $extend['msg'] = json_encode($extend['msg']);
-            $textreports = "
-        خطای تمدید سرویس
-نام پنل : {$marzban_list_get['name_panel']}
-نام کاربری سرویس : {$nameloc['username']}
-دلیل خطا : {$extend['msg']}";
-            sendmessage($nameloc['id_user'], "❌خطایی در تمدید سرویس رخ داده با پشتیبانی در ارتباط باشید", null, 'HTML');
+            $textreports = sprintf($textbotlang['hardcoded']['function_0019'], $marzban_list_get['name_panel'], $nameloc['username'], $extend['msg']);
+            sendmessage($nameloc['id_user'], $textbotlang['extracted']['index_php']['renewServiceError'], null, 'HTML');
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -1079,7 +1040,7 @@ $textonebuy
             $stmt->bindParam(':id_user', $Balance_id['id']);
             $stmt->bindParam(':code', $partsdic[1]);
             $stmt->execute();
-            $text_report = "⭕️ یک کاربر با نام کاربری @{$Balance_id['username']}  و آیدی عددی {$Balance_id['id']} از کد تخفیف {$partsdic[1]} استفاده کرد.";
+            $text_report = sprintf($textbotlang['hardcoded']['function_0021'], $Balance_id['username'], $Balance_id['id'], $partsdic[1]);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -1107,35 +1068,18 @@ $textonebuy
             $result = ($prodcut['price_product'] * $valurcashbackextend) / 100;
             $pricelastextend = $result;
             update("user", "Balance", $pricelastextend, "id", $Balance_id['id']);
-            sendmessage($Balance_id['id'], "تبریک 🎉
-📌 به عنوان هدیه تمدید مبلغ $result تومان حساب شما شارژ گردید", null, 'HTML');
+            sendmessage($Balance_id['id'], sprintf($textbotlang['hardcoded']['function_0022'], $result), null, 'HTML');
         }
         $priceproductformat = number_format($prodcut['price_product']);
-        $textextend = "✅ تمدید برای سرویس شما با موفقیت صورت گرفت
- 
-▫️نام سرویس : $usernamepanel
-▫️نام محصول : {$prodcut['name_product']}
-▫️مبلغ تمدید $priceproductformat تومان
-";
+        $textextend = sprintf($textbotlang['hardcoded']['function_0023'], $usernamepanel, $prodcut['name_product'], $priceproductformat);
         sendmessage($Balance_id['id'], $textextend, $keyboardextendfnished, 'HTML');
         if (intval($setting['scorestatus']) == 1 and !in_array($Balance_id['id'], $admin_ids)) {
-            sendmessage($Balance_id['id'], "📌شما 2 امتیاز جدید کسب کردید.", null, 'html');
+            sendmessage($Balance_id['id'], $textbotlang['extracted']['index_php']['earned2Points'], null, 'html');
             $scorenew = $Balance_id['score'] + 2;
             update("user", "score", $scorenew, "id", $Balance_id['id']);
         }
         $timejalali = jdate('Y/m/d H:i:s');
-        $text_report = "📣 جزئیات تمدید اکانت در ربات شما ثبت شد .
-    
-▫️آیدی عددی کاربر : <code>{$Balance_id['id']}</code>
-▫️نام کاربری کاربر : @{$Balance_id['username']}
-▫️نام کاربری کانفیگ :$usernamepanel
-▫️موقعیت سرویس سرویس : {$nameloc['Service_location']}
-▫️نام محصول : {$prodcut['name_product']}
-▫️حجم محصول : {$prodcut['Volume_constraint']}
-▫️زمان محصول : {$prodcut['Service_time']}
-▫️مبلغ تمدید : $priceproductformat تومان
-▫️موجودی قبل از خرید : $balanceformatsell تومان
-▫️زمان خرید : $timejalali";
+        $text_report = sprintf($textbotlang['hardcoded']['function_0025'], $Balance_id['id'], $Balance_id['username'], $usernamepanel, $nameloc['Service_location'], $prodcut['name_product'], $prodcut['Volume_constraint'], $prodcut['Service_time'], $priceproductformat, $balanceformatsell, $timejalali);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -1147,19 +1091,7 @@ $textonebuy
         update("invoice", "Status", "active", "id_invoice", $nameloc['id_invoice']);
         if ($Payment_report['Payment_Method'] == "cart to cart" or $Payment_report['Payment_Method'] == "arze digital offline") {
 
-            $textconfrom = "✅ پرداخت تایید شده
-🔋 تمدید سرویس
-🪪 نام کاربری کانفیگ : $usernamepanel
-🛍 نام محصول : {$prodcut['name_product']}
-🌏 نام لوکیشن : {$nameloc['Service_location']}
-👤 شناسه کاربر: <code>{$Balance_id['id']}</code>
-🛒 کد پیگیری پرداخت: {$Payment_report['id_order']}
-⚜️ نام کاربری: @{$Balance_id['username']}
-💎 موجودی قبل تمدید  : {$Balance_id['Balance']}
-💸 مبلغ پرداختی: $format_price_cart تومان
-✍️ توضیحات : {$Payment_report['dec_not_confirmed']}
-
-";
+            $textconfrom = sprintf($textbotlang['hardcoded']['function_0026'], $usernamepanel, $prodcut['name_product'], $nameloc['Service_location'], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart, $Payment_report['dec_not_confirmed']);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
     } elseif ($steppay[0] == "getextravolumeuser") {
@@ -1184,11 +1116,8 @@ $textonebuy
         $extra_volume = $ManagePanel->extra_volume($nameloc['username'], $marzban_list_get['code_panel'], $volume);
         if ($extra_volume['status'] == false) {
             $extra_volume['msg'] = json_encode($extra_volume['msg']);
-            $textreports = "خطای خرید حجم اضافه
-نام پنل : {$marzban_list_get['name_panel']}
-نام کاربری سرویس : {$nameloc['username']}
-دلیل خطا : {$extra_volume['msg']}";
-            sendmessage($nameloc['id_user'], "❌خطایی در خرید حجم اضافه سرویس رخ داده با پشتیبانی در ارتباط باشید", null, 'HTML');
+            $textreports = sprintf($textbotlang['hardcoded']['function_0027'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_volume['msg']);
+            sendmessage($nameloc['id_user'], $textbotlang['extracted']['index_php']['extraVolumeServiceError'], null, 'HTML');
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -1217,41 +1146,19 @@ $textonebuy
         ]);
         $volumesformat = number_format($Payment_report['price'], 0);
         if (intval($setting['scorestatus']) == 1 and !in_array($Balance_id['id'], $admin_ids)) {
-            sendmessage($Balance_id['id'], "📌شما 1 امتیاز جدید کسب کردید.", null, 'html');
+            sendmessage($Balance_id['id'], $textbotlang['extracted']['index_php']['earned1Point'], null, 'html');
             $scorenew = $Balance_id['score'] + 1;
             update("user", "score", $scorenew, "id", $Balance_id['id']);
         }
-        $textvolume = "✅ افزایش حجم برای سرویس شما با موفقیت صورت گرفت
- 
-▫️نام سرویس  : {$steppay[0]}
-▫️حجم اضافه : $volume گیگ
-
-▫️مبلغ افزایش حجم : $volumesformat تومان";
+        $textvolume = sprintf($textbotlang['hardcoded']['function_0030'], $steppay[0], $volume, $volumesformat);
         sendmessage($Balance_id['id'], $textvolume, $keyboardextrafnished, 'HTML');
         $volumes = $volume;
         if ($Payment_report['Payment_Method'] == "cart to cart") {
-            $textconfrom = "✅ پرداخت تایید شده
-🔋 خرید حجم اضافه
-🛍 حجم خریداری شده  : $volumes گیگ
-👤 نام کاربری کانفیگ {$steppay[0]}
-👤 شناسه کاربر: <code>{$Balance_id['id']}</code>
-🛒 کد پیگیری پرداخت: {$Payment_report['id_order']}
-⚜️ نام کاربری: @{$Balance_id['username']}
-💎 موجودی قبل ازافزایش موجودی : {$Balance_id['Balance']}
-💸 مبلغ پرداختی: $format_price_cart تومان
-";
+            $textconfrom = sprintf($textbotlang['hardcoded']['function_0031'], $volumes, $steppay[0], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
         update("invoice", "Status", "active", "id_invoice", $nameloc['id_invoice']);
-        $text_report = "⭕️ یک کاربر حجم اضافه خریده است
-        
-اطلاعات کاربر : 
-🪪 آیدی عددی : {$Balance_id['id']}
-🛍 حجم خریداری شده  : $volumes گیگ
-💰 مبلغ پرداختی : {$Payment_report['price']} تومان
-👤 نام کاربری کانفیگ {$steppay[0]}
-موجودی کاربر قبل خرید : {$Balance_id['Balance']}
-";
+        $text_report = sprintf($textbotlang['hardcoded']['function_0032'], $Balance_id['id'], $volumes, $Payment_report['price'], $steppay[0], $Balance_id['Balance']);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -1284,11 +1191,8 @@ $textonebuy
         $extra_time = $ManagePanel->extra_time($nameloc['username'], $marzban_list_get['code_panel'], $tmieextra);
         if ($extra_time['status'] == false) {
             $extra_time['msg'] = json_encode($extra_time['msg']);
-            $textreports = "خطای خرید حجم اضافه
-نام پنل : {$marzban_list_get['name_panel']}
-نام کاربری سرویس : {$nameloc['username']}
-دلیل خطا : {$extra_time['msg']}";
-            sendmessage($from_id, "❌خطایی در خرید حجم اضافه سرویس رخ داده با پشتیبانی در ارتباط باشید", null, 'HTML');
+            $textreports = sprintf($textbotlang['hardcoded']['function_0033'], $marzban_list_get['name_panel'], $nameloc['username'], $extra_time['msg']);
+            sendmessage($from_id, $textbotlang['extracted']['index_php']['extraVolumeServiceError'], null, 'HTML');
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -1317,39 +1221,19 @@ $textonebuy
         ]);
         $volumesformat = number_format($Payment_report['price']);
         if (intval($setting['scorestatus']) == 1 and !in_array($Balance_id['id'], $admin_ids)) {
-            sendmessage($Balance_id['id'], "📌شما 1 امتیاز جدید کسب کردید.", null, 'html');
+            sendmessage($Balance_id['id'], $textbotlang['extracted']['index_php']['earned1Point'], null, 'html');
             $scorenew = $Balance_id['score'] + 1;
             update("user", "score", $scorenew, "id", $Balance_id['id']);
         }
-        $textextratime = "✅ افزایش زمان برای سرویس شما با موفقیت صورت گرفت
- 
-▫️نام سرویس : {$steppay[0]}
-▫️زمان اضافه : $tmieextra روز
-
-▫️مبلغ افزایش زمان : $volumesformat تومان";
+        $textextratime = sprintf($textbotlang['hardcoded']['function_0036'], $steppay[0], $tmieextra, $volumesformat);
         sendmessage($Balance_id['id'], $textextratime, $keyboardextrafnished, 'HTML');
         if ($Payment_report['Payment_Method'] == "cart to cart") {
             $volumes = $tmieextra;
-            $textconfrom = "✅ پرداخت تایید شده
-🔋 خرید زمان اضافه
-🛍 زمان خریداری شده  : $volumes روز
-👤 نام کاربری کانفیگ {$steppay[0]}
-👤 شناسه کاربر: <code>{$Balance_id['id']}</code>
-🛒 کد پیگیری پرداخت: {$Payment_report['id_order']}
-⚜️ نام کاربری: @{$Balance_id['username']}
-💎 موجودی قبل ازافزایش موجودی : {$Balance_id['Balance']}
-💸 مبلغ پرداختی: $format_price_cart تومان
-";
+            $textconfrom = sprintf($textbotlang['hardcoded']['function_0037'], $volumes, $steppay[0], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $Balance_id['Balance'], $format_price_cart);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
         update("invoice", "Status", "active", "id_invoice", $nameloc['id_invoice']);
-        $text_report = "⭕️ یک کاربر زمان اضافه خریده است
-        
-اطلاعات کاربر : 
-🪪 آیدی عددی : {$Balance_id['id']}
-🛍 زمان خریداری شده  : $volumes روز
-💰 مبلغ پرداختی : {$Payment_report['price']} تومان
-👤 نام کاربری کانفیگ {$steppay[0]}";
+        $text_report = sprintf($textbotlang['hardcoded']['function_0038'], $Balance_id['id'], $volumes, $Payment_report['price'], $steppay[0]);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],
@@ -1364,19 +1248,10 @@ $textonebuy
         $Payment_report['price'] = number_format($Payment_report['price'], 0);
         $format_price_cart = $Payment_report['price'];
         if ($Payment_report['Payment_Method'] == "cart to cart" or $Payment_report['Payment_Method'] == "arze digital offline") {
-            $textconfrom = "⭕️ یک پرداخت جدید انجام شده است
-        افزایش موجودی.
-👤 شناسه کاربر: <code>{$Balance_id['id']}</code>
-🛒 کد پیگیری پرداخت: {$Payment_report['id_order']}
-⚜️ نام کاربری: @{$Balance_id['username']}
-💸 مبلغ پرداختی: $format_price_cart تومان
-💎 موجودی قبل ازافزایش موجودی : {$Balance_id['Balance']}
-✍️ توضیحات : {$Payment_report['dec_not_confirmed']}";
+            $textconfrom = sprintf($textbotlang['hardcoded']['function_0039'], $Balance_id['id'], $Payment_report['id_order'], $Balance_id['username'], $format_price_cart, $Balance_id['Balance'], $Payment_report['dec_not_confirmed']);
             Editmessagetext($from_id, $message_id, $textconfrom, $Confirm_pay);
         }
-        sendmessage($Payment_report['id_user'], "💎 کاربر گرامی مبلغ {$Payment_report['price']} تومان به کیف پول شما واریز گردید با تشکراز پرداخت شما.
-                
-🛒 کد پیگیری شما: {$Payment_report['id_order']}", null, 'HTML');
+        sendmessage($Payment_report['id_user'], sprintf($textbotlang['hardcoded']['function_0040'], $Payment_report['price'], $Payment_report['id_order']), null, 'HTML');
     }
 }
 function plisio($order_id, $price)
@@ -1873,7 +1748,7 @@ function isBase64($string)
 }
 function sendMessageService($panel_info, $config, $sub_link, $username_service, $reply_markup, $caption, $invoice_id, $user_id = null, $image = 'images.jpg')
 {
-    global $setting, $from_id;
+    global $setting, $from_id, $textbotlang;
     if (!check_active_btn($setting['keyboardmain'], "text_help"))
         $reply_markup = null;
     $user_id = $user_id == null ? $from_id : $user_id;
@@ -1919,15 +1794,16 @@ function sendMessageService($panel_info, $config, $sub_link, $username_service, 
     }
     if ($panel_info['config'] == "onconfig" && $setting['status_keyboard_config'] == "1") {
         if (is_array($config)) {
-            sendmessage($user_id, "📌 جهت دریافت کانفیگ روی دکمه دریافت کانفیگ کلیک کنید", keyboard_config($config, $invoice_id, false), 'HTML');
+            sendmessage($user_id, $textbotlang['hardcoded']['function_0041'], keyboard_config($config, $invoice_id, false), 'HTML');
         }
     }
 }
 function isValidInvitationCode($setting, $fromId, $verfy_status)
 {
+    global $textbotlang;
 
     if ($setting['verifybucodeuser'] == "onverify" && $verfy_status != 1) {
-        sendmessage($fromId, "حساب کاربری شما با موفقیت احرازهویت گردید", null, 'html');
+        sendmessage($fromId, $textbotlang['hardcoded']['function_0042'], null, 'html');
         update("user", "verify", "1", "id", $fromId);
         update("user", "cardpayment", "1", "id", $fromId);
     }

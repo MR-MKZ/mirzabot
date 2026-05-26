@@ -1208,7 +1208,7 @@ $keyboardtypepanel = json_encode([
     ],
 ]);
 
-$panelechekc = select("marzban_panel", "*", "MethodUsername", "متن دلخواه نماینده + عدد ترتیبی", "count");
+$panelechekc = select("marzban_panel", "*", "MethodUsername", $textbotlang['extracted']['keyboard_php']['usernameMethodAgentCustom'], "count");
 if ($setting['inlinebtnmain'] == "oninline") {
     $keyboardagent = [
         'inline_keyboard' => [

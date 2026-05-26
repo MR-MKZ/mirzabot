@@ -17,7 +17,7 @@ class ManagePanel
     function createUser($name_panel, $code_product, $usernameC, array $Data_Config)
     {
         $Output = [];
-        global $pdo, $domainhosts;
+        global $pdo, $domainhosts, $textbotlang;
         if (strlen($usernameC) < 3) {
             return array(
                 "status" => "Unsuccessful",
@@ -40,7 +40,7 @@ class ManagePanel
         } else {
             $inoice = false;
         }
-        if (!in_array($code_product, ["usertest", "🛍 حجم دلخواه", "customvolume"])) {
+        if (!in_array($code_product, ["usertest", $textbotlang['extracted']['index_php']['customVolumeButton'], "customvolume"])) {
 
             $stmt = $pdo->prepare("SELECT * FROM product WHERE (Location = :name_panel OR Location = '/all')  AND code_product = :code_product");
             $stmt->bindParam(':name_panel', $name_panel);
@@ -1918,7 +1918,7 @@ class ManagePanel
                 "usage_limit_GB" => $data_limit_new / pow(1024, 3),
                 "start_date" => null
             );
-            if (in_array($Method_extend, ["ریست حجم و زمان", "ریست شدن حجم و اضافه شدن زمان", "اضافه شدن زمان و تبدیل حجم کل به حجم باقی مانده"])) {
+            if (in_array($Method_extend, [$textbotlang['keyboard']['resetVolumeTime'], $textbotlang['keyboard']['resetVolumeAddTime'], $textbotlang['keyboard']['addTimeConvertVolume']])) {
                 $data['current_usage_GB'] = "0";
             }
         } elseif ($panel['type'] == "s_ui") {

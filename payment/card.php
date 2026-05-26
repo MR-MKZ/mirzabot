@@ -114,14 +114,7 @@ if(isset($amountInteger) && $amountInteger !== NULL){
         update("Payment_report","payment_Status","paid",'id_order',$order_id);
     $balanceformatsell = number_format(mysqli_fetch_assoc(mysqli_query($connect, "SELECT (Balance) FROM user WHERE id = '{$Payment_report['id_user']}' LIMIT 1"))['Balance'], 0);
     $paymentreports = select("topicid","idreport","report","paymentreport","select")['idreport'];
-    $text_report = "یک رسید توسط ربات  تایید شد
-
-اطلاعات :
-💰 مبلغ پرداخت : {$Payment_report['price']}
-👤  آیدی عددی کاربر : {$Balance_id['id']} 
-👤 نام کاربری کاربر : @{$Balance_id['username']} 
-موجودی کاربر : $balanceformatsell تومان
-کد پیگیری پرداخت : $order_id";
+    $text_report = sprintf($textbotlang['paymentGateway']['reportCard'], $Payment_report['price'], $Balance_id['id'], $Balance_id['username'], $balanceformatsell, $order_id);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
         'chat_id' => $setting['Channel_Report'],

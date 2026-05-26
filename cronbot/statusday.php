@@ -30,7 +30,7 @@ $sqlInvoices = "SELECT COUNT(*) AS count, SUM(price_product) AS total_price, SUM
                 FROM invoice 
                 WHERE (FROM_UNIXTIME(time_sell) BETWEEN :startDate AND :endDate) 
                 AND (status IN ('active', 'end_of_time', 'sendedwarn', 'send_on_hold')) 
-                AND name_product != 'سرویس تست'";
+                AND name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}'";
 $params = [':startDate' => $datefirst, ':endDate' => $dateend];
 $stmt = executeQuery($pdo, $sqlInvoices, $params);
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -43,7 +43,7 @@ $sqlTestService = "SELECT COUNT(*) AS count
                   FROM invoice 
                   WHERE (FROM_UNIXTIME(time_sell) BETWEEN :startDate AND :endDate) 
                   AND (status IN ('active', 'end_of_time', 'sendedwarn')) 
-                  AND name_product = 'سرویس تست'";
+                  AND name_product = '{$textbotlang['Admin']['adminphp']['db_test_service_name']}'";
 $stmt = executeQuery($pdo, $sqlTestService, $params);
 $dayListSelltest = $stmt->fetchColumn() ?? 0;
 
@@ -110,7 +110,7 @@ foreach ($panels as $panel) {
                  WHERE (FROM_UNIXTIME(time_sell) BETWEEN :startDate AND :endDate) 
                  AND (status IN ('active', 'end_of_time', 'sendedwarn', 'send_on_hold')) 
                  AND Service_location = :location 
-                 AND name_product != 'سرویس تست'";
+                 AND name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}'";
     $params = [':startDate' => $datefirst, ':endDate' => $dateend, ':location' => $panel['name_panel']];
     $stmt = executeQuery($pdo, $sqlPanel, $params);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);

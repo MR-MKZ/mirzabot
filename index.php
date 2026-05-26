@@ -3281,7 +3281,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     } else {
         $numberphone = $numberphone;
     }
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND name_product != 'سرویس تست' AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold')");
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}' AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold')");
     $stmt->execute([
         ':id_user' => $from_id
     ]);
@@ -3981,7 +3981,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     }
     $affiliatescommission = select("affiliates", "*", null, null, "select");
     $marzbanporsant_one_buy = select("affiliates", "*", null, null, "select");
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != 'سرویس تست'  AND id_user = :id_user AND Status != 'Unpaid'");
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}'  AND id_user = :id_user AND Status != 'Unpaid'");
     $stmt->bindParam(':id_user', $from_id);
     $stmt->execute();
     $countinvoice = $stmt->rowCount();
@@ -4119,7 +4119,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         return;
     }
     if ($SellDiscountlimit['usefirst'] == "1") {
-        $countinvoice = mysqli_query($connect, sprintf("SELECT * FROM invoice WHERE id_user = '%s' AND name_product != 'سرویس تست' AND  (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold')", $from_id));
+        $countinvoice = mysqli_query($connect, sprintf("SELECT * FROM invoice WHERE id_user = '%s' AND name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}' AND  (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold')", $from_id));
         if (mysqli_num_rows($countinvoice) != 0) {
             sendmessage($from_id, $textbotlang['users']['Discount']['firstdiscount'], null, 'HTML');
             return;
@@ -5714,7 +5714,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
         ]);
     }
     $affiliatescommission = select("affiliates", "*", null, null, "select");
-    $sqlPanel = sprintf("SELECT COUNT(*) AS orders, SUM(price_product) AS total_price\n                 FROM invoice \n                 WHERE Status IN ('active', 'end_of_time', 'sendedwarn', 'send_on_hold') \n                 AND refral = '%s'\n                 AND name_product != 'سرویس تست'", $from_id);
+    $sqlPanel = sprintf("SELECT COUNT(*) AS orders, SUM(price_product) AS total_price\n                 FROM invoice \n                 WHERE Status IN ('active', 'end_of_time', 'sendedwarn', 'send_on_hold') \n                 AND refral = '%s'\n                 AND name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}'", $from_id);
     $stmt = $pdo->prepare($sqlPanel);
     $stmt->execute();
     $inforefral = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -6078,7 +6078,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
         sendmessage($from_id, $textbotlang['extracted']['index_php']['buttonDisabledForYou'], null, 'HTML');
         return;
     }
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != 'سرویس تست'  AND id_user = :id_user AND status != 'Unpaid'");
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}'  AND id_user = :id_user AND status != 'Unpaid'");
     $stmt->bindParam(':id_user', $from_id);
     $stmt->execute();
     $countinvoice = $stmt->rowCount();

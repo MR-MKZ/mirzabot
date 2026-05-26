@@ -8,15 +8,7 @@ if (!in_array($from_id, $admin_ids))
 
 $domainhostsEscaped = htmlspecialchars($domainhosts, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-$miniAppInstructionText = <<<HTML
-📌 آموزش فعالسازی مینی اپ در ربات BotFather
-
-/mybots > Select Bot > Bot Setting >  Configure Mini App > Enable Mini App  > Edit Mini App URL
-
-مراحل بالا را طی کنید سپس آدرس زیر را ارسال نمایید :
-
-<code>https://{$domainhostsEscaped}/app/</code>
-HTML;
+$miniAppInstructionText = sprintf($textbotlang['Admin']['adminphp']['msg_mini_app_instruction'], $domainhostsEscaped);
 
 if (in_array($text, $textadmin) || $datain == "admin") {
     if ($datain == "admin")

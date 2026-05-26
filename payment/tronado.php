@@ -47,22 +47,15 @@ if ($Payment_report['payment_Status'] != "paid") {
             $Balance_confrim = intval($Balance_id['Balance']) + $result;
             update("user", "Balance", $Balance_confrim, "id", $Balance_id['id']);
             $pricecashback = number_format($pricecashback);
-            $text_report = "🎁 کاربر عزیز مبلغ $result تومان به عنوان هدیه واریز به حساب شما واریز گردید.";
+            $text_report = sprintf($textbotlang['paymentGateway']['giftReport'], $result);
             sendmessage($Balance_id['id'], $text_report, null, 'HTML');
         }
         $paymentreports = select("topicid", "idreport", "report", "paymentreport", "select")['idreport'];
         $balancelow = "";
         if ($data['TronAmount'] < $data['ActualTronAmount']) {
-            $balancelow = "❌ کاربر کمتر از مبلغ تعیین شده واریز کرده است.";
+            $balancelow = $textbotlang['paymentGateway']['lowAmount'];
         }
-        $text_reportpayment = "💵 پرداخت جدید
-$balancelow
-- 👤 نام کاربری کاربر : @{$Balance_id['username']}
-- 🆔آیدی عددی کاربر : {$Balance_id['id']}
-- 💸 مبلغ تراکنش $price
-- 🔗 <a href = \"https://tronscan.org/#/transaction/{$data['Hash']}\">لینک پرداخت </a>
-- 📥 مبلغ واریز شده ترون. : {$data['TronAmount']}
-- 💳 روش پرداخت :  ترونادو";
+        $text_reportpayment = sprintf($textbotlang['paymentGateway']['reportTronado'], $balancelow, $Balance_id['username'], $Balance_id['id'], $price, $data['Hash'], $data['TronAmount']);
         $Status_change = "paid";
         $statement = $pdo->prepare("UPDATE Payment_report SET payment_Status = :payment_Status WHERE id_order = :id_order");
         $statement->bindValue(':payment_Status', $Status_change);

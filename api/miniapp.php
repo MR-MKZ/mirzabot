@@ -273,7 +273,7 @@ switch ($data['actions']) {
             if ($user_info['number'] == "confrim number by admin") {
                 $numberphone = $textbotlang['hardcoded']['confirmedByAdmin'];
             }
-            $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND name_product != 'سرویس تست' AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold')");
+            $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}' AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold')");
             $stmt->execute([
                 ':id_user' => $user_info['id']
             ]);
@@ -886,7 +886,7 @@ switch ($data['actions']) {
         }
         $affiliatescommission = select("affiliates", "*", null, null, "select");
         $marzbanporsant_one_buy = select("affiliates", "*", null, null, "select");
-        $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != 'سرویس تست'  AND id_user = :id_user");
+        $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}'  AND id_user = :id_user");
         $stmt->bindParam(':id_user', $user_info['id']);
         $stmt->execute();
         $countinvoice = $stmt->rowCount();

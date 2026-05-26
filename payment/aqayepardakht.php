@@ -45,9 +45,9 @@ $result = curl_exec($ch);
 curl_close($ch);
 $result = json_decode($result);
 if ($result->code == "1") {
-    $payment_status = "پرداخت موفق";
+    $payment_status = $textbotlang['paymentGateway']['statusSuccess'];
     $price = $Payment_report;
-    $dec_payment_status = "از انجام تراکنش متشکریم!";
+    $dec_payment_status = $textbotlang['paymentGateway']['descThanks'];
     $Payment_report = select("Payment_report", "*", "id_order", $invoice_id,"select");
     if($Payment_report['payment_Status'] != "paid"){
     $textbotlang = languagechange('../text.json');
@@ -59,18 +59,13 @@ if ($result->code == "1") {
         $Balance_confrim = intval($Balance_id['Balance']) +$result;
         update("user","Balance",$Balance_confrim, "id",$Balance_id['id']); 
         $pricecashback =  number_format($pricecashback);
-        $text_report = "🎁 کاربر عزیز مبلغ $result تومان به عنوان هدیه واریز به حساب شما واریز گردید.";
+        $text_report = sprintf($textbotlang['paymentGateway']['giftReport'], $result);
         sendmessage($Balance_id['id'], $text_report, null, 'HTML');
     }
     update("Payment_report","payment_Status","paid","id_order",$Payment_report['id_order']);
     $paymentreports = select("topicid","idreport","report","paymentreport","select")['idreport'];
 
-$text_report = "💵 پرداخت جدید
-        
-آیدی عددی کاربر : {$Payment_report['id_user']}
-نام کاربری کاربر : {$Balance_id['username']}
-مبلغ تراکنش $price
-روش پرداخت :  درگاه آقای پرداخت";
+$text_report = sprintf($textbotlang['paymentGateway']['reportAqayepardakht'], $Payment_report['id_user'], $Balance_id['username'], $price);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
         'chat_id' => $setting['Channel_Report'],
@@ -81,17 +76,13 @@ $text_report = "💵 پرداخت جدید
     }
 }
 }else {
-        $payment_status = [
-        '0' => "پرداخت انجام نشد",
-        '2' => "تراکنش قبلا وریفای و پرداخت شده است",
-
-    ][$result->code];
+        $payment_status = $textbotlang['paymentGateway']['zarinpalResultCodes'][$result->code];
      $dec_payment_status = "";
 }
 ?>
 <html>
 <head>
-    <title>فاکتور پرداخت</title>
+    <title><?php echo $textbotlang['paymentGateway']['invoiceTitle'] ?></title>
     <style>
     @font-face {
     font-family: 'vazir';
@@ -133,9 +124,9 @@ $text_report = "💵 پرداخت جدید
 <body>
     <div class="confirmation-box">
         <h1><?php echo $payment_status ?></h1>
-        <p>شماره تراکنش:<span><?php echo $invoice_id ?></span></p>
-        <p>مبلغ پرداختی:  <span><?php echo  $price; ?></span>تومان</p>
-        <p>تاریخ: <span>  <?php echo jdate('Y/m/d')  ?>  </span></p>
+        <p><?php echo $textbotlang['paymentGateway']['invoiceTransactionNo'] ?><span><?php echo $invoice_id ?></span></p>
+        <p><?php echo $textbotlang['paymentGateway']['invoiceAmount'] ?>  <span><?php echo  $price; ?></span><?php echo $textbotlang['paymentGateway']['invoiceAmountUnit'] ?></p>
+        <p><?php echo $textbotlang['paymentGateway']['invoiceDate'] ?> <span>  <?php echo jdate('Y/m/d')  ?>  </span></p>
         <p><?php echo $dec_payment_status ?></p>
     </div>
 </body>

@@ -202,7 +202,7 @@ switch ($action) {
             sendJsonResponse(false, "user not found", []);
         } else {
             $user_data = select("user", "*", "id", $invoice['id_user'], "select");
-            $stmt = $pdo->prepare("SELECT SUM(price_product) as total_order,COUNT(username) as count_order FROM invoice WHERE name_product != 'سرویس تست' AND  id_user = :user_id AND Status != 'Unpaid'");
+            $stmt = $pdo->prepare("SELECT SUM(price_product) as total_order,COUNT(username) as count_order FROM invoice WHERE name_product != '{$textbotlang['Admin']['adminphp']['db_test_service_name']}' AND  id_user = :user_id AND Status != 'Unpaid'");
             $stmt->bindValue(':user_id', intval($invoice['id_user']), PDO::PARAM_INT);
             $stmt->execute();
             $order_fince = $stmt->fetch(PDO::FETCH_ASSOC);

@@ -21,39 +21,39 @@ foreach ($allowed_back as $allowed) {
 if ($rawBack === 'users.php') $back = 'users.php';
 
 if (!$id) {
-    flash('error', 'شناسه کاربر نامعتبر است.');
+    flash('error', $textbotlang['panel']['user_action_0001']);
     header('Location: users.php'); exit;
 }
 
 $user = db_fetch($pdo, "SELECT id, User_Status FROM user WHERE id = ?", [$id]);
 if (!$user) {
-    flash('error', 'کاربر یافت نشد.');
+    flash('error', $textbotlang['panel']['user_action_0002']);
     header('Location: users.php'); exit;
 }
 
 switch ($action) {
     case 'block':
         if ($user['User_Status'] === 'block') {
-            flash('warning', 'کاربر از قبل مسدود بود.');
+            flash('warning', $textbotlang['panel']['user_action_0003']);
         } else {
             db_query($pdo, "UPDATE user SET User_Status = 'block' WHERE id = ?", [$id]);
-            flash('success', "کاربر $id مسدود شد.");
+            flash('success', sprintf($textbotlang['panel']['user_action_0004'], $id));
             error_log("Admin {$_SESSION['admin_user']} blocked user $id");
         }
         break;
 
     case 'unblock':
         if ($user['User_Status'] !== 'block') {
-            flash('warning', 'کاربر در وضعیت فعال است.');
+            flash('warning', $textbotlang['panel']['user_action_0005']);
         } else {
             db_query($pdo, "UPDATE user SET User_Status = 'active' WHERE id = ?", [$id]);
-            flash('success', "مسدودیت کاربر $id برداشته شد.");
+            flash('success', sprintf($textbotlang['panel']['user_action_0006'], $id));
             error_log("Admin {$_SESSION['admin_user']} unblocked user $id");
         }
         break;
 
     default:
-        flash('error', 'عملیات نامعتبر است.');
+        flash('error', $textbotlang['panel']['user_action_0007']);
 }
 
 header("Location: $back"); exit;

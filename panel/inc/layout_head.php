@@ -3,7 +3,7 @@ require_once __DIR__ . '/icons.php';
 $pageLede = $pageLede ?? '';
 $activeNav = $activeNav ?? '';
 $showPageHead = $showPageHead ?? true;
-$currentUser = $_SESSION['admin_user'] ?? 'ادمین';
+$currentUser = $_SESSION['admin_user'] ?? $textbotlang['panel']['layout_default_admin'];
 $initials = mb_strtoupper(mb_substr($currentUser, 0, 1, 'UTF-8'), 'UTF-8');
 ?>
 <!DOCTYPE html>
@@ -16,7 +16,7 @@ $initials = mb_strtoupper(mb_substr($currentUser, 0, 1, 'UTF-8'), 'UTF-8');
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>پنل مدیریت میرزا بات</title>
+  <title><?= $textbotlang['panel']['layout_head_html_0001'] ?></title>
   <link rel="stylesheet" href="css/style.css">
   <script>
     (function () {
@@ -38,6 +38,27 @@ $initials = mb_strtoupper(mb_substr($currentUser, 0, 1, 'UTF-8'), 'UTF-8');
         root.classList.add('sb-pre-collapsed');
     }());
   </script>
+  <script>
+    window.PANEL_I18N = <?= json_encode(
+      array_filter(
+        $textbotlang['panel'] ?? [],
+        fn($k) => strncmp($k, 'js_', 3) === 0,
+        ARRAY_FILTER_USE_KEY
+      ),
+      JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+    ) ?>;
+    window.t = function (key, vars) {
+      var s = (window.PANEL_I18N && window.PANEL_I18N[key]) || key;
+      if (vars) {
+        for (var k in vars) {
+          if (Object.prototype.hasOwnProperty.call(vars, k)) {
+            s = s.replace('{' + k + '}', vars[k]);
+          }
+        }
+      }
+      return s;
+    };
+  </script>
 </head>
 
 <body>
@@ -48,11 +69,12 @@ $initials = mb_strtoupper(mb_substr($currentUser, 0, 1, 'UTF-8'), 'UTF-8');
   <div class="confirm-veil" id="confirm-veil">
     <div class="confirm-box">
       <div class="confirm-icon"><?= icon('block', 26) ?></div>
-      <h4 id="confirm-title">تأیید عملیات</h4>
-      <p id="confirm-msg">آیا اطمینان دارید؟ این عملیات قابل بازگشت نیست.</p>
+      <h4 id="confirm-title"><?= $textbotlang['panel']['layout_head_html_0002'] ?></h4>
+      <p id="confirm-msg"><?= $textbotlang['panel']['layout_head_html_0003'] ?></p>
       <div class="confirm-btns">
-        <button class="btn btn-no" id="confirm-ok">بله، ادامه</button>
-        <button class="btn btn-ghost" onclick="closeConfirm()">انصراف</button>
+        <button class="btn btn-no" id="confirm-ok"><?= $textbotlang['panel']['layout_head_html_0004'] ?></button>
+        <button class="btn btn-ghost"
+          onclick="closeConfirm()"><?= $textbotlang['panel']['layout_head_html_0005'] ?></button>
       </div>
     </div>
   </div>
@@ -63,45 +85,62 @@ $initials = mb_strtoupper(mb_substr($currentUser, 0, 1, 'UTF-8'), 'UTF-8');
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <div class="brand-mark">M</div>
-        <div class="brand-name">میرزا<span> · پنل</span></div>
+        <div class="brand-name"><?= $textbotlang['panel']['layout_head_html_0006'] ?><span>
+            <?= $textbotlang['panel']['layout_head_html_0007'] ?></span></div>
       </div>
       <nav class="sidebar-nav">
         <div class="nav-section">
-          <div class="nav-heading">عمومی</div>
-          <a href="index.php" class="nav-item <?= $activeNav === 'dashboard' ? 'active' : '' ?>" title="داشبورد">
-            <span class="nav-icon"><?= icon('dashboard') ?></span><span class="nav-label">داشبورد</span>
+          <div class="nav-heading"><?= $textbotlang['panel']['layout_head_html_0008'] ?></div>
+          <a href="index.php" class="nav-item <?= $activeNav === 'dashboard' ? 'active' : '' ?>"
+            title="<?= $textbotlang['panel']['layout_title_dashboard'] ?>">
+            <span class="nav-icon"><?= icon('dashboard') ?></span><span
+              class="nav-label"><?= $textbotlang['panel']['layout_head_html_0009'] ?></span>
           </a>
         </div>
         <div class="nav-section">
-          <div class="nav-heading">مدیریت</div>
-          <a href="users.php" class="nav-item <?= $activeNav === 'users' ? 'active' : '' ?>" title="کاربران">
-            <span class="nav-icon"><?= icon('users') ?></span><span class="nav-label">کاربران</span>
+          <div class="nav-heading"><?= $textbotlang['panel']['layout_head_html_0010'] ?></div>
+          <a href="users.php" class="nav-item <?= $activeNav === 'users' ? 'active' : '' ?>"
+            title="<?= $textbotlang['panel']['layout_title_users'] ?>">
+            <span class="nav-icon"><?= icon('users') ?></span><span
+              class="nav-label"><?= $textbotlang['panel']['layout_head_html_0011'] ?></span>
           </a>
-          <a href="invoice.php" class="nav-item <?= $activeNav === 'invoice' ? 'active' : '' ?>" title="سفارشات">
-            <span class="nav-icon"><?= icon('invoice') ?></span><span class="nav-label">سفارشات</span>
+          <a href="invoice.php" class="nav-item <?= $activeNav === 'invoice' ? 'active' : '' ?>"
+            title="<?= $textbotlang['panel']['layout_title_invoice'] ?>">
+            <span class="nav-icon"><?= icon('invoice') ?></span><span
+              class="nav-label"><?= $textbotlang['panel']['layout_head_html_0012'] ?></span>
           </a>
-          <a href="service.php" class="nav-item <?= $activeNav === 'service' ? 'active' : '' ?>" title="سرویس‌ها">
-            <span class="nav-icon"><?= icon('server') ?></span><span class="nav-label">سرویس‌ها</span>
+          <a href="service.php" class="nav-item <?= $activeNav === 'service' ? 'active' : '' ?>"
+            title="<?= $textbotlang['panel']['layout_title_service'] ?>">
+            <span class="nav-icon"><?= icon('server') ?></span><span
+              class="nav-label"><?= $textbotlang['panel']['layout_head_html_0013'] ?></span>
           </a>
-          <a href="product.php" class="nav-item <?= $activeNav === 'product' ? 'active' : '' ?>" title="محصولات">
-            <span class="nav-icon"><?= icon('package') ?></span><span class="nav-label">محصولات</span>
+          <a href="product.php" class="nav-item <?= $activeNav === 'product' ? 'active' : '' ?>"
+            title="<?= $textbotlang['panel']['layout_title_product'] ?>">
+            <span class="nav-icon"><?= icon('package') ?></span><span
+              class="nav-label"><?= $textbotlang['panel']['layout_head_html_0014'] ?></span>
           </a>
-          <a href="payment.php" class="nav-item <?= $activeNav === 'payment' ? 'active' : '' ?>" title="تراکنش‌ها">
-            <span class="nav-icon"><?= icon('card') ?></span><span class="nav-label">تراکنش‌ها</span>
+          <a href="payment.php" class="nav-item <?= $activeNav === 'payment' ? 'active' : '' ?>"
+            title="<?= $textbotlang['panel']['layout_title_payment'] ?>">
+            <span class="nav-icon"><?= icon('card') ?></span><span
+              class="nav-label"><?= $textbotlang['panel']['layout_head_html_0015'] ?></span>
           </a>
-          <a href="keyboard.php" class="nav-item <?= $activeNav === 'keyboard' ? 'active' : '' ?>" title="چیدمان">
+          <a href="keyboard.php" class="nav-item <?= $activeNav === 'keyboard' ? 'active' : '' ?>"
+            title="<?= $textbotlang['panel']['layout_title_keyboard'] ?>">
             <span class="nav-icon">
               <?= icon('settings') ?>
-            </span><span class="nav-label">چیدمان کیبورد ها</span>
+            </span><span class="nav-label"><?= $textbotlang['panel']['layout_head_html_0016'] ?></span>
           </a>
         </div>
         <div class="nav-section">
-          <div class="nav-heading">پنل</div>
-          <a href="settings.php" class="nav-item <?= $activeNav === 'settings' ? 'active' : '' ?>" title="تنظیمات">
-            <span class="nav-icon"><?= icon('settings') ?></span><span class="nav-label">تنظیمات</span>
+          <div class="nav-heading"><?= $textbotlang['panel']['layout_head_html_0017'] ?></div>
+          <a href="settings.php" class="nav-item <?= $activeNav === 'settings' ? 'active' : '' ?>"
+            title="<?= $textbotlang['panel']['layout_title_settings'] ?>">
+            <span class="nav-icon"><?= icon('settings') ?></span><span
+              class="nav-label"><?= $textbotlang['panel']['layout_head_html_0018'] ?></span>
           </a>
-          <a href="logout.php" class="nav-item" title="خروج">
-            <span class="nav-icon"><?= icon('logout') ?></span><span class="nav-label">خروج</span>
+          <a href="logout.php" class="nav-item" title="<?= $textbotlang['panel']['layout_title_logout'] ?>">
+            <span class="nav-icon"><?= icon('logout') ?></span><span
+              class="nav-label"><?= $textbotlang['panel']['layout_head_html_0019'] ?></span>
           </a>
         </div>
       </nav>
@@ -110,7 +149,7 @@ $initials = mb_strtoupper(mb_substr($currentUser, 0, 1, 'UTF-8'), 'UTF-8');
           <div class="user-mono"><?= htmlspecialchars($initials) ?></div>
           <div class="user-info">
             <div class="uname"><?= htmlspecialchars($currentUser) ?></div>
-            <div class="urole">مدیر پنل</div>
+            <div class="urole"><?= $textbotlang['panel']['layout_head_html_0020'] ?></div>
           </div>
         </div>
       </div>
@@ -123,13 +162,15 @@ $initials = mb_strtoupper(mb_substr($currentUser, 0, 1, 'UTF-8'), 'UTF-8');
           <button class="icon-btn sb-toggle" onclick="toggleSidebar()"><?= icon('menu', 17) ?></button>
           <div>
             <div class="topbar-title"><?= htmlspecialchars($pageTitle) ?></div>
-            <div class="crumb"><span>میرزا</span><span
+            <div class="crumb"><span><?= $textbotlang['panel']['layout_head_html_0021'] ?></span><span
                 style="opacity:.4;margin:0 3px">/</span><span><?= htmlspecialchars($pageTitle) ?></span></div>
           </div>
         </div>
         <div class="topbar-tools">
-          <a href="settings.php" class="icon-btn" title="تنظیمات"><?= icon('settings', 16) ?></a>
-          <a href="logout.php" class="icon-btn" title="خروج"><?= icon('logout', 16) ?></a>
+          <a href="settings.php" class="icon-btn"
+            title="<?= $textbotlang['panel']['layout_title_settings'] ?>"><?= icon('settings', 16) ?></a>
+          <a href="logout.php" class="icon-btn"
+            title="<?= $textbotlang['panel']['layout_title_logout'] ?>"><?= icon('logout', 16) ?></a>
         </div>
       </header>
       <main class="content">

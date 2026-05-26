@@ -29,46 +29,46 @@ try {
 } catch (Exception $e) {
   $total = 0;
   $invoices = [];
-  flash('error', 'خطای پایگاه داده: ' . $e->getMessage());
+  flash('error', $textbotlang['panel']['invoice_0001'] . $e->getMessage());
 }
 $totalPages = max(1, (int) ceil($total / $perPage));
 
 $statusMap = [
-  'active' => ['tag-ok', 'فعال'],
-  'end_of_time' => ['tag-warn', 'اعلان پایان زمان'],
-  'end_of_volume' => ['tag-no', 'اعلان پایان حجم'],
-  'sendedwarn' => ['tag-warn', 'ارسال تمامی اعلان ها'],
-  'send_on_hold' => ['tag-plain', 'اعلان متصنل نشدن ارسال شده'],
-  'unpaid' => ['tag-plain', 'پرداخت نشده'],
-  'Unsuccessful' => ['tag-plain', 'خطا دریافت اطلاعات'],
+  'active' => ['tag-ok', $textbotlang['panel']['invoice_0002']],
+  'end_of_time' => ['tag-warn', $textbotlang['panel']['invoice_0003']],
+  'end_of_volume' => ['tag-no', $textbotlang['panel']['invoice_0004']],
+  'sendedwarn' => ['tag-warn', $textbotlang['panel']['invoice_0005']],
+  'send_on_hold' => ['tag-plain', $textbotlang['panel']['invoice_0006']],
+  'unpaid' => ['tag-plain', $textbotlang['panel']['invoice_0007']],
+  'Unsuccessful' => ['tag-plain', $textbotlang['panel']['invoice_0008']],
 ];
 
-$pageTitle = 'سفارشات';
-$pageLede = 'فهرست کلیه سفارشات ثبت‌شده در ربات.';
+$pageTitle = $textbotlang['panel']['invoice_0009'];
+$pageLede = $textbotlang['panel']['invoice_0010'];
 $activeNav = 'invoice';
 include __DIR__ . '/inc/layout_head.php';
 ?>
 
 <div class="card fade-up">
   <div class="toolbar">
-    <div class="toolbar-title">سفارشات <small>(<?= number_format($total) ?>)</small></div>
+    <div class="toolbar-title"><?= $textbotlang['panel']['invoice_html_0001'] ?> <small>(<?= number_format($total) ?>)</small></div>
     <form method="GET" id="invoiceForm" class="toolbar-end">
       <select name="status" class="select" style="width:auto"
         onchange="document.getElementById('invoiceForm').submit()">
-        <option value="">همه وضعیت‌ها</option>
+        <option value=""><?= $textbotlang['panel']['invoice_html_0002'] ?></option>
         <?php foreach ($statusMap as $k => [$_, $lbl]): ?>
           <option value="<?= $k ?>" <?= $status === $k ? 'selected' : '' ?>><?= $lbl ?></option>
         <?php endforeach; ?>
       </select>
       <div class="search-box" style="min-width:240px">
         <?= icon('search', 14) ?>
-        <input type="text" name="q" placeholder="آیدی کاربر، نام محصول..." value="<?= htmlspecialchars($search) ?>"
+        <input type="text" name="q" placeholder=$textbotlang['panel']['invoice_0011'] value="<?= htmlspecialchars($search) ?>"
           autocomplete="off">
         <button type="button" class="search-clear">✕</button>
-        <button type="submit" class="search-btn">جستجو</button>
+        <button type="submit" class="search-btn"><?= $textbotlang['panel']['invoice_html_0003'] ?></button>
       </div>
       <?php if ($search || $status): ?>
-        <a href="invoice.php" class="btn-link" style="font-size:.78rem">پاک کردن</a>
+        <a href="invoice.php" class="btn-link" style="font-size:.78rem"><?= $textbotlang['panel']['invoice_html_0004'] ?></a>
       <?php endif; ?>
     </form>
   </div>
@@ -78,11 +78,11 @@ include __DIR__ . '/inc/layout_head.php';
       <thead>
         <tr>
           <th>#</th>
-          <th>کاربر</th>
-          <th>محصول</th>
-          <th>قیمت</th>
-          <th>تاریخ</th>
-          <th>وضعیت</th>
+          <th><?= $textbotlang['panel']['invoice_html_0005'] ?></th>
+          <th><?= $textbotlang['panel']['invoice_html_0006'] ?></th>
+          <th><?= $textbotlang['panel']['invoice_html_0007'] ?></th>
+          <th><?= $textbotlang['panel']['invoice_html_0008'] ?></th>
+          <th><?= $textbotlang['panel']['invoice_html_0009'] ?></th>
         </tr>
       </thead>
       <tbody>
@@ -97,7 +97,7 @@ include __DIR__ . '/inc/layout_head.php';
                   <rect x="45" y="66" width="60" height="6" rx="3" fill="var(--bd)" />
                   <rect x="45" y="80" width="35" height="6" rx="3" fill="var(--bd)" />
                 </svg>
-                <p><?= $search ? 'سفارشی با این جستجو یافت نشد' : 'هنوز سفارشی ثبت نشده' ?></p>
+                <p><?= $search ? $textbotlang['panel']['invoice_0012'] : $textbotlang['panel']['invoice_0013'] ?></p>
               </div>
             </td>
           </tr>
@@ -111,7 +111,7 @@ include __DIR__ . '/inc/layout_head.php';
               <td class="cf"><?= $i++ ?></td>
               <td class="cm"><?= htmlspecialchars($inv['id_user'] ?? '—') ?></td>
               <td class="cs"><?= htmlspecialchars(trunc($inv['name_product'] ?? '—', 28)) ?></td>
-              <td class="cn cs"><?= number_format((int) ($inv['price_product'] ?? 0)) ?> <span class="cf">ت</span></td>
+              <td class="cn cs"><?= number_format((int) ($inv['price_product'] ?? 0)) ?> <span class="cf"><?= $textbotlang['panel']['invoice_html_0010'] ?></span></td>
               <td class="cf"><?= safe_date($inv['time_sell'] ?? null, 'Y/m/d') ?></td>
               <td><span class="tag <?= $cls ?>"><?= $lbl ?></span></td>
             </tr>
@@ -121,7 +121,7 @@ include __DIR__ . '/inc/layout_head.php';
   </div>
 
   <div class="tbl-foot">
-    <span><?= number_format($total) ?> رکورد · صفحه <?= $page ?> از <?= $totalPages ?></span>
+    <span><?= number_format($total) ?> <?= $textbotlang['panel']['invoice_html_0011'] ?> <?= $page ?> <?= $textbotlang['panel']['invoice_html_0012'] ?> <?= $totalPages ?></span>
     <div class="pager">
       <?php $qs = fn($p) => '?q=' . urlencode($search) . '&status=' . urlencode($status) . '&page=' . $p; ?>
       <a class="<?= $page <= 1 ? 'dis' : '' ?>" href="<?= $qs(max(1, $page - 1)) ?>">‹</a>

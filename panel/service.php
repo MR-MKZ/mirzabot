@@ -3,8 +3,8 @@ require_once __DIR__ . '/inc/config.php';
 require_once __DIR__ . '/inc/icons.php';
 require_auth();
 
-$pageTitle = 'سرویس‌ها';
-$pageLede = 'سرویس‌های دستی و تراکنش‌های سرویس.';
+$pageTitle = $textbotlang['panel']['service_0001'];
+$pageLede = $textbotlang['panel']['service_0002'];
 $activeNav = 'service_other';
 
 $search = trim($_GET['q'] ?? '');
@@ -36,39 +36,39 @@ try {
 $totalPages = max(1, (int) ceil($total / $perPage));
 
 $typeMap = [
-  'change_location' => 'تغییر لوکیشن',
-  'extra_user' => 'افزایش حجم',
-  'extra_time_user' => 'افزایش زمان',
-  'extends_not_user' => "تمدید ",
-  'extend_user' => "تمدید ",
-  'transfertouser' => "انتقال سفارش به کاربر دیگر"
+  'change_location' => $textbotlang['panel']['service_0003'],
+  'extra_user' => $textbotlang['panel']['service_0004'],
+  'extra_time_user' => $textbotlang['panel']['service_0005'],
+  'extends_not_user' => $textbotlang['panel']['service_0006'],
+  'extend_user' => $textbotlang['panel']['service_0007'],
+  'transfertouser' => $textbotlang['panel']['service_0008']
 ];
 
-$pageTitle = 'سرویس‌ها';
-$pageLede = 'تراکنش‌های سرویس دستی کاربران.';
+$pageTitle = $textbotlang['panel']['service_0009'];
+$pageLede = $textbotlang['panel']['service_0010'];
 $activeNav = 'service';
 include __DIR__ . '/inc/layout_head.php';
 ?>
 
 <div class="card fade-up">
   <div class="toolbar">
-    <div class="toolbar-title">سرویس‌ها <small>(<?= number_format($total) ?>)</small></div>
+    <div class="toolbar-title"><?= $textbotlang['panel']['service_html_0001'] ?> <small>(<?= number_format($total) ?>)</small></div>
     <form method="GET" id="srvForm" class="toolbar-end">
       <select name="status" class="select" style="width:auto" onchange="document.getElementById('srvForm').submit()">
-        <option value="">همه وضعیت‌ها</option>
-        <option value="done" <?= $status === 'done' ? 'selected' : '' ?>>انجام شده</option>
-        <option value="pending" <?= $status === 'pending' ? 'selected' : '' ?>>در انتظار</option>
-        <option value="reject" <?= $status === 'reject' ? 'selected' : '' ?>>رد شده</option>
+        <option value=""><?= $textbotlang['panel']['service_html_0002'] ?></option>
+        <option value="done" <?= $status === 'done' ? 'selected' : '' ?>><?= $textbotlang['panel']['service_html_0003'] ?></option>
+        <option value="pending" <?= $status === 'pending' ? 'selected' : '' ?>><?= $textbotlang['panel']['service_html_0004'] ?></option>
+        <option value="reject" <?= $status === 'reject' ? 'selected' : '' ?>><?= $textbotlang['panel']['service_html_0005'] ?></option>
       </select>
       <div class="search-box" style="min-width:240px">
         <?= icon('search', 14) ?>
-        <input type="text" name="q" placeholder="آیدی کاربر، یوزرنیم، نوع..." value="<?= htmlspecialchars($search) ?>"
+        <input type="text" name="q" placeholder=$textbotlang['panel']['service_0011'] value="<?= htmlspecialchars($search) ?>"
           autocomplete="off">
         <button type="button" class="search-clear">✕</button>
-        <button type="submit" class="search-btn">جستجو</button>
+        <button type="submit" class="search-btn"><?= $textbotlang['panel']['service_html_0006'] ?></button>
       </div>
       <?php if ($search || $status): ?>
-        <a href="service.php" class="btn-link" style="font-size:.78rem">پاک</a>
+        <a href="service.php" class="btn-link" style="font-size:.78rem"><?= $textbotlang['panel']['service_html_0007'] ?></a>
       <?php endif; ?>
     </form>
   </div>
@@ -78,13 +78,13 @@ include __DIR__ . '/inc/layout_head.php';
       <thead>
         <tr>
           <th>#</th>
-          <th>کاربر</th>
-          <th>یوزرنیم</th>
-          <th>نوع</th>
-          <th>مقدار</th>
-          <th>قیمت</th>
-          <th>تاریخ</th>
-          <th>وضعیت</th>
+          <th><?= $textbotlang['panel']['service_html_0008'] ?></th>
+          <th><?= $textbotlang['panel']['service_html_0009'] ?></th>
+          <th><?= $textbotlang['panel']['service_html_0010'] ?></th>
+          <th><?= $textbotlang['panel']['service_html_0011'] ?></th>
+          <th><?= $textbotlang['panel']['service_html_0012'] ?></th>
+          <th><?= $textbotlang['panel']['service_html_0013'] ?></th>
+          <th><?= $textbotlang['panel']['service_html_0014'] ?></th>
         </tr>
       </thead>
       <tbody>
@@ -100,7 +100,7 @@ include __DIR__ . '/inc/layout_head.php';
                   <rect x="100" y="85" width="30" height="8" rx="4" fill="var(--bd)" />
                   <path d="M60 65 l10 10 l20-20" stroke="var(--ac)" stroke-width="3" stroke-linecap="round" fill="none" />
                 </svg>
-                <p><?= $search ? 'سرویسی یافت نشد' : 'هنوز سرویس دستی ثبت نشده' ?></p>
+                <p><?= $search ? $textbotlang['panel']['service_0012'] : $textbotlang['panel']['service_0013'] ?></p>
               </div>
             </td>
           </tr>
@@ -108,9 +108,9 @@ include __DIR__ . '/inc/layout_head.php';
           $i = $offset + 1;
           foreach ($services as $s):
             $stMap = [
-              'done' => ['tag-ok', 'انجام شده'],
-              'pending' => ['tag-warn', 'در انتظار'],
-              'reject' => ['tag-no', 'رد شده'],
+              'done' => ['tag-ok', $textbotlang['panel']['service_0014']],
+              'pending' => ['tag-warn', $textbotlang['panel']['service_0015']],
+              'reject' => ['tag-no', $textbotlang['panel']['service_0016']],
             ];
             [$cls, $lbl] = $stMap[$s['status'] ?? ''] ?? ['tag-plain', $s['status'] ?? '—'];
             $typeLabel = $typeMap[$s['type'] ?? ''] ?? ($s['type'] ?? '—');
@@ -123,7 +123,7 @@ include __DIR__ . '/inc/layout_head.php';
               </td>
               <td style="font-size:.82rem;color:var(--text2)"><?= htmlspecialchars($typeLabel) ?></td>
               <td class="cn" style="font-size:.82rem"><?= htmlspecialchars(trunc($s['value'] ?? '—', 20)) ?></td>
-              <td class="cn cs"><?= number_format((int) ($s['price'] ?? 0)) ?> <span class="cf">ت</span></td>
+              <td class="cn cs"><?= number_format((int) ($s['price'] ?? 0)) ?> <span class="cf"><?= $textbotlang['panel']['service_html_0015'] ?></span></td>
               <td class="cf"><?= safe_date($s['time'] ?? null, 'Y/m/d') ?></td>
               <td><span class="tag <?= $cls ?>"><?= $lbl ?></span></td>
             </tr>
@@ -133,7 +133,7 @@ include __DIR__ . '/inc/layout_head.php';
   </div>
 
   <div class="tbl-foot">
-    <span><?= number_format($total) ?> رکورد · صفحه <?= $page ?> از <?= $totalPages ?></span>
+    <span><?= number_format($total) ?> <?= $textbotlang['panel']['service_html_0016'] ?> <?= $page ?> <?= $textbotlang['panel']['service_html_0017'] ?> <?= $totalPages ?></span>
     <div class="pager">
       <?php $qs = fn($p) => '?q=' . urlencode($search) . '&status=' . urlencode($status) . '&page=' . $p; ?>
       <a class="<?= $page <= 1 ? 'dis' : '' ?>" href="<?= $qs(max(1, $page - 1)) ?>">‹</a>

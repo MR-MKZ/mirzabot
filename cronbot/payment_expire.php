@@ -24,20 +24,15 @@ while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
         'Currency Rial 1' => $textbotlang['textbot']['iranPay2'],
         'Currency Rial 2' => $textbotlang['textbot']['iranPay3'],
         'Currency Rial 3' => $textbotlang['textbot']['iranPay1'],
-        'Currency Rial tow' => "پرداخت ارزی ریالی",
-        'Currency Rial gateway3' => "پرداخت ارزی ریالی دوم",
-        'perfect' => "پرفکت مانی",
+        'Currency Rial tow' => $textbotlang['hardcoded']['cron_payexp_0001'],
+        'Currency Rial gateway3' => $textbotlang['hardcoded']['cron_payexp_0002'],
+        'perfect' => $textbotlang['hardcoded']['cron_payexp_0003'],
         'paymentnotverify' => $textbotlang['textbot']['paymentNotVerify'],
         'Star Telegram' => $textbotlang['textbot']['starTelegram'],
         'nowpayment' => $textbotlang['textbot']['cryptoPayment']
         
     ][$result['Payment_Method']];
-    $textexpire = "⭕️ کاربر گرامی ، فاکتور زیر به دلیل عدم پرداخت در مدت زمان مشخص شده منقضی شد .
-❗️لطفاً به هیچ عنوان وجهی بابت این فاکتور  پرداخت نکنید و مجدداً فاکتور ایجاد نمایید ‌‌.
-
-🛒 روش پرداختی شما : $status_var
-📌 کد فاکتور : <code>{$result['id_order']}</code>
-🪙 مبلغ فاکتور :  {$result['price']} تومان";
+    $textexpire = sprintf($textbotlang['hardcoded']['cron_payexp_0004'], $status_var, $result['id_order'], $result['price']);
 // sendmessage($result['id_user'], $textexpire, null, 'html');
 deletemessage($result['id_user'], $result['message_id']);
 update("Payment_report","payment_Status","expire","id_order",$result['id_order']);

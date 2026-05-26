@@ -1,6 +1,7 @@
 <?php
 require_once '../config.php';
 require_once '../function.php';
+$textbotlang = languagechange();
 require_once '../botapi.php';
 require_once '../panels.php';
 require_once '../jdf.php';
@@ -107,9 +108,9 @@ switch ($data['actions']) {
             foreach ($invoices as $invoice) {
                 $DataUserOut = $ManagePanel->DataUser($invoice['Service_location'], $invoice['username']);
                 if ($DataUserOut['status'] == "Unsuccessful") {
-                    $expire = "نامشخص";
+                    $expire = $textbotlang['hardcoded']['api_miniapp_0001'];
                 } else {
-                    $expire = $DataUserOut['expire'] ? jdate('Y/m/d', $DataUserOut['expire']) : 'نامحدود';
+                    $expire = $DataUserOut['expire'] ? jdate('Y/m/d', $DataUserOut['expire']) : $textbotlang['hardcoded']['api_miniapp_unlimited'];
                 }
                 $datauser[] = [
                     'username' => $invoice['username'],
@@ -208,9 +209,9 @@ switch ($data['actions']) {
                 $lastupdate = null;
             }
             if (($DataUserOut['online_at'] ?? null) == "online") {
-                $lastonline = 'آنلاین';
+                $lastonline = $textbotlang['hardcoded']['api_miniapp_online'];
             } elseif (($DataUserOut['online_at'] ?? null) == "offline") {
-                $lastonline = 'آفلاین';
+                $lastonline = $textbotlang['hardcoded']['api_miniapp_offline'];
             } else {
                 if (isset($DataUserOut['online_at']) && $DataUserOut['online_at'] !== null) {
                     $dateString = $DataUserOut['online_at'];
@@ -218,11 +219,11 @@ switch ($data['actions']) {
                     $date->setTimezone(new DateTimeZone('Asia/Tehran'));
                     $lastonline = jdate('Y/m/d H:i:s', $date->getTimestamp());
                 } else {
-                    $lastonline = "متصل نشده";
+                    $lastonline = $textbotlang['hardcoded']['api_miniapp_0002'];
                 }
             }
             $expireTimestamp = isset($DataUserOut['expire']) && is_numeric($DataUserOut['expire']) ? (int) $DataUserOut['expire'] : 0;
-            $expirationDate = $expireTimestamp ? jdate('Y/m/d', $expireTimestamp) : 'نامحدود';
+            $expirationDate = $expireTimestamp ? jdate('Y/m/d', $expireTimestamp) : $textbotlang['hardcoded']['api_miniapp_unlimited'];
             $usernameOutput = $DataUserOut['username'] ?? $invoice['username'];
             echo json_encode([
                 'status' => true,
@@ -265,12 +266,12 @@ switch ($data['actions']) {
                 $user_info['codeInvitation'] = $randomString;
             }
             if ($user_info['number'] == "none") {
-                $numberphone = "🔴 ارسال نشده است 🔴";
+                $numberphone = $textbotlang['hardcoded']['api_miniapp_0003'];
             } else {
                 $numberphone = $user_info['number'];
             }
             if ($user_info['number'] == "confrim number by admin") {
-                $numberphone = "✅ تایید شده توسط ادمین";
+                $numberphone = $textbotlang['hardcoded']['api_miniapp_0004'];
             }
             $stmt = $pdo->prepare("SELECT * FROM invoice WHERE id_user = :id_user AND name_product != 'سرویس تست' AND (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold')");
             $stmt->execute([
@@ -283,9 +284,9 @@ switch ($data['actions']) {
             ]);
             $countpayment = $stmt->rowCount();
             $groupuser = [
-                'f' => "عادی",
-                'n' => "نماینده",
-                'n2' => "نمایندگی پیشرفته",
+                'f' => $textbotlang['hardcoded']['api_miniapp_0005'],
+                'n' => $textbotlang['hardcoded']['api_miniapp_0006'],
+                'n2' => $textbotlang['hardcoded']['api_miniapp_0007'],
             ][$user_info['agent']];
             $userjoin = jdate('Y/m/d', $user_info['register']);
             echo json_encode([
@@ -715,7 +716,7 @@ switch ($data['actions']) {
             http_response_code(500);
             echo json_encode(array(
                 'status' => false,
-                'msg' => "پنل انتخابی موجود نیست."
+                'msg' => $textbotlang['hardcoded']['api_miniapp_0008']
             ));
             return;
         }
@@ -723,7 +724,7 @@ switch ($data['actions']) {
             http_response_code(500);
             echo json_encode(array(
                 'status' => false,
-                'msg' => "پنل انتخابی درحال حاضر فعال نیست"
+                'msg' => $textbotlang['hardcoded']['api_miniapp_0009']
             ));
             return;
         }
@@ -758,7 +759,7 @@ switch ($data['actions']) {
                 http_response_code(500);
                 echo json_encode(array(
                     'status' => false,
-                    'msg' => "حجم نامعتبر است خرید را از اول انجام دهید"
+                    'msg' => $textbotlang['hardcoded']['api_miniapp_0010']
                 ));
                 return;
             }
@@ -766,7 +767,7 @@ switch ($data['actions']) {
                 http_response_code(500);
                 echo json_encode(array(
                     'status' => false,
-                    'msg' => "زمان نامعتبر است خرید را از اول انجام دهید"
+                    'msg' => $textbotlang['hardcoded']['api_miniapp_0011']
                 ));
                 return;
             }
@@ -775,7 +776,7 @@ switch ($data['actions']) {
             http_response_code(500);
             echo json_encode(array(
                 'status' => false,
-                'msg' => "محصول انتخابی پیدا نشد"
+                'msg' => $textbotlang['hardcoded']['api_miniapp_0012']
             ));
             return;
         }
@@ -788,7 +789,7 @@ switch ($data['actions']) {
             http_response_code(500);
             echo json_encode(array(
                 'status' => false,
-                'msg' => "موجودی کمتر از قیمت محصول است"
+                'msg' => $textbotlang['hardcoded']['api_miniapp_0013']
             ));
             return;
         }
@@ -800,7 +801,7 @@ switch ($data['actions']) {
             http_response_code(500);
             echo json_encode(array(
                 'status' => false,
-                'msg' => "نام کاربری وجود دارد مراحل را از اول طی کنید"
+                'msg' => $textbotlang['hardcoded']['api_miniapp_0014']
             ));
             return;
         }
@@ -833,16 +834,11 @@ switch ($data['actions']) {
             http_response_code(500);
             echo json_encode(array(
                 'status' => false,
-                'msg' => "خطایی در ساخت اشتراک رخ داده است با پشتیبانی در ارتباط باشید"
+                'msg' => $textbotlang['hardcoded']['api_miniapp_0015']
             ));
             $dataoutput['msg'] = json_encode($dataoutput['msg']);
 
-            $texterros = "⭕️ خطای ساخت اشتراک 
-✍️ دلیل خطا : 
-{$dataoutput['msg']}
-آیدی کابر : {$user_info['id']}
-نام کاربری کاربر : @{$user_info['username']}
-نام پنل : {$panel['name_panel']}";
+            $texterros = sprintf($textbotlang['hardcoded']['api_miniapp_0016'], $dataoutput['msg'], $user_info['id'], $user_info['username'], $panel['name_panel']);
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],
@@ -901,19 +897,15 @@ switch ($data['actions']) {
                     $user_Balance = select("user", "*", "id", $user_info['affiliates'], "select");
                     $Balance_prim = $user_Balance['Balance'] + $result;
                     if (intval($setting['scorestatus']) == 1) {
-                        sendmessage($user_info['affiliates'], "📌شما 2 امتیاز جدید کسب کردید.", null, 'html');
+                        sendmessage($user_info['affiliates'], $textbotlang['hardcoded']['api_miniapp_0017'], null, 'html');
                         $scorenew = $user_Balance['score'] + 2;
                         update("user", "score", $scorenew, "id", $user_info['affiliates']);
                     }
                     update("user", "Balance", $Balance_prim, "id", $user_info['affiliates']);
                     $result = number_format($result);
                     $dateacc = date('Y/m/d H:i:s');
-                    $textadd = "🎁  پرداخت پورسانت 
-            
-            مبلغ $result تومان به حساب شما از طرف  زیر مجموعه تان به کیف پول شما واریز گردید";
-                    $textreportport = "
-    مبلغ $result به کاربر {$user_info['affiliates']} برای پورسانت از کاربر {$user_info['id']} واریز گردید 
-    تایم : $dateacc";
+                    $textadd = sprintf($textbotlang['hardcoded']['api_miniapp_0018'], $result);
+                    $textreportport = sprintf($textbotlang['hardcoded']['api_miniapp_0019'], $result, $user_info['affiliates'], $user_info['id'], $dateacc);
                     if (strlen($setting['Channel_Report']) > 0) {
                         telegram('sendmessage', [
                             'chat_id' => $setting['Channel_Report'],
@@ -929,19 +921,15 @@ switch ($data['actions']) {
                     $user_Balance = select("user", "*", "id", $user_info['affiliates'], "select");
                     $Balance_prim = $user_Balance['Balance'] + $result;
                     if (intval($setting['scorestatus']) == 1) {
-                        sendmessage($user_info['affiliates'], "📌شما 2 امتیاز جدید کسب کردید.", null, 'html');
+                        sendmessage($user_info['affiliates'], $textbotlang['hardcoded']['api_miniapp_0020'], null, 'html');
                         $scorenew = $user_Balance['score'] + 2;
                         update("user", "score", $scorenew, "id", $user_info['affiliates']);
                     }
                     update("user", "Balance", $Balance_prim, "id", $user_info['affiliates']);
                     $result = number_format($result);
                     $dateacc = date('Y/m/d H:i:s');
-                    $textadd = "🎁  پرداخت پورسانت 
-        
-        مبلغ $result تومان به حساب شما از طرف  زیر مجموعه تان به کیف پول شما واریز گردید";
-                    $textreportport = "
-مبلغ $result به کاربر {$user_info['affiliates']} برای پورسانت از کاربر {$user_info['id']} واریز گردید 
-تایم : $dateacc";
+                    $textadd = sprintf($textbotlang['hardcoded']['api_miniapp_0021'], $result);
+                    $textreportport = sprintf($textbotlang['hardcoded']['api_miniapp_0022'], $result, $user_info['affiliates'], $user_info['id'], $dateacc);
                     if (strlen($setting['Channel_Report']) > 0) {
                         telegram('sendmessage', [
                             'chat_id' => $setting['Channel_Report'],
@@ -955,14 +943,14 @@ switch ($data['actions']) {
             }
         }
         if (intval($setting['scorestatus']) == 1) {
-            sendmessage($user_info['id'], "📌شما 1 امتیاز جدید کسب کردید.", null, 'html');
+            sendmessage($user_info['id'], $textbotlang['hardcoded']['api_miniapp_0023'], null, 'html');
             $scorenew = $user_info['score'] + 1;
             update("user", "score", $scorenew, "id", $user_info['id']);
         }
         $balanceformatsell = number_format(select("user", "Balance", "id", $user_info['id'], "select")['Balance'], 0);
         $textonebuy = "";
         if ($countinvoice == 1) {
-            $textonebuy = "📌 خرید اول کاربر";
+            $textonebuy = $textbotlang['hardcoded']['api_miniapp_0024'];
         }
         $balanceformatsellbefore = number_format($user_info['Balance'], 0);
         $Response = json_encode([
@@ -973,24 +961,7 @@ switch ($data['actions']) {
             ]
         ]);
         $timejalali = jdate('Y/m/d H:i:s');
-        $text_report = "📣 جزئیات ساخت اکانت در مینی اپ ثبت شد .
-        
-$textonebuy
-▫️آیدی عددی کاربر : <code>{$user_info['id']}</code>
-▫️نام کاربری کاربر :@{$user_info['username']}
-▫️نام کاربری کانفیگ :$username_ac
-▫️موقعیت سرویس سرویس : {$panel['name_panel']}
-▫️نام محصول :{$product['name_product']}
-▫️زمان خریداری شده :{$product['Service_time']} روز
-▫️حجم خریداری شده : {$product['Volume_constraint']} GB
-▫️موجودی قبل خرید : $balanceformatsellbefore تومان
-▫️موجودی بعد خرید : $balanceformatsell تومان
-▫️کد پیگیری: $randomString
-▫️نوع کاربر : {$user_info['agent']}
-▫️شماره تلفن کاربر : {$user_info['number']}
-▫️دسته بندی محصول : {$product['category']}
-▫️قیمت محصول : {$product['price_product']} تومان
-▫️زمان خرید : $timejalali";
+        $text_report = sprintf($textbotlang['hardcoded']['api_miniapp_0025'], $textonebuy, $user_info['id'], $user_info['username'], $username_ac, $panel['name_panel'], $product['name_product'], $product['Service_time'], $product['Volume_constraint'], $balanceformatsellbefore, $balanceformatsell, $randomString, $user_info['agent'], $user_info['number'], $product['category'], $product['price_product'], $timejalali);
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
                 'chat_id' => $setting['Channel_Report'],

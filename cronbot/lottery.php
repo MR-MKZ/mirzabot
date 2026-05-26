@@ -41,7 +41,7 @@ if (intval($setting['scorestatus']) == 1) {
         $stmt->execute();
 
         $count = 0;
-        $textlotterygroup = "📌 ادمین عزیز کاربران زیر برنده قرعه کشی و حسابشان شارژ گردید.\n";
+        $textlotterygroup = $textbotlang['hardcoded']['cron_lottery_0001'];
 
         $textJson = json_decode(file_get_contents('../text.json'), true);
         if (!is_array($textJson)) {
@@ -68,10 +68,10 @@ if (intval($setting['scorestatus']) == 1) {
             $balanceFormatted = number_format($prizeAmount);
             $rank = $count + 1;
 
-            $textlottery = "🎁 نتیجه قرعه کشی \n\n😎 کاربر عزیز تبریک! شما نفر $rank برنده $balanceFormatted تومان موجودی شدید و حساب شما شارژ گردید.";
+            $textlottery = sprintf($textbotlang['hardcoded']['cron_lottery_0002'], $rank, $balanceFormatted);
             sendmessage($result['id'], $textlottery, null, 'html');
 
-            $textlotterygroup .= "\nنام کاربری : @{$result['username']}\nآیدی عددی : {$result['id']}\nمبلغ : $balanceFormatted\nنفر : $rank\n--------------";
+            $textlotterygroup .= sprintf($textbotlang['hardcoded']['cron_lottery_0003'], $result['username'], $result['id'], $balanceFormatted, $rank);
 
             $count++;
         }

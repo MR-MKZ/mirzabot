@@ -4,6 +4,7 @@ date_default_timezone_set('Asia/Tehran');
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../botapi.php';
 require_once __DIR__ . '/../function.php';
+$textbotlang = languagechange();
 $setting = select("setting","*",null,null,"select");
 
 //________________[ time 12 report]________________
@@ -95,14 +96,14 @@ $params = [
 
 $stmt = executeQuery($pdo, $sqlTopAgents, $params);
 $listagentuser = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$textagent = "لیست نمایندگانی که بیشترین خرید در امروز داشتند :\n";
+$textagent = $textbotlang['hardcoded']['cron_statusday_0001'];
 foreach ($listagentuser as $agent) {
-    $textagent .= "\nایدی عددی کاربر : {$agent['id']}\nنام کاربری کاربر : {$agent['username']}\nجمع کل خرید امروز : {$agent['total_spent']}\n---------------\n";
+    $textagent .= sprintf($textbotlang['hardcoded']['cron_statusday_0002'], $agent['id'], $agent['username'], $agent['total_spent']);
 }
 
 // Fetch panel reports
 $panels = select("marzban_panel", "*", null, null, "fetchAll");
-$textpanel = "گزارش پنل ها :\n";
+$textpanel = $textbotlang['hardcoded']['cron_statusday_0003'];
 foreach ($panels as $panel) {
     $sqlPanel = "SELECT COUNT(*) AS orders, SUM(price_product) AS total_price, SUM(Volume) AS total_volume 
                  FROM invoice 
@@ -118,11 +119,11 @@ foreach ($panels as $panel) {
     $total_price = $result['total_price'] ?? 0;
     $total_volume = $result['total_volume'] ?? 0;
 
-    $textpanel .= "\nنام پنل : {$panel['name_panel']}\n🛍 تعداد سفارشات امروز : $orders عدد\n🛍 جمع مبلغ سفارشات امروز : $total_price تومان\n🔋 جمع حجم های فروخته شده : $total_volume گیگابایت\n---------------\n";
+    $textpanel .= sprintf($textbotlang['hardcoded']['cron_statusday_0004'], $panel['name_panel'], $orders, $total_price, $total_volume);
 }
 
 // Daily report text
-$textreport = "📌 گزارش روزانه کارکرد ربات :\n\n🧲 تعداد تمدید امروز : $countextendday عدد\n💰 جمع تمدید امروز : $sumcountextend تومان\n🛍 تعداد سفارشات امروز : $dayListSell عدد\n🛍 جمع مبلغ سفارشات امروز : $suminvoiceday تومان\n🔑 اکانت های تست امروز : $dayListSelltest عدد\n🔋 جمع حجم های فروخته شده : $sumvolume گیگابایت\nتعداد کاربرانی که امروز به ربات پیوستند : $usernew نفر\n";
+$textreport = sprintf($textbotlang['hardcoded']['cron_statusday_0005'], $countextendday, $sumcountextend, $dayListSell, $suminvoiceday, $dayListSelltest, $sumvolume, $usernew);
 
 // Send reports to Telegram
 if (!empty($setting['Channel_Report'])) {

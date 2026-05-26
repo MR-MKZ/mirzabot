@@ -5,6 +5,7 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Marzban.php';
 require_once __DIR__ . '/../botapi.php';
 require_once __DIR__ . '/../function.php';
+$textbotlang = languagechange();
 
 
 
@@ -22,9 +23,7 @@ $Getdnodes = json_decode($Getdnodes['body'],true);
 if(count($Getdnodes) == 0)return;
 foreach($Getdnodes as $data){
     if(!in_array($data['status'],["connected","disabled"])){
-            $textnode = "🚨 ادمین عزیز نود با اسم {$data['name']} متصل نیست.
-وضعیت نود : {$data['status']}
-✍️ دلیل خطا : <code> {$data['message']}</code>";
+            $textnode = sprintf($textbotlang['hardcoded']['cron_uptnode_0001'], $data['name'], $data['status'], $data['message']);
         if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
         'chat_id' => $setting['Channel_Report'],

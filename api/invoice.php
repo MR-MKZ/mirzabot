@@ -3,6 +3,7 @@
 // Configuration and includes
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../function.php';
+$textbotlang = languagechange();
 require_once __DIR__ . '/../botapi.php';
 require_once __DIR__ . '/../panels.php';
 header('Content-Type: application/json');
@@ -261,7 +262,7 @@ switch ($action) {
         if ($data['code_product'] == "customvolume") {
             if (empty($data["time_service"]) || empty($data["volume_service"]))
                 sendJsonResponse(false, "invalid value service time or volume", []);
-            $product['name_product'] = "⚙️ سرویس دلخواه";
+            $product['name_product'] = $textbotlang['hardcoded']['api_invoice_0001'];
             $product['code_product'] = "customvolume";
             $product['Service_time'] = $data['time_service'];
             $product['price_product'] = 1;
@@ -293,14 +294,9 @@ switch ($action) {
             );
             $DataUserOut = $ManagePanel->createUser($panel['name_panel'], $product['code_product'], $data['username'], $datac);
             if ($DataUserOut['username'] == null) {
-                sendmessage($data['chat_id'], "❌ خطایی در ساخت اشتراک رخ داده است برای رفع مشکل علت خطا را در گروه گزارش تان بررسی کنید", null, 'HTML');
+                sendmessage($data['chat_id'], $textbotlang['hardcoded']['api_invoice_0002'], null, 'HTML');
                 $DataUserOut['msg'] = json_encode($DataUserOut['msg']);
-                $texterros = "
-خطا در ساخت کافنیگ از پنل ادمین
-✍️ دلیل خطا : 
-{$DataUserOut['msg']}
-آیدی ادمین : {$data['chat_id']}
-نام پنل : {$panel['name_panel']}";
+                $texterros = sprintf($textbotlang['hardcoded']['api_invoice_0003'], $DataUserOut['msg'], $data['chat_id'], $panel['name_panel']);
                 if (strlen($setting['Channel_Report']) > 0) {
                     telegram('sendmessage', [
                         'chat_id' => $setting['Channel_Report'],
@@ -393,12 +389,8 @@ switch ($action) {
         $extend = $ManagePanel->extend($panel['Methodextend'], $data['volume_service'], $data['time_service'], $invoice['username'], "custom_volume", $panel['code_panel']);
         if ($extend['status'] == false) {
             $extend['msg'] = json_encode($extend['msg']);
-            $textreports = "
-        خطای تمدید سرویس
-نام پنل : {$panel['name_panel']}
-نام کاربری سرویس : {$invoice['username']}
-دلیل خطا : {$extend['msg']}";
-            sendmessage($invoice['id_user'], "❌خطایی در تمدید سرویس رخ داده با پشتیبانی در ارتباط باشید", null, 'HTML');
+            $textreports = sprintf($textbotlang['hardcoded']['api_invoice_0004'], $panel['name_panel'], $invoice['username'], $extend['msg']);
+            sendmessage($invoice['id_user'], $textbotlang['hardcoded']['api_invoice_0005'], null, 'HTML');
             if (strlen($setting['Channel_Report']) > 0) {
                 telegram('sendmessage', [
                     'chat_id' => $setting['Channel_Report'],

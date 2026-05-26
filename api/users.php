@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../function.php';
+$textbotlang = languagechange();
 require_once __DIR__ . '/../botapi.php';
 
 // Set headers and configuration
@@ -330,13 +331,10 @@ switch ($data['actions'] ?? '') {
         }
         if ($data['type_block'] == "block") {
             $typeblock = "block";
-            $text_report = "کاربر با آیدی عددی {$data['chat_id']} در ربات  مسدود گردید 
-ادمین انجام دهنده : api site";
+            $text_report = sprintf($textbotlang['hardcoded']['api_users_0001'], $data['chat_id']);
         } else {
-            $text_report = "کاربر با آیدی عددی {$data['chat_id']} در ربات از مسدودیت خارج گردید 
-ادمین انجام دهنده : api site";
-            sendmessage($data['chat_id'], "✳️ حساب کاربری شما از مسدودی خارج شد ✳️
-اکنون میتوانید از ربات استفاده کنید ✔️", null, 'HTML');
+            $text_report = sprintf($textbotlang['hardcoded']['api_users_0002'], $data['chat_id']);
+            sendmessage($data['chat_id'], $textbotlang['hardcoded']['api_users_0003'], null, 'HTML');
             $typeblock = "Active";
         }
         update("user", "description_blocking", $data['description'], "id", $data['chat_id']);
@@ -355,7 +353,7 @@ switch ($data['actions'] ?? '') {
             $type_verify = "0";
         } else {
             $type_verify = "1";
-            sendmessage($data['chat_id'], "💎 کاربر گرامی حساب کاربری شما با موفقیت احراز هویت گردید و هم اکنون می توانیدخرید خود را انجام دهید", null, 'HTML');
+            sendmessage($data['chat_id'], $textbotlang['hardcoded']['api_users_0004'], null, 'HTML');
         }
         update("user", "verify", $type_verify, "id", $data['chat_id']);
         sendJsonResponse(true, "Successful");
@@ -392,7 +390,7 @@ switch ($data['actions'] ?? '') {
         $stmt->bindValue(':user_id', intval($data['chat_id']), PDO::PARAM_INT);
         $stmt->bindValue(':amount', intval($data['amount']), PDO::PARAM_INT);
         $stmt->execute();
-        $text_balance = "💎 کاربر عزیز مبلغ {$data['amount']} تومان به موجودی کیف پول تان اضافه گردید.";
+        $text_balance = sprintf($textbotlang['hardcoded']['api_users_0005'], $data['amount']);
         sendmessage($data['chat_id'], $text_balance, null, 'html');
         sendJsonResponse(true, "Successful");
         break;
@@ -410,7 +408,7 @@ switch ($data['actions'] ?? '') {
         $stmt->bindValue(':user_id', intval($data['chat_id']), PDO::PARAM_INT);
         $stmt->bindValue(':amount', intval($data['amount']), PDO::PARAM_INT);
         $stmt->execute();
-        $text_balance = "❌ کاربر عزیز مبلغ {$data['amount']} تومان از  موجودی کیف پول تان کسر گردید.";
+        $text_balance = sprintf($textbotlang['hardcoded']['api_users_0006'], $data['amount']);
         sendmessage($data['chat_id'], $text_balance, null, 'html');
         sendJsonResponse(true, "Successful");
         break;
@@ -689,7 +687,7 @@ switch ($data['actions'] ?? '') {
         $new_code = str_replace('BotTokenNew', $data['token'], $contentconfig);
         file_put_contents($dirsource . "/config.php", $new_code);
         file_get_contents("https://api.telegram.org/bot{$data['token']}/setwebhook?url=https://$domainhosts/vpnbot/{$data['chat_id']}{$getInfoToken['result']['username']}/index.php");
-        file_get_contents("https://api.telegram.org/bot{$data['token']}/sendmessage?chat_id={$data['chat_id']}&text=✅ کاربر عزیز ربات شما با موفقیت نصب گردید.");
+        file_get_contents(sprintf($textbotlang['hardcoded']['api_users_0007'], $data['token'], $data['chat_id']));
         $datasetting = json_encode(array(
             "minpricetime" => 4000,
             "pricetime" => 4000,
@@ -697,7 +695,7 @@ switch ($data['actions'] ?? '') {
             "pricevolume" => 4000,
             "support_username" => "@support",
             "Channel_Report" => 0,
-            "cart_info" => "جهت پرداخت مبلغ را به شماره کارت زیر واریز نمایید",
+            "cart_info" => $textbotlang['hardcoded']['api_users_0008'],
             'show_product' => true,
         ));
         $value = "{}";

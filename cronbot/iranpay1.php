@@ -27,14 +27,10 @@ while ($Payment_report = mysqli_fetch_assoc($list_service)) {
         $result = ($Payment_report['price'] * $pricecashback) / 100;
         $Balance_confrim = intval($Balance_id['Balance']) +$result ;
         update("user","Balance",$Balance_confrim, "id",$Balance_id['id']); 
-        $text_report = "🎁 کاربر عزیز مبلغ $result تومان به عنوان هدیه واریز به حساب شما واریز گردید.";
+        $text_report = sprintf($textbotlang['hardcoded']['cron_iranpay1_0001'], $result);
         sendmessage($Balance_id['id'], $text_report, null, 'HTML');
     }
-        $text_reportpayment = "💵 پرداخت جدید
-- 👤 نام کاربری کاربر : @{$Balance_id['username']}
-- ‏🆔آیدی عددی کاربر : {$Balance_id['id']}
-- 💸 مبلغ تراکنش {$Payment_report['price']}
-- 💳 روش پرداخت :  ارزی ریالی سوم";
+        $text_reportpayment = sprintf($textbotlang['hardcoded']['cron_iranpay1_0002'], $Balance_id['username'], $Balance_id['id'], $Payment_report['price']);
          if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
         'chat_id' => $setting['Channel_Report'],

@@ -5,6 +5,7 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../botapi.php';
 require_once __DIR__ . '/../panels.php';
 require_once __DIR__ . '/../function.php';
+$textbotlang = languagechange();
 $ManagePanel = new ManagePanel();
 
 $setting = select("setting", "*");
@@ -31,12 +32,7 @@ $stmt->execute();
         $stmt->execute();
         $service_other = $stmt->rowCount();
         if($service_other != 0)continue;
-                $text = "سلام! 🌐
-
-دیدیم که شما هنوز به کانفیگ خود با نام کاربری $line متصل نشده‌اید و بیش از {$setting['on_hold_day']} روز از فعال‌سازی آن گذشته است. اگر در راه‌اندازی یا استفاده از سرویس مشکلی دارید، لطفاً با تیم پشتیبانی ما  از طریق آیدی زیر در ارتباط باشید تا به شما کمک کنیم.
-ما آماده‌ایم تا هر گونه سوال یا مشکلی را برطرف کنیم! 📞
-
-اکانت پشتیبانی : @{$setting['id_support']}";
+                $text = sprintf($textbotlang['hardcoded']['cron_onhold_0001'], $line, $setting['on_hold_day'], $setting['id_support']);
             sendmessage($resultss['id_user'], $text, null, 'HTML');
             update("invoice","Status","send_on_hold", "username",$line);
             }

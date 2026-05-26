@@ -29,7 +29,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         continue;
     }
         update("Payment_report","payment_Status","paid","id_order",$Payment_report['id_order']);
-        update("Payment_report","dec_not_confirmed","تایید توسط ربات بدون بررسی","id_order",$Payment_report['id_order']);
+        update("Payment_report","dec_not_confirmed",$textbotlang['hardcoded']['cron_croncard_0001'],"id_order",$Payment_report['id_order']);
         DirectPayment($Payment_report['id_order'],"../images.jpg");
         $pricecashback = select("PaySetting", "ValuePay", "NamePay", "chashbackcart","select")['ValuePay'];
     $Balance_id = select("user","*","id",$Payment_report['id_user'],"select");
@@ -38,15 +38,10 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $Balance_confrim = intval($Balance_id['Balance']) +$result;
         update("user","Balance",$Balance_confrim, "id",$Balance_id['id']); 
         $pricecashback =  number_format($pricecashback);
-        $text_report = "🎁 کاربر عزیز مبلغ $result تومان به عنوان هدیه واریز به حساب شما واریز گردید.";
+        $text_report = sprintf($textbotlang['hardcoded']['cron_croncard_0002'], $result);
         sendmessage($Balance_id['id'], $text_report, null, 'HTML');
     }
-        $text_reportpayment = "💵 پرداخت جدید
-        
-آیدی عددی کاربر : {$Balance_id['id']}
-مبلغ تراکنش {$Payment_report['price']}
-روش پرداخت :  تایید خودکار بدون بررسی
-{$Payment_report['Payment_Method']}";
+        $text_reportpayment = sprintf($textbotlang['hardcoded']['cron_croncard_0003'], $Balance_id['id'], $Payment_report['price'], $Payment_report['Payment_Method']);
          if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
         'chat_id' => $setting['Channel_Report'],

@@ -33,10 +33,7 @@ while ($row = mysqli_fetch_assoc($list_service)) {
     if($Payment_report['dec_not_confirmed'] == null)continue;
     $StatusPayment = statusplisio($Payment_report['id_order']);
     if($StatusPayment['data']['operations'][0]['status'] == null || $StatusPayment['data']['operations'][0]['status'] == "cancelled"){
-    $textexpire = "❌ تراکنش زیر بدلیل عدم پرداخت منقضی شد، لطفا وجهی بابت این تراکنش پرداخت نکنید
-
-🛒 کد سفارش: {$Payment_report['id_order']}
-💰 مبلغ:  {$Payment_report['price']} تومان";
+    $textexpire = sprintf($textbotlang['hardcoded']['cron_plisio_0001'], $Payment_report['id_order'], $Payment_report['price']);
     sendmessage($Payment_report['id_user'], $textexpire, null, 'html');
     update("Payment_report","payment_Status","expire","id_order",$Payment_report['id_order']);
 }
@@ -49,17 +46,10 @@ while ($row = mysqli_fetch_assoc($list_service)) {
         $Balance_confrim = intval($Balance_id['Balance']) +$result;
         update("user","Balance",$Balance_confrim, "id",$Balance_id['id']); 
         $pricecashback =  number_format($pricecashback);
-        $text_report = "🎁 کاربر عزیز مبلغ $result تومان به عنوان هدیه واریز به حساب شما واریز گردید.";
+        $text_report = sprintf($textbotlang['hardcoded']['cron_plisio_0002'], $result);
         sendmessage($Balance_id['id'], $text_report, null, 'HTML');
     }
-    $text_reportpayment = "💵 پرداخت جدید
-- 👤 نام کاربری کاربر : @{$Balance_id['username']}
-- ‏🆔آیدی عددی کاربر : {$Balance_id['id']}
-- 💸 مبلغ تراکنش {$Payment_report['price']}
-- 🔗 <a href = \"{$StatusPayment['tx_url'][0]}\">لینک پرداخت </a>
-- 🔗 <a href = \"{$StatusPayment['invoice_url']}\">لینک پرداخت plisio </a>
-- 📥 مبلغ واریز شده ترون. : {$StatusPayment['invoice_total_sum']}
-- 💳 روش پرداخت :  plisio";
+    $text_reportpayment = sprintf($textbotlang['hardcoded']['cron_plisio_0003'], $Balance_id['username'], $Balance_id['id'], $Payment_report['price'], $StatusPayment['tx_url'][0], $StatusPayment['invoice_url'], $StatusPayment['invoice_total_sum']);
          if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage',[
         'chat_id' => $setting['Channel_Report'],

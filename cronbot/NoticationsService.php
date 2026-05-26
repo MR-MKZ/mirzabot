@@ -27,7 +27,7 @@ class ServiceMonitor
         $this->setting = select("setting", "*");
         $this->status_cron = json_decode($this->setting['cron_status'], true);
         $this->textBotLang = languagechange();
-        $this->text_Purchased_services = $this->textBotLang['textbot']['text_Purchased_services'] ?? '';
+        $this->text_Purchased_services = $this->textBotLang['textbot']['purchasedServices'] ?? '';
     }
 
     public function RunNotifactions()

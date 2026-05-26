@@ -38,7 +38,7 @@ Editmessagetext($info['id_admin'], $info['id_message'],$textprocces, $cancelmess
 $keyboardbuy = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $textbotlang['textbot']['text_sell'], 'callback_data' => 'buy'],
+                ['text' => $textbotlang['textbot']['sell'], 'callback_data' => 'buy'],
             ],
         ]
     ]);
@@ -52,28 +52,28 @@ $keyboardstart = json_encode([
 $keyboardusertest = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $textbotlang['textbot']['text_usertest'], 'callback_data' => 'usertestbtn'],
+                ['text' => $textbotlang['textbot']['userTest'], 'callback_data' => 'usertestbtn'],
             ],
         ]
     ]);
 $keyboardhelpbtn = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $textbotlang['textbot']['text_help'], 'callback_data' => 'helpbtn'],
+                ['text' => $textbotlang['textbot']['help'], 'callback_data' => 'helpbtn'],
             ],
         ]
     ]);
 $keyboardaffiliates = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $textbotlang['textbot']['text_affiliates'], 'callback_data' => 'affiliatesbtn'],
+                ['text' => $textbotlang['textbot']['affiliates'], 'callback_data' => 'affiliatesbtn'],
             ],
         ]
     ]);
 $keyboardaddbalance = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $textbotlang['textbot']['text_Add_Balance'], 'callback_data' => 'Add_Balance'],
+                ['text' => $textbotlang['textbot']['addBalance'], 'callback_data' => 'Add_Balance'],
             ],
         ]
     ]);

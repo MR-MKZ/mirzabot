@@ -16,20 +16,20 @@ $stmt->execute();
 
 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $status_var = [
-        'cart to cart' =>  $textbotlang['textbot']['carttocart'],
-        'aqayepardakht' => $textbotlang['textbot']['aqayepardakht'],
-        'zarinpal' => $textbotlang['textbot']['zarinpal'],
-        'plisio' => $textbotlang['textbot']['textnowpayment'],
-        'arze digital offline' => $textbotlang['textbot']['textnowpaymenttron'],
-        'Currency Rial 1' => $textbotlang['textbot']['iranpay2'],
-        'Currency Rial 2' => $textbotlang['textbot']['iranpay3'],
-        'Currency Rial 3' => $textbotlang['textbot']['iranpay1'],
+        'cart to cart' =>  $textbotlang['textbot']['cartToCart'],
+        'aqayepardakht' => $textbotlang['textbot']['aqayePardakht'],
+        'zarinpal' => $textbotlang['textbot']['zarinPal'],
+        'plisio' => $textbotlang['textbot']['nowPayment'],
+        'arze digital offline' => $textbotlang['textbot']['nowPaymentTron'],
+        'Currency Rial 1' => $textbotlang['textbot']['iranPay2'],
+        'Currency Rial 2' => $textbotlang['textbot']['iranPay3'],
+        'Currency Rial 3' => $textbotlang['textbot']['iranPay1'],
         'Currency Rial tow' => "پرداخت ارزی ریالی",
         'Currency Rial gateway3' => "پرداخت ارزی ریالی دوم",
         'perfect' => "پرفکت مانی",
-        'paymentnotverify' => $textbotlang['textbot']['textpaymentnotverify'],
-        'Star Telegram' => $textbotlang['textbot']['text_star_telegram'],
-        'nowpayment' => $textbotlang['textbot']['textsnowpayment']
+        'paymentnotverify' => $textbotlang['textbot']['paymentNotVerify'],
+        'Star Telegram' => $textbotlang['textbot']['starTelegram'],
+        'nowpayment' => $textbotlang['textbot']['cryptoPayment']
         
     ][$result['Payment_Method']];
     $textexpire = "⭕️ کاربر گرامی ، فاکتور زیر به دلیل عدم پرداخت در مدت زمان مشخص شده منقضی شد .

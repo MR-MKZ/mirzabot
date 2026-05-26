@@ -105,7 +105,7 @@ if(isset($amountInteger) && $amountInteger !== NULL){
     if ($Payment_report['payment_Status'] == "paid" || $Payment_report['payment_Status'] == "reject") {
         telegram('answerCallbackQuery', array(
             'callback_query_id' => $callback_query_id,
-            'text' => $textbotlang['Admin']['Payment']['reviewedpayment'],
+            'text' => $textbotlang['Admin']['Payment']['reviewedPayment'],
             'show_alert' => true,
             'cache_time' => 5,
         ));

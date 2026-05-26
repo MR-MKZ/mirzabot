@@ -748,7 +748,7 @@ switch ($data['actions']) {
             $customtimevalueprice = $eextraprice[$user_info['agent']];
             $product = array(
                 'code_product' => "customvolume",
-                'name_product' => $textbotlang['users']['customsellvolume']['title'],
+                'name_product' => $textbotlang['users']['customSellVolume']['title'],
                 'Volume_constraint' => $customsrvice['traffic_gb'],
                 'Service_time' => $customsrvice['time_days'],
                 'Location' => $panel['name_panel'],
@@ -860,14 +860,14 @@ switch ($data['actions']) {
                 $config .= "\n" . $link;
             }
         }
-        $textbotlang['textbot']['textafterpay'] = $panel['type'] == "Manualsale" ? $textbotlang['textbot']['textmanual'] : $textbotlang['textbot']['textafterpay'];
-        $textbotlang['textbot']['textafterpay'] = $panel['type'] == "WGDashboard" ? $textbotlang['textbot']['text_wgdashboard'] : $textbotlang['textbot']['textafterpay'];
-        $textbotlang['textbot']['textafterpay'] = $panel['type'] == "ibsng" || $panel['type'] == "mikrotik" ? $textbotlang['textbot']['textafterpayibsng'] : $textbotlang['textbot']['textafterpay'];
+        $textbotlang['textbot']['afterPay'] = $panel['type'] == "Manualsale" ? $textbotlang['textbot']['manual'] : $textbotlang['textbot']['afterPay'];
+        $textbotlang['textbot']['afterPay'] = $panel['type'] == "WGDashboard" ? $textbotlang['textbot']['wgDashboard'] : $textbotlang['textbot']['afterPay'];
+        $textbotlang['textbot']['afterPay'] = $panel['type'] == "ibsng" || $panel['type'] == "mikrotik" ? $textbotlang['textbot']['afterPayIbsng'] : $textbotlang['textbot']['afterPay'];
         if (intval($product['Service_time']) == 0)
-            $product['Service_time'] = $textbotlang['users']['stateus']['Unlimited'];
+            $product['Service_time'] = $textbotlang['users']['status']['unlimited'];
         if (intval($product['Volume_constraint']) == 0)
-            $product['Volume_constraint'] = $textbotlang['users']['stateus']['Unlimited'];
-        $textcreatuser = str_replace('{username}', "<code>{$dataoutput['username']}</code>", $textbotlang['textbot']['textafterpay']);
+            $product['Volume_constraint'] = $textbotlang['users']['status']['unlimited'];
+        $textcreatuser = str_replace('{username}', "<code>{$dataoutput['username']}</code>", $textbotlang['textbot']['afterPay']);
         $textcreatuser = str_replace('{name_service}', $product['name_product'], $textcreatuser);
         $textcreatuser = str_replace('{location}', $panel['name_panel'], $textcreatuser);
         $textcreatuser = str_replace('{day}', $product['Service_time'], $textcreatuser);
@@ -968,7 +968,7 @@ switch ($data['actions']) {
         $Response = json_encode([
             'inline_keyboard' => [
                 [
-                    ['text' => $textbotlang['Admin']['ManageUser']['mangebtnuser'], 'callback_data' => 'manageuser_' . $user_info['id']],
+                    ['text' => $textbotlang['Admin']['manageUser']['manageUserBtn'], 'callback_data' => 'manageuser_' . $user_info['id']],
                 ],
             ]
         ]);

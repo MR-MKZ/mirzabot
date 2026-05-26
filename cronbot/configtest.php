@@ -25,7 +25,7 @@ $textbotlang = languagechange();
             ],
         ]
     ]);
-        $textexpire = str_replace('{username}', $resultt, $textbotlang['textbot']['crontest']);
+        $textexpire = str_replace('{username}', $resultt, $textbotlang['textbot']['testExpired']);
         sendmessage($result['id_user'], $textexpire, $Response, 'HTML');
         }
     }

@@ -11,7 +11,7 @@ $headers = getallheaders();
 $webhook_secret = isset($headers['X-Webhook-Secret']) ? $headers['X-Webhook-Secret'] : '';
 $reportcron = select("topicid","idreport","report","reportcron","select")['idreport'];
 $textbotlang = languagechange();
-$textservice = $textbotlang['textbot']['text_Purchased_services'] ?? '';
+$textservice = $textbotlang['textbot']['purchasedServices'] ?? '';
 $setting = select("setting", "*");
 // if (!is_file('payment/card/hash.txt'))return;
 

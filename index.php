@@ -21,7 +21,7 @@ if (isset($update['chat_member'])) {
     $keyboard_channel_left = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "📌 عضویت مجدد", 'url' => "https://t.me/{$update['chat_member']['chat']['username']}"],
+                ['text' => $textbotlang['keyboard']['rejoin'], 'url' => "https://t.me/{$update['chat_member']['chat']['username']}"],
             ],
         ]
     ]);
@@ -277,7 +277,7 @@ if ($setting['roll_Status'] == "rolleon" && $user['roll_Status'] == 0 && ($text 
     sendmessage($from_id, $textbotlang['textbot']['rules'], $confrimrolls, 'html');
     return;
 }
-if ($text == "✅ قوانین را می پذیرم" or $datain == "acceptrule") {
+if ($text == $textbotlang['keyboard']['acceptRules'] or $datain == "acceptrule") {
     deletemessage($from_id, $message_id);
     sendmessage($from_id, $textbotlang['users']['Rules'], $keyboard, 'html');
     $confrim = true;
@@ -470,7 +470,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     ];
     $backuser = [
         [
-            'text' => "🔙 بازگشت به منوی اصلی",
+            'text' => $textbotlang['keyboard']['backToMainMenu'],
             'callback_data' => 'backuser'
         ]
     ];
@@ -535,7 +535,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     ];
     $backuser = [
         [
-            'text' => "🔙 بازگشت به منوی اصلی",
+            'text' => $textbotlang['keyboard']['backToMainMenu'],
             'callback_data' => 'backuser'
         ]
     ];
@@ -598,7 +598,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     ];
     $backuser = [
         [
-            'text' => "🔙 بازگشت به منوی اصلی",
+            'text' => $textbotlang['keyboard']['backToMainMenu'],
             'callback_data' => 'backuser'
         ]
     ];
@@ -734,7 +734,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         $stmt->execute();
         telegram('answerCallbackQuery', array(
             'callback_query_id' => $callback_query_id,
-            'text' => "♻️ اطلاعات بروز شد",
+            'text' => $textbotlang['keyboard']['infoRefreshed'],
             'show_alert' => false,
             'cache_time' => 5,
         ));
@@ -780,7 +780,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         }
         $backuser = [
             [
-                'text' => "🔙 بازگشت به منوی اصلی",
+                'text' => $textbotlang['keyboard']['backToMainMenu'],
                 'callback_data' => 'backuser'
             ]
         ];
@@ -974,7 +974,7 @@ $nameconfig";
                     ['text' => $textbotlang['users']['extraVolume']['sellextra'], 'callback_data' => 'Extra_volume_' . $username],
                 ],
                 [
-                    ['text' => "❌ حذف سرویس", 'callback_data' => 'removeauto-' . $username],
+                    ['text' => $textbotlang['keyboard']['deleteService'], 'callback_data' => 'removeauto-' . $username],
                     ['text' => $textbotlang['users']['extraTime']['title'], 'callback_data' => 'Extra_time_' . $username],
                 ],
                 [
@@ -1001,7 +1001,7 @@ $nameconfig";
         }
         $keyboarddate = array(
             'updateinfo' => array(
-                'text' => "♻️ بروزرسانی اطلاعات",
+                'text' => $textbotlang['keyboard']['refreshInfo'],
                 'callback_data' => "updateproduct_"
             ),
             'linksub' => array(
@@ -1049,7 +1049,7 @@ $nameconfig";
                 'callback_data' => "changeloc_"
             ),
             'ekhtelal' => array(
-                'text' => "⚠️ ارسال گزارش اختلال",
+                'text' => $textbotlang['keyboard']['sendDisruptionReport'],
                 'callback_data' => "disorder-"
             )
         );
@@ -1473,10 +1473,10 @@ $textconnect
             ];
         }
         $productextend['inline_keyboard'][] = [
-            ['text' => "♻️ تمدید پلن فعلی", 'callback_data' => "exntedagei"]
+            ['text' => $textbotlang['keyboard']['renewCurrentPlan'], 'callback_data' => "exntedagei"]
         ];
         $productextend['inline_keyboard'][] = [
-            ['text' => "🏠 بازگشت به اطلاعات سرویس", 'callback_data' => "product_" . $nameloc['id_invoice']]
+            ['text' => $textbotlang['keyboard']['backToServiceInfo'], 'callback_data' => "product_" . $nameloc['id_invoice']]
         ];
 
         $json_list_product_lists = json_encode($productextend);
@@ -1544,11 +1544,11 @@ $textconnect
     }
     if ($nameloc['name_product'] == "🛍 حجم دلخواه" || $nameloc['name_product'] == "⚙️ سرویس دلخواه") {
         $productextend['inline_keyboard'][] = [
-            ['text' => "📍 انتخاب سرویس فعلی", 'callback_data' => "serviceextendselect_pre"]
+            ['text' => $textbotlang['keyboard']['selectCurrentService'], 'callback_data' => "serviceextendselect_pre"]
         ];
     }
     $productextend['inline_keyboard'][] = [
-        ['text' => "🏠 بازگشت به اطلاعات سرویس", 'callback_data' => "product_" . $nameloc['id_invoice']]
+        ['text' => $textbotlang['keyboard']['backToServiceInfo'], 'callback_data' => "product_" . $nameloc['id_invoice']]
     ];
 
     $json_list_product_lists = json_encode($productextend);
@@ -2532,7 +2532,7 @@ $textconnect
     $keyboarddisorder = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "✅ تایید و ارسال گزارش اختلال", 'callback_data' => "confirmdisorders-" . $user['Processing_value']],
+                ['text' => $textbotlang['keyboard']['confirmDisruptionReport'], 'callback_data' => "confirmdisorders-" . $user['Processing_value']],
             ],
             [
                 ['text' => $textbotlang['users']['status']['backinfo'], 'callback_data' => "product_" . $user['Processing_value']],
@@ -2878,7 +2878,7 @@ $textconnect
     $confirmremove = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "✅  درخواست حذف سرویس را دارم", 'callback_data' => "confirmremoveservices-$id_invoice"],
+                ['text' => $textbotlang['keyboard']['confirmDeleteService'], 'callback_data' => "confirmremoveservices-$id_invoice"],
             ],
         ]
     ]);
@@ -2979,9 +2979,9 @@ $textconnect
     $confirmremoveadmin = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "❌حذف دستی", 'callback_data' => "remoceserviceadminmanual-{$nameloc['id_invoice']}"],
-                ['text' => "❌حذف سرویس", 'callback_data' => "remoceserviceadmin-{$nameloc['id_invoice']}"],
-                ['text' => "❌عدم تایید حذف", 'callback_data' => "rejectremoceserviceadmin-{$nameloc['id_invoice']}"],
+                ['text' => $textbotlang['keyboard']['manualDelete'], 'callback_data' => "remoceserviceadminmanual-{$nameloc['id_invoice']}"],
+                ['text' => $textbotlang['keyboard']['deleteServiceAlt'], 'callback_data' => "remoceserviceadmin-{$nameloc['id_invoice']}"],
+                ['text' => $textbotlang['keyboard']['rejectDelete'], 'callback_data' => "rejectremoceserviceadmin-{$nameloc['id_invoice']}"],
             ],
         ]
     ]);
@@ -3024,7 +3024,7 @@ $textconnect
     $confirmtransfer = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "✅ تایید انتقال سرویس", 'callback_data' => "confrimtransfers_{$user['Processing_value_tow']}"],
+                ['text' => $textbotlang['keyboard']['confirmTransferService'], 'callback_data' => "confrimtransfers_{$user['Processing_value_tow']}"],
             ],
         ]
     ]);
@@ -3119,7 +3119,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         }
     }
     $marzban_list_get = select("marzban_panel", "*", "code_panel", $location, "select");
-    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
         if ($user['step'] != "createusertest") {
             step('createusertest', $from_id);
             update("user", "Processing_value_one", $location, "id", $from_id);
@@ -3249,10 +3249,10 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     sendMessageService($marzban_list_get, $dataoutput['configs'], $output_config_link, $dataoutput['username'], $usertestinfo, $textcreatuser, $randomString);
     sendmessage($from_id, $textbotlang['users']['selectoption'], $keyboard, 'HTML');
     step('home', $from_id);
-    if ($marzban_list_get['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "نام کاربری + عدد به ترتیب" || $marzban_list_get['MethodUsername'] == "آیدی عددی+عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['usernameSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['numericIdSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
         $value = intval($user['number_username']) + 1;
         update("user", "number_username", $value, "id", $from_id);
-        if ($marzban_list_get['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+        if ($marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
             $value = intval($setting['numbercount']) + 1;
             update("setting", "numbercount", $value);
         }
@@ -3307,7 +3307,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         }
         if ($setting['linkappstatus'] == "1") {
             $helpidos['inline_keyboard'][] = [
-                ['text' => "🔗 لینک دانلود برنامه", 'callback_data' => "linkappdownlod"],
+                ['text' => $textbotlang['keyboard']['appDownloadLink'], 'callback_data' => "linkappdownlod"],
             ];
         }
         $helpidos['inline_keyboard'][] = [
@@ -3708,7 +3708,7 @@ $textinvite
                 $query = "SELECT * FROM product WHERE (Location = '$location' OR Location = '/all')AND agent= '{$user['agent']}'";
                 $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
                 $statuscustomvolume = json_decode($marzban_list_get['customvolume'], true)[$user['agent']];
-                if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+                if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
                     $datakeyboard = "prodcutservices_";
                 } else {
                     $datakeyboard = "prodcutservice_";
@@ -3804,7 +3804,7 @@ $textinvite
         } else {
             $query = "SELECT * FROM product WHERE (Location = '$location' OR Location = '/all')AND agent= '{$user['agent']}'";
             $statuscustomvolume = json_decode($marzban_list_get['customvolume'], true)[$user['agent']];
-            if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+            if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
                 $datakeyboard = "prodcutservices_";
             } else {
                 $datakeyboard = "prodcutservice_";
@@ -3845,7 +3845,7 @@ $textinvite
     }
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $userdate['name_panel'], "select");
     $statuscustomvolume = json_decode($marzban_list_get['customvolume'], true)[$user['agent']];
-    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
         $datakeyboard = "prodcutservices_";
     } else {
         $datakeyboard = "prodcutservice_";
@@ -3876,7 +3876,7 @@ $textinvite
         $query = "SELECT * FROM product WHERE (Location = '{$userdate['name_panel']}' OR Location = '/all') AND agent= '{$user['agent']}' AND Service_time = '$monthenumber'";
         $marzban_list_get = select("marzban_panel", "*", "name_panel", $userdate['name_panel'], "select");
         $statuscustomvolume = json_decode($marzban_list_get['customvolume'], true)[$user['agent']];
-        if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+        if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
             $datakeyboard = "prodcutservices_";
         } else {
             $datakeyboard = "prodcutservice_";
@@ -3931,7 +3931,7 @@ $textinvite
 📌 تعرفه هر روز  : $customtimevalueprice  تومان
 ⚠️ حداقل زمان $maintime روز  و حداکثر $maxtime روز  می توانید تهیه کنید";
     sendmessage($from_id, $textcustom, $backuser, 'html');
-    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
         step('getvolumecustomusername', $from_id);
     } else {
         step('getvolumecustomuser', $from_id);
@@ -3992,7 +3992,7 @@ $textinvite
         step("home", $from_id);
         return;
     }
-    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
         if (!preg_match('~(?!_)^[a-z][a-z\d_]{2,32}(?<!_)$~i', $text)) {
             sendmessage($from_id, $textbotlang['users']['invalidusername'], $backuser, 'HTML');
             return;
@@ -4281,10 +4281,10 @@ $textinvite
         $Balance_prim = $user['Balance'] - $priceproduct;
         update("user", "Balance", $Balance_prim, "id", $from_id);
     }
-    if ($marzban_list_get['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "نام کاربری + عدد به ترتیب" || $marzban_list_get['MethodUsername'] == "آیدی عددی+عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['usernameSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['numericIdSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
         $value = intval($user['number_username']) + 1;
         update("user", "number_username", $value, "id", $from_id);
-        if ($marzban_list_get['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+        if ($marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
             $value = intval($setting['numbercount']) + 1;
             update("setting", "numbercount", $value);
         }
@@ -4502,14 +4502,14 @@ $textonebuy
         💰 سفارش شما آماده پرداخت است.  ";
     $paymentDiscount = json_encode([
         'inline_keyboard' => [
-            [['text' => "💰 پرداخت و دریافت سرویس", 'callback_data' => "confirmandgetserviceDiscount"]],
+            [['text' => $textbotlang['keyboard']['payAndGetService'], 'callback_data' => "confirmandgetserviceDiscount"]],
             [['text' => $textbotlang['users']['backbtn'], 'callback_data' => "backuser"]]
         ]
     ]);
     $parametrsendvalue = $text . "_" . $info_product['price_product'];
     update("user", "Processing_value_four", $parametrsendvalue, "id", $from_id);
     sendmessage($from_id, $textin, $paymentDiscount, 'HTML');
-} elseif ($text == "🗂 خرید انبوه" || $datain == "kharidanbuh") {
+} elseif ($text == $textbotlang['keyboard']['bulkPurchase'] || $datain == "kharidanbuh") {
     if ($setting['bulkbuy'] == "offbulk") {
         sendmessage($from_id, "❌ این بخش در حال غیرفعال می باشد", null, 'HTML');
         return;
@@ -4555,7 +4555,7 @@ $textonebuy
     }
     update("user", "Processing_value", $location, "id", $from_id);
     $statuscustomvolume = json_decode($marzban_list_get['customvolume'], true)[$user['agent']];
-    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
         $datakeyboard = "prodcutservicesom_";
     } else {
         $datakeyboard = "prodcutserviceom_";
@@ -4604,7 +4604,7 @@ $textonebuy
 ⚠️ حداقل زمان $maintime روز  و حداکثر $maxtime روز  می توانید تهیه کنید";
     sendmessage($from_id, $textcustom, $backuser, 'html');
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
-    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
         step('getvolumecustomusernameom', $from_id);
     } else {
         step('getvolumecustomuserom', $from_id);
@@ -4657,7 +4657,7 @@ $textonebuy
         $prodcut = $dataget[1];
     }
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
-    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
         if (!preg_match('~(?!_)^[a-z][a-z\d_]{2,32}(?<!_)$~i', $text)) {
             sendmessage($from_id, $textbotlang['users']['invalidusername'], $backuser, 'HTML');
             return;
@@ -4766,10 +4766,10 @@ $textonebuy
         }
     }
     $datep = strtotime("+" . $info_product['Service_time'] . "days");
-    if ($marzban_list_get['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "نام کاربری + عدد به ترتیب" || $marzban_list_get['MethodUsername'] == "آیدی عددی+عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['usernameSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['numericIdSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
         $value = intval($user['number_username']) + $user['Processing_value_four'];
         update("user", "number_username", $value, "id", $from_id);
-        if ($marzban_list_get['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+        if ($marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
             $value = intval($setting['numbercount']) + $user['Processing_value_four'];
             update("setting", "numbercount", $value);
         }
@@ -5028,11 +5028,11 @@ $textonebuy
             $sendresidcart = json_encode([
                 'inline_keyboard' => [
                     [
-                        ['text' => "کپی شماره کارت", 'copy_text' => ["text" => $card_number]],
-                        ['text' => "کپی مبلغ", 'copy_text' => ["text" => $price_copy]]
+                        ['text' => $textbotlang['keyboard']['copyCardNumber'], 'copy_text' => ["text" => $card_number]],
+                        ['text' => $textbotlang['keyboard']['copyAmount'], 'copy_text' => ["text" => $price_copy]]
                     ],
                     [
-                        ['text' => "✅ پرداخت کردم | ارسال رسید.", 'callback_data' => "sendresidcart-" . $randomString]
+                        ['text' => $textbotlang['keyboard']['paidSendReceipt'], 'callback_data' => "sendresidcart-" . $randomString]
                     ]
                 ]
             ]);
@@ -5040,7 +5040,7 @@ $textonebuy
             $sendresidcart = json_encode([
                 'inline_keyboard' => [
                     [
-                        ['text' => "✅ پرداخت کردم | ارسال رسید.", 'callback_data' => "sendresidcart-" . $randomString]
+                        ['text' => $textbotlang['keyboard']['paidSendReceipt'], 'callback_data' => "sendresidcart-" . $randomString]
                     ]
                 ]
             ]);
@@ -5457,7 +5457,7 @@ $textonebuy
         $paymentkeyboard = json_encode([
             'inline_keyboard' => [
                 [
-                    ['text' => "پرداخت", 'url' => $pay['payment_url_bot']]
+                    ['text' => $textbotlang['keyboard']['payment'], 'url' => $pay['payment_url_bot']]
                 ]
             ]
         ]);
@@ -5637,7 +5637,7 @@ $textonebuy
         $paymentkeyboard = json_encode([
             'inline_keyboard' => [
                 [
-                    ['text' => "💎 پرداخت", 'url' => "t.me/AvidTrx_Bot?start=" . $paylink['data']['id']]
+                    ['text' => $textbotlang['keyboard']['diamondPayment'], 'url' => "t.me/AvidTrx_Bot?start=" . $paylink['data']['id']]
                 ],
             ]
         ]);
@@ -5703,7 +5703,7 @@ $textonebuy
         $paymentkeyboard = json_encode([
             'inline_keyboard' => [
                 [
-                    ['text' => "✅ ارسال لینک واریز یا تصویر واریزی", 'callback_data' => "sendresidarze-{$randomString}"]
+                    ['text' => $textbotlang['keyboard']['sendDepositLink'], 'callback_data' => "sendresidarze-{$randomString}"]
                 ]
             ]
         ]);
@@ -6055,7 +6055,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
                     ['text' => $textbotlang['users']['Balance']['blockedfake'], 'callback_data' => "blockuserfake_{$PaymentReport['id_user']}"],
                 ],
                 [
-                    ['text' => "⚙️ اطلاعات کانفیگ", 'callback_data' => "manageinvoice_{$nameloc['id_invoice']}"],
+                    ['text' => $textbotlang['keyboard']['configInfo'], 'callback_data' => "manageinvoice_{$nameloc['id_invoice']}"],
                 ]
             ]
         ]);
@@ -6251,7 +6251,7 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
                     ['text' => $textbotlang['users']['Balance']['blockedfake'], 'callback_data' => "blockuserfake_{$PaymentReport['id_user']}"],
                 ],
                 [
-                    ['text' => "⚙️ اطلاعات کانفیگ", 'callback_data' => "manageinvoice_{$nameloc['id_invoice']}"],
+                    ['text' => $textbotlang['keyboard']['configInfo'], 'callback_data' => "manageinvoice_{$nameloc['id_invoice']}"],
                 ]
             ]
         ]);
@@ -6433,8 +6433,8 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
     $keyboard_share = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "🎁 دریافت هدیه عضویت", 'callback_data' => "get_gift_start"],
-                ['text' => "🔗 اشتراک گذاری لینک", 'url' => "https://t.me/share/url?url=https://t.me/$usernamebot?start=$from_id"],
+                ['text' => $textbotlang['keyboard']['receiveMembershipGift'], 'callback_data' => "get_gift_start"],
+                ['text' => $textbotlang['keyboard']['shareLink'], 'url' => "https://t.me/share/url?url=https://t.me/$usernamebot?start=$from_id"],
             ],
         ]
     ]);
@@ -7208,7 +7208,7 @@ if (isset($update['message']['successful_payment'])) {
     $query = "SELECT * FROM product WHERE (Location = '$location' OR Location = '/all') AND agent= '{$user['agent']}'";
     $marzban_list_get = select("marzban_panel", "*", "code_panel", $location, "select");
     $statuscustomvolume = json_decode($marzban_list_get['customvolume'], true)[$user['agent']];
-    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+    if ($marzban_list_get['MethodUsername'] == $textbotlang['users']['customusername'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
         $datakeyboard = "prodcutservicesom_";
     } else {
         $datakeyboard = "prodcutserviceom_";

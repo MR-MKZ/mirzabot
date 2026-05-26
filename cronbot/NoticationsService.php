@@ -250,10 +250,11 @@ class ServiceMonitor
 
     private function createExtendServiceKeyboard($invoiceId)
     {
+        global $textbotlang;
         return json_encode([
             'inline_keyboard' => [
                 [
-                    ['text' => "💊 تمدید سرویس", 'callback_data' => 'extend_' . $invoiceId],
+                    ['text' => $textbotlang['keyboard']['renewService'], 'callback_data' => 'extend_' . $invoiceId],
                 ],
             ]
         ]);

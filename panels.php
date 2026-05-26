@@ -1740,6 +1740,7 @@ class ManagePanel
     }
     function extend($Method_extend, $new_limit, $time_day, $username, $code_product, $name_panel)
     {
+        global $textbotlang;
         $panel = select("marzban_panel", "*", "code_panel", $name_panel, "select");
         $product = select("product", "*", "code_product", $code_product, "select");
         $invoice = select("invoice", "*", "username", $username, "select");
@@ -1780,7 +1781,7 @@ class ManagePanel
         }
         update("invoice", 'uuid', null, "username", $username);
         update("invoice", 'Status', "active", "username", $username);
-        if ($Method_extend == "ریست حجم و زمان") {
+        if ($Method_extend == $textbotlang['keyboard']['resetVolumeTime']) {
             $reset = $this->ResetUserDataUsage($username, $panel['name_panel']);
             if ($reset['status'] == false) {
                 return array(
@@ -1788,12 +1789,12 @@ class ManagePanel
                     'msg' => 'error reset : ' . $reset['msg']
                 );
             }
-        } elseif ($Method_extend == "اضافه شدن زمان و حجم به ماه بعد") {
+        } elseif ($Method_extend == $textbotlang['keyboard']['addTimeVolumeNextMonth']) {
             $data_limit_new = $data_limit_new_add;
             $time_new = $time_new_add;
-        } elseif ($Method_extend == "ریست زمان و اضافه کردن حجم قبلی") {
+        } elseif ($Method_extend == $textbotlang['keyboard']['resetTimeAddVolume']) {
             $data_limit_new = $data_limit_new_add;
-        } elseif ($Method_extend == "ریست شدن حجم و اضافه شدن زمان") {
+        } elseif ($Method_extend == $textbotlang['keyboard']['resetVolumeAddTime']) {
             $reset = $this->ResetUserDataUsage($username, $panel['name_panel']);
             if ($reset['status'] == false) {
                 return array(
@@ -1802,7 +1803,7 @@ class ManagePanel
                 );
             }
             $time_new = $time_new_add;
-        } elseif ($Method_extend == "اضافه شدن زمان و تبدیل حجم کل به حجم باقی مانده") {
+        } elseif ($Method_extend == $textbotlang['keyboard']['addTimeConvertVolume']) {
             $reset = $this->ResetUserDataUsage($username, $panel['name_panel']);
             if ($reset['status'] == false) {
                 return array(

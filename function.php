@@ -677,6 +677,7 @@ function formatBytes($bytes, $precision = 2): string
 }
 function generateUsername($from_id, $Metode, $username, $randomString, $text, $namecustome, $usernamecustom)
 {
+    global $textbotlang;
     $setting = select("setting", "*", null, null, "select");
     $user = select("user", "*", "id", $from_id, "select");
     if ($user == false) {
@@ -685,27 +686,27 @@ function generateUsername($from_id, $Metode, $username, $randomString, $text, $n
             'number_username' => '',
         );
     }
-    if ($Metode == "آیدی عددی + حروف و عدد رندوم") {
+    if ($Metode == $textbotlang['keyboard']['numericIdRandom']) {
         return $from_id . "_" . $randomString;
-    } elseif ($Metode == "نام کاربری + عدد به ترتیب") {
+    } elseif ($Metode == $textbotlang['keyboard']['usernameSequential']) {
         if ($username == "NOT_USERNAME") {
             if (preg_match('/^\w{3,32}$/', $namecustome)) {
                 $username = $namecustome;
             }
         }
         return $username . "_" . $user['number_username'];
-    } elseif ($Metode == "نام کاربری دلخواه")
+    } elseif ($Metode == $textbotlang['keyboard']['customUsername'])
         return $text;
-    elseif ($Metode == "نام کاربری دلخواه + عدد رندوم") {
+    elseif ($Metode == $textbotlang['keyboard']['customUsernameRandom']) {
         $random_number = rand(1000000, 9999999);
         return $text . "_" . $random_number;
-    } elseif ($Metode == "متن دلخواه + عدد رندوم") {
+    } elseif ($Metode == $textbotlang['keyboard']['customTextRandom']) {
         return $namecustome . "_" . $randomString;
-    } elseif ($Metode == "متن دلخواه + عدد ترتیبی") {
+    } elseif ($Metode == $textbotlang['keyboard']['customTextSequential']) {
         return $namecustome . "_" . $setting['numbercount'];
-    } elseif ($Metode == "آیدی عددی+عدد ترتیبی") {
+    } elseif ($Metode == $textbotlang['keyboard']['numericIdSequential']) {
         return $from_id . "_" . $user['number_username'];
-    } elseif ($Metode == "متن دلخواه نماینده + عدد ترتیبی") {
+    } elseif ($Metode == $textbotlang['keyboard']['agentCustomTextSequential']) {
         if ($usernamecustom == "none") {
             return $namecustome . "_" . $setting['numbercount'];
         }
@@ -814,7 +815,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         $Shoppinginfo = json_encode([
             'inline_keyboard' => [
                 [
-                    ['text' => "📚 مشاهده آموزش استفاده ", 'callback_data' => "helpbtn"],
+                    ['text' => $textbotlang['keyboard']['viewTutorial'], 'callback_data' => "helpbtn"],
                 ]
             ]
         ]);
@@ -928,10 +929,10 @@ function DirectPayment($order_id, $image = 'images.jpg')
                 sendmessage($Balance_id['affiliates'], $textadd, null, 'HTML');
             }
         }
-        if ($marzban_list_get['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "نام کاربری + عدد به ترتیب" || $marzban_list_get['MethodUsername'] == "آیدی عددی+عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+        if ($marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['usernameSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['numericIdSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
             $value = intval($Balance_id['number_username']) + 1;
             update("user", "number_username", $value, "id", $Balance_id['id']);
-            if ($marzban_list_get['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $marzban_list_get['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+            if ($marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $marzban_list_get['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
                 $value = intval($setting['numbercount']) + 1;
                 update("setting", "numbercount", $value);
             }

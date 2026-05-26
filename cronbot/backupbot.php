@@ -34,7 +34,7 @@ if ($return_var !== 0) {
     telegram('sendmessage', [
         'chat_id' => $setting['Channel_Report'],
         'message_thread_id' => $reportbackup,
-        'text' => "❌❌❌❌❌❌ خطا در بکاپ گیری ",
+        'text' => $textbotlang['keyboard']['backupError'],
     ]);
 } else {
     telegram('sendDocument', [

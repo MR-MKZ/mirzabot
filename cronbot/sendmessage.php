@@ -30,7 +30,7 @@ $textprocces = "✏️ عملیات ارسال پیام درحال انجام م
 $cancelmessage = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "لغو عملیات", 'callback_data' => 'cancel_sendmessage'],
+                ['text' => $textbotlang['keyboard']['cancelOperation'], 'callback_data' => 'cancel_sendmessage'],
             ],
         ]
     ]);
@@ -45,7 +45,7 @@ $keyboardbuy = json_encode([
 $keyboardstart = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "شروع", 'callback_data' => 'start'],
+                ['text' => $textbotlang['keyboard']['start'], 'callback_data' => 'start'],
             ],
         ]
     ]);

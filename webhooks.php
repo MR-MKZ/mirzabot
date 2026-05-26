@@ -32,7 +32,7 @@ if($data['action'] == "reached_usage_percent"){
     $Response = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "💊 تمدید سرویس", 'callback_data' => 'extend_' . $invoice['id_invoice']],
+                ['text' => $textbotlang['keyboard']['renewService'], 'callback_data' => 'extend_' . $invoice['id_invoice']],
             ],
         ]
     ]);
@@ -79,7 +79,7 @@ elseif ($data['action'] == "reached_days_left"){
     $Response = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "💊 تمدید سرویس", 'callback_data' => 'extend_' . $invoice['id_invoice']],
+                ['text' => $textbotlang['keyboard']['renewService'], 'callback_data' => 'extend_' . $invoice['id_invoice']],
             ],
         ]
     ]);

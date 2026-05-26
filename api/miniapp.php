@@ -333,7 +333,7 @@ switch ($data['actions']) {
             if ($setting['statusnoteforf'] == "0" && $user_info['agent'] == "f")
                 $is_note = false;
             while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                if ($result['MethodUsername'] == $textbotlang['users']['customusername'] || $result['MethodUsername'] == "نام کاربری دلخواه + عدد رندوم") {
+                if ($result['MethodUsername'] == $textbotlang['users']['customusername'] || $result['MethodUsername'] == $textbotlang['keyboard']['customUsernameRandom']) {
                     $is_username = true;
                 } else {
                     $is_username = false;
@@ -880,10 +880,10 @@ switch ($data['actions']) {
             $Balance_prim = $user_info['Balance'] - $product['price_product'];
             update("user", "Balance", $Balance_prim, "id", $user_info['id']);
         }
-        if ($panel['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $panel['MethodUsername'] == "نام کاربری + عدد به ترتیب" || $panel['MethodUsername'] == "آیدی عددی+عدد ترتیبی" || $panel['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+        if ($panel['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $panel['MethodUsername'] == $textbotlang['keyboard']['usernameSequential'] || $panel['MethodUsername'] == $textbotlang['keyboard']['numericIdSequential'] || $panel['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
             $value = intval($user_info['number_username']) + 1;
             update("user", "number_username", $value, "id", $user_info['id']);
-            if ($panel['MethodUsername'] == "متن دلخواه + عدد ترتیبی" || $panel['MethodUsername'] == "متن دلخواه نماینده + عدد ترتیبی") {
+            if ($panel['MethodUsername'] == $textbotlang['keyboard']['customTextSequential'] || $panel['MethodUsername'] == $textbotlang['keyboard']['agentCustomTextSequential']) {
                 $value = intval($setting['numbercount']) + 1;
                 update("setting", "numbercount", $value);
             }

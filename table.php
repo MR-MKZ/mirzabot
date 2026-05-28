@@ -210,10 +210,10 @@ timeauto_not_verify,status_keyboard_config,cron_status
 'offverify','offpvsupport','offnamecustom','offcategorys',
 '0','5','onbulk','4','offverify',
 '0','$DATAAWARD','0','0','2',
-'0','0','0','0','1',
-'1','0','0','$limitlist',
-'1','0','$keyboardmain','1','0',
-'4','1','$status_cron'
+'0','0','0',
+'0','1','1','$limitlist',
+'0','0','$keyboardmain','0','0',
+'1','0','$status_cron'
 )");
         $stmt->execute();
     } else {

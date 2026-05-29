@@ -725,7 +725,7 @@ function outputlink($text)
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $text);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT_MS, 6000);
+    curl_setopt($ch, CURLOPT_TIMEOUT_MS, 10000);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -738,8 +738,6 @@ function outputlink($text)
     } else {
         return $response;
     }
-
-    curl_close($ch);
 }
 function DirectPayment($order_id, $image = 'images.jpg')
 {

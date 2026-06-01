@@ -10,7 +10,7 @@ require __DIR__ . '/../vendor/autoload.php';
 $ManagePanel = new ManagePanel();
 $setting = select("setting", "*");
 $paymentreports = select("topicid", "idreport", "report", "paymentreport", "select")['idreport'];
-$textbotlang = languagechange('../text.json');
+$textbotlang = languagechange();
 $data = json_decode(file_get_contents("php://input"), true);
 if (isset($data['payment_status']) && $data['payment_status'] == "finished") {
     $pay = StatusPayment($data['payment_id']);

@@ -100,7 +100,7 @@ if(isset($amountInteger) && $amountInteger !== NULL){
     $Payment_report = mysqli_fetch_assoc(mysqli_query($connect, "SELECT * FROM Payment_report WHERE id_order = '$order_id' LIMIT 1"));
     if(!isset($Payment_report['price']) || $Payment_report['price'] == null)return;
     $Balance_id = mysqli_fetch_assoc(mysqli_query($connect, "SELECT * FROM user WHERE id = '{$Payment_report['id_user']}' LIMIT 1"));
-    $textbotlang = languagechange('../text.json');
+    $textbotlang = languagechange();
 
     if ($Payment_report['payment_Status'] == "paid" || $Payment_report['payment_Status'] == "reject") {
         telegram('answerCallbackQuery', array(

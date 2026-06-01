@@ -11,7 +11,7 @@ require_once 'function.php';
 require_once 'keyboard.php';
 require_once 'vendor/autoload.php';
 require_once 'panels.php';
-$textbotlang = languagechange('text.json');
+$textbotlang = languagechange();
 if ($is_bot)
     return;
 if (isset($update['chat_member'])) {

@@ -3,8 +3,8 @@
 require __DIR__ . '/../../config.php';
 require __DIR__ . '/../../function.php';
 
-// Panel UI language strings (loaded from project text.json)
-$textbotlang = languagechange(__DIR__ . '/../../text.json');
+// Panel UI language strings (loaded from lang/fa.php via languagechange())
+$textbotlang = languagechange();
 
 function db_query(PDO $pdo, string $sql, array $params = []): PDOStatement
 {

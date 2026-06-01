@@ -24,7 +24,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $list_Exceptions = is_string($list_Exceptions) ? json_decode($list_Exceptions,true) : [];
     $Balance_id = select("user","*","id",$Payment_report['id_user'],"select");
     if(in_array($Balance_id['id'],$list_Exceptions))continue;
-    $textbotlang =languagechange('../text.json');
+    $textbotlang =languagechange();
     if ($Payment_report['payment_Status'] == "paid") {
         continue;
     }

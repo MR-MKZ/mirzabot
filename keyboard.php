@@ -1,7 +1,7 @@
 <?php
 require_once 'config.php';
 $setting = select("setting", "*", null, null, "select");
-$textbotlang = languagechange(__DIR__ . '/text.json');
+$textbotlang = languagechange();
 if (!function_exists('getPaySettingValue')) {
     function getPaySettingValue($name)
     {

@@ -1648,12 +1648,10 @@ function publickey()
         'preshared_key' => $presharedKey
     ];
 }
+
 function languagechange($path_dir = null)
 {
-    if ($path_dir === null) {
-        $path_dir = __DIR__ . '/text.json';
-    }
-    return json_decode(file_get_contents($path_dir), true);
+    return require __DIR__ . '/lang/fa.php';
 }
 function generateAuthStr($length = 10)
 {

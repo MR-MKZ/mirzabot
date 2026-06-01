@@ -27,7 +27,7 @@ curl_close($ch);
 $list_service = mysqli_query($connect, "SELECT * FROM Payment_report WHERE payment_Status = 'Unpaid' AND Payment_Method = 'plisio'");
 while ($row = mysqli_fetch_assoc($list_service)) {
     $Payment_report = mysqli_fetch_assoc(mysqli_query($connect, "SELECT * FROM Payment_report WHERE id_order = '{$row['id_order']}' LIMIT 1"));
-    $textbotlang = languagechange('../text.json');
+    $textbotlang = languagechange();
     if ($Payment_report['payment_Status'] == "paid")continue;
     if(!isset($Payment_report['dec_not_confirmed']) or $Payment_report['dec_not_confirmed'] == null)continue;
     if($Payment_report['dec_not_confirmed'] == null)continue;

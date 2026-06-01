@@ -43,9 +43,9 @@ if (intval($setting['scorestatus']) == 1) {
         $count = 0;
         $textlotterygroup = $textbotlang['hardcoded']['lotteryAdminReport'];
 
-        $textJson = json_decode(file_get_contents('../text.json'), true);
+        $textJson = languagechange();
         if (!is_array($textJson)) {
-            error_log("text.json is not a valid JSON file.");
+            error_log("Language file (lang/fa.php) could not be loaded.");
             exit;
         }
 

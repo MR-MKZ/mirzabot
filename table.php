@@ -3,7 +3,7 @@ require_once 'function.php';
 require_once 'config.php';
 require_once 'botapi.php';
 global $connect;
-$textbotlang = json_decode(file_get_contents(__DIR__ . '/text.json'), true)['fa'];
+$textbotlang = languagechange();
 //-----------------------------------------------------------------
 try {
 

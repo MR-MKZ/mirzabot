@@ -1653,15 +1653,7 @@ function languagechange($path_dir = null)
     if ($path_dir === null) {
         $path_dir = __DIR__ . '/text.json';
     }
-    $setting = select("setting", "*");
-    return json_decode(file_get_contents($path_dir), true)['fa'];
-    if (intval($setting['languageen']) == 1) {
-        return json_decode(file_get_contents($path_dir), true)['en'];
-    } elseif (intval($setting['languageru']) == 1) {
-        return json_decode(file_get_contents($path_dir), true)['ru'];
-    } else {
-        return json_decode(file_get_contents($path_dir), true)['fa'];
-    }
+    return json_decode(file_get_contents($path_dir), true);
 }
 function generateAuthStr($length = 10)
 {

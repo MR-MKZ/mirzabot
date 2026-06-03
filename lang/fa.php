@@ -2501,6 +2501,11 @@ f,n.n2',
                 'zarinPalMerchant' => 'مرچنت زرین پال',
                 'zeroBalance' => '0️⃣ صفر کردن موجودی',
         ],
+        'language' => [
+                'changeButton' => '🌏 تغییر زبان',
+                'selectPrompt' => '🌏 زبان مورد نظر خود را انتخاب نمایید.',
+                'setSuccess' => '✅  زبان با موفقیت تنظیم گردید',
+        ],
         'extracted' => [
                 'keyboard_php' => [
                         'setGroupName' => '🎛 تنظیم نام گروه',

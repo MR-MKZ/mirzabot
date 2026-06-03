@@ -1649,9 +1649,15 @@ function publickey()
     ];
 }
 
-function languagechange($path_dir = null)
+function languagechange($path_dir = null, string $lang = 'fa')
 {
-    return require __DIR__ . '/lang/fa.php';
+    global $from_id;
+    $user_lang = select("user", "*", "id", $from_id);
+    $lang = $user_lang ? $user_lang['lang'] : $lang;
+    $allowed = ['fa', 'en', 'ar', 'ru', 'zh'];
+    if (!in_array($lang, $allowed, true))
+        $lang = 'fa';
+    return require __DIR__ . '/lang/' . $lang . '.php';
 }
 function generateAuthStr($length = 10)
 {

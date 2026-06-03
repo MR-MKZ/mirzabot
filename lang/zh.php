@@ -2504,6 +2504,11 @@ f,n.n2',
                 'zarinPalMerchant' => 'ZarinPal 商户',
                 'zeroBalance' => '0️⃣ 余额清零',
         ],
+        'language' => [
+                'changeButton' => '🌏 切换语言',
+                'selectPrompt' => '🌏 请选择您想要的语言。',
+                'setSuccess' => '✅ 语言设置成功',
+        ],
         'extracted' => [
                 'keyboard_php' => [
                         'setGroupName' => '🎛 设置群组名称',

@@ -2504,6 +2504,11 @@ ID пользователя: %s
                 'zarinPalMerchant' => 'Продавец ZarinPal',
                 'zeroBalance' => '0️⃣ Обнулить баланс',
         ],
+        'language' => [
+                'changeButton' => '🌏 Сменить язык',
+                'selectPrompt' => '🌏 Пожалуйста, выберите нужный язык.',
+                'setSuccess' => '✅ Язык успешно установлен',
+        ],
         'extracted' => [
                 'keyboard_php' => [
                         'setGroupName' => '🎛 Настройка имени группы',

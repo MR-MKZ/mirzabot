@@ -2504,6 +2504,11 @@ f,n.n2',
                 'zarinPalMerchant' => 'تاجر ZarinPal',
                 'zeroBalance' => '0️⃣ تصفير الرصيد',
         ],
+        'language' => [
+                'changeButton' => '🌏 تغيير اللغة',
+                'selectPrompt' => '🌏 الرجاء اختيار اللغة التي تريدها.',
+                'setSuccess' => '✅ تم ضبط اللغة بنجاح',
+        ],
         'extracted' => [
                 'keyboard_php' => [
                         'setGroupName' => '🎛 ضبط اسم المجموعة',

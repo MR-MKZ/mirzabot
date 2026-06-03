@@ -160,6 +160,10 @@ $date_start = jdate('H:i:s', time());
 if ($user['username'] == "none" || $user['username'] == null || $user['username'] != $username) {
     update("user", "username", $username, "id", $from_id);
 }
+$lang_array = ['fa', 'en', 'ru', 'zh'];
+if (!in_array($user['lang'], $lang_array)) {
+    update("user", "lang", 'fa', "id", $from_id);
+}
 if ($user['register'] == "none") {
     update("user", "register", time(), "id", $from_id);
 }
@@ -6605,6 +6609,39 @@ if (isset($update['message']['successful_payment'])) {
             'parse_mode' => "HTML"
         ]);
     }
+} elseif ($datain == "ّchange_language") {
+    $keyboard_language = json_encode([
+        'inline_keyboard' => [
+            [
+                ['text' => "🇮🇷 فارسی", 'callback_data' => "setlang:fa"],
+                ['text' => "🇬🇧 English", 'callback_data' => "setlang:en"],
+            ],
+            [
+                ['text' => "🇸🇦 العربية", 'callback_data' => "setlang:ar"],
+                ['text' => "🇷🇺 Русский", 'callback_data' => "setlang:ru"],
+            ],
+            [
+                ['text' => "🇨🇳 中文", 'callback_data' => "setlang:zh"],
+            ],
+            [
+                ['text' => $textbotlang['users']['backbtn'], 'callback_data' => "account"]
+            ],
+        ]
+    ]);
+    $text_change_lang = $textbotlang['language']['selectPrompt'];
+    Editmessagetext($from_id, $message_id, $text_change_lang, $keyboard_language);
+
+} elseif (preg_match('/^setlang:(.*)/', $datain, $dataget)) {
+    $lang = $dataget[1];
+    update("user", "lang", $lang, "id", $from_id);
+    $keyboard_back = json_encode([
+        'inline_keyboard' => [
+            [
+                ['text' => $textbotlang['users']['backbtn'], 'callback_data' => "account"]
+            ],
+        ]
+    ]);
+    Editmessagetext($from_id, $message_id, $textbotlang['language']['setSuccess'], $keyboard_back);
 }
 if (in_array($from_id, $admin_ids))
     require_once 'admin.php';

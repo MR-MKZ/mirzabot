@@ -2504,6 +2504,11 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'zarinPalMerchant' => 'ZarinPal merchant',
                 'zeroBalance' => '0️⃣ Reset balance to zero',
         ],
+        'language' => [
+                'changeButton' => '🌏 Change language',
+                'selectPrompt' => '🌏 Please select your desired language.',
+                'setSuccess' => '✅ Language set successfully',
+        ],
         'extracted' => [
                 'keyboard_php' => [
                         'setGroupName' => '🎛 Set group name',

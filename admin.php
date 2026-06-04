@@ -747,11 +747,8 @@ if (in_array($text, $textadmin) || $datain == "admin") {
         'n' => '0',
         'n2' => '0'
     ));
-    $valuestatusin = "offinbounddisable";
-    $statusextend = "on_extend";
-    $subvip = "offsubvip";
-    $stauts_on_holed = "1";
-    $stmt = $pdo->prepare("INSERT INTO marzban_panel (code_panel,name_panel,sublink,config,MethodUsername,TestAccount,status,limit_panel,namecustom,Methodextend,type,conecton,inboundid,agent,inbound_deactive,inboundstatus,url_panel,username_panel,password_panel,time_usertest,val_usertest,linksubx,priceextravolume,priceextratime,pricecustomvolume,pricecustomtime,mainvolume,maxvolume,maintime,maxtime,status_extend,subvip,changeloc,customvolume,on_hold_test,version_panel) VALUES (:code_panel,:name_panel,:sublink,:config,:MethodUsername,:TestAccount,:status,:limit_panel,:namecustom,:Methodextend,:type,:conecton,:inboundid,:agent,:inbound_deactive,:inboundstatus,:url_panel,:username_panel,:password_panel,:val_usertest,:time_usertest,:linksubx,:priceextravolume,:priceextratime,:pricecustomvolume,:pricecustomtime,:mainvolume,:maxvolume,:maintime,:maxtime,:status_extend,:subvip,:changeloc,:customvolume,:on_hold_test,'0')");
+    $version_panel = $userdata['type'] == "pasarguard" ? "1" : "0";
+    $stmt = $pdo->prepare("INSERT INTO marzban_panel (code_panel,name_panel,sublink,config,MethodUsername,TestAccount,status,limit_panel,namecustom,Methodextend,type,conecton,inboundid,agent,inbound_deactive,'offinbounddisable',url_panel,username_panel,password_panel,time_usertest,val_usertest,linksubx,priceextravolume,priceextratime,pricecustomvolume,pricecustomtime,mainvolume,maxvolume,maintime,maxtime,status_extend,subvip,changeloc,customvolume,on_hold_test,version_panel) VALUES (:code_panel,:name_panel,:sublink,:config,:MethodUsername,:TestAccount,:status,:limit_panel,:namecustom,:Methodextend,:type,:conecton,:inboundid,:agent,:inbound_deactive,:inboundstatus,:url_panel,:username_panel,:password_panel,:val_usertest,:time_usertest,:linksubx,:priceextravolume,:priceextratime,:pricecustomvolume,:pricecustomtime,:mainvolume,:maxvolume,:maintime,:maxtime,'on_extend','offsubvip',:changeloc,:customvolume,'1',:version_panel)");
     $stmt->bindParam(':code_panel', $randomString);
     $stmt->bindParam(':name_panel', $userdata['namepanel'], PDO::PARAM_STR);
     $stmt->bindParam(':sublink', $sublink);
@@ -767,7 +764,6 @@ if (in_array($text, $textadmin) || $datain == "admin") {
     $stmt->bindParam(':inboundid', $inboundid);
     $stmt->bindParam(':agent', $agent);
     $stmt->bindParam(':inbound_deactive', $inboundid);
-    $stmt->bindParam(':inboundstatus', $valuestatusin);
     $stmt->bindParam(':url_panel', $userdata['url_panel']);
     $stmt->bindParam(':linksubx', $userdata['url_panel']);
     $stmt->bindParam(':username_panel', $userdata['username']);
@@ -782,11 +778,9 @@ if (in_array($text, $textadmin) || $datain == "admin") {
     $stmt->bindParam(':maxvolume', $valuemax);
     $stmt->bindParam(':maintime', $valuemain);
     $stmt->bindParam(':maxtime', $valuemax);
-    $stmt->bindParam(':status_extend', $statusextend);
-    $stmt->bindParam(':subvip', $subvip);
     $stmt->bindParam(':changeloc', $changeloc);
     $stmt->bindParam(':customvolume', $VALUE);
-    $stmt->bindParam(':on_hold_test', $stauts_on_holed);
+    $stmt->bindParam(':version_panel', $version_panel);
     $stmt->execute();
     sendmessage($from_id, $textbotlang['Admin']['managepanel']['addedPanel'], $keyboardadmin, 'HTML');
     sendmessage($from_id, "🥳", $keyboardadmin, 'HTML');
@@ -1290,8 +1284,7 @@ elseif ($datain == "systemsms") {
     unlink('cronbot/info');
     deletemessage($from_id, $message_id);
     sendmessage($from_id, $textbotlang['Admin']['adminphp']['btn_message_2'], null, 'HTML');
-}
-elseif (preg_match('/sendmessageuser_(\w+)/', $datain, $dataget)) {
+} elseif (preg_match('/sendmessageuser_(\w+)/', $datain, $dataget)) {
     $iduser = $dataget[1];
     savedata("clear", "iduser", $iduser);
     sendmessage($from_id, $textbotlang['Admin']['adminphp']['ask_send_1'], $backadmin, 'HTML');
@@ -9435,10 +9428,6 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
         '1' => $textbotlang['Admin']['Status']['statuson'],
         '0' => $textbotlang['Admin']['Status']['statusoff']
     ][$panel['on_hold_test']];
-    $version_panel_status = [
-        '1' => $textbotlang['Admin']['Status']['statuson'],
-        '0' => $textbotlang['Admin']['Status']['statusoff']
-    ][$panel['version_panel']];
     $Bot_Status = [
         'inline_keyboard' => [
             [
@@ -9467,12 +9456,6 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
             ]
         ]
     ];
-    if (in_array($panel['type'], ['marzban'])) {
-        $Bot_Status['inline_keyboard'][] = [
-            ['text' => $version_panel_status, 'callback_data' => "editpanel-versionpanel-{$panel['version_panel']}-{$panel['code_panel']}"],
-            ['text' => $textbotlang['keyboard']['passargadPanel'], 'callback_data' => "none"],
-        ];
-    }
     if (!in_array($panel['type'], ['Manualsale', "WGDashboard", 'hiddify'])) {
         $Bot_Status['inline_keyboard'][] = [
             ['text' => $statusconfig, 'callback_data' => "editpanel-stautsconfig-{$panel['config']}-{$panel['code_panel']}"],
@@ -9628,13 +9611,6 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
             $valuenew = "0";
         }
         update("marzban_panel", "on_hold_test", $valuenew, "code_panel", $code_panel);
-    } elseif ($type == "versionpanel") {
-        if ($value == "1") {
-            $valuenew = "0";
-        } else {
-            $valuenew = "1";
-        }
-        update("marzban_panel", "version_panel", $valuenew, "code_panel", $code_panel);
     }
     $panel = select("marzban_panel", "*", "code_panel", $code_panel, "select");
     $customvlume = json_decode($panel['customvolume'], true);
@@ -9690,10 +9666,6 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
         '1' => $textbotlang['Admin']['Status']['statuson'],
         '0' => $textbotlang['Admin']['Status']['statusoff']
     ][$panel['on_hold_test']];
-    $version_panel_status = [
-        '1' => $textbotlang['Admin']['Status']['statuson'],
-        '0' => $textbotlang['Admin']['Status']['statusoff']
-    ][$panel['version_panel']];
     $Bot_Status = [
         'inline_keyboard' => [
             [
@@ -9722,12 +9694,6 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
             ]
         ]
     ];
-    if (in_array($panel['type'], ['marzban'])) {
-        $Bot_Status['inline_keyboard'][] = [
-            ['text' => $version_panel_status, 'callback_data' => "editpanel-versionpanel-{$panel['version_panel']}-{$panel['code_panel']}"],
-            ['text' => $textbotlang['keyboard']['passargadPanel'], 'callback_data' => "none"],
-        ];
-    }
     if (!in_array($panel['type'], ['Manualsale', "WGDashboard", 'hiddify'])) {
         $Bot_Status['inline_keyboard'][] = [
             ['text' => $statusconfig, 'callback_data' => "editpanel-stautsconfig-{$panel['config']}-{$panel['code_panel']}"],

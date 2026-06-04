@@ -2357,7 +2357,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'panelFeatures' => '🛠 Panel features',
                 'panelName' => '✍️ Panel name',
                 'panelUptime' => '🎛 Panel uptime',
-                'passargadPanel' => '🎛 Pasargard panel',
+                'passargadPanel' => 'Pasargard',
                 'payAndGetService' => '💰 Pay and receive service',
                 'payment' => 'Payment',
                 'pendingReceipts' => '💵 Unapproved receipts',

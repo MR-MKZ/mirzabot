@@ -2357,7 +2357,7 @@ ID пользователя: %s
                 'panelFeatures' => '🛠 Функции панели',
                 'panelName' => '✍️ Название панели',
                 'panelUptime' => '🎛 Время работы панели',
-                'passargadPanel' => '🎛 Панель Pasargard',
+                'passargadPanel' => 'Pasargard',
                 'payAndGetService' => '💰 Оплатить и получить сервис',
                 'payment' => 'Оплата',
                 'pendingReceipts' => '💵 Неподтверждённые квитанции',

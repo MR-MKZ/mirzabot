@@ -135,7 +135,7 @@ When prompted, **select option 3** to remove the bot.
 
 If you find **Mirza Panel** helpful and would like to support its development, you can make a financial contribution via cryptocurrency.
 
-<a href = "https://nowpayments.io/donation/permiumbotmirza">👉 Support the Project on NowPayments</a>
+<a href = "https://nowpayments.io/donation/mahdi">👉 Support the Project on NowPayments</a>
 
 Your support ensures continued updates and improvements for this project. Thank you! 🙌
 

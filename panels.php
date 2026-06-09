@@ -36,9 +36,9 @@ class ManagePanel
             return $Output;
         }
         if ($Get_Data_Panel['subvip'] == "onsubvip") {
-            $inoice = select("invoice", "*", "username", $usernameC, "select");
+            $invoice = select("invoice", "*", "username", $usernameC, "select");
         } else {
-            $inoice = false;
+            $invoice = false;
         }
         if (!in_array($code_product, ["usertest", $textbotlang['extracted']['index_php']['customVolumeButton'], "customvolume"])) {
 
@@ -92,8 +92,8 @@ class ManagePanel
                     }
                     $data_Output['links'] = explode("\n", $data_Output['links']);
                 }
-                if ($inoice != false) {
-                    $data_Output['subscription_url'] = "https://$domainhosts/sub/" . $inoice['id_invoice'];
+                if ($invoice != false) {
+                    $data_Output['subscription_url'] = "https://$domainhosts/sub/" . $invoice['id_invoice'];
                 }
                 $Output['status'] = 'successful';
                 $Output['username'] = $data_Output['username'];
@@ -133,8 +133,8 @@ class ManagePanel
                 }
                 $links_user = explode("\n", trim($data_Output['links']));
                 $date = new DateTime($data_Output['expire']);
-                if ($inoice != false) {
-                    $data_Output['subscription_url'] = "https://$domainhosts/sub/" . $inoice['id_invoice'];
+                if ($invoice != false) {
+                    $data_Output['subscription_url'] = "https://$domainhosts/sub/" . $invoice['id_invoice'];
                 }
                 $data_Output['expire'] = $date->getTimestamp();
                 $Output['status'] = 'successful';
@@ -147,9 +147,9 @@ class ManagePanel
             if (isset($Get_Data_Product['inbounds']) and $Get_Data_Product['inbounds'] != null) {
                 $inbounds = $Get_Data_Product['inbounds'];
             } else {
-                $inbounds = $Get_Data_Panel['inboundid'];
+                $inbounds = $Get_Data_Panel['inbounds'];
             }
-            $data_Output = addClient($Get_Data_Panel['name_panel'], $usernameC, $expire, $data_limit, generateUUID(), "", $subId, $inbounds, $Get_Data_Product['name_product'], $note);
+            $data_Output = addClient($Get_Data_Panel, $usernameC, $expire, $subId, $data_limit, $inbounds, $Get_Data_Product['name_product'], $note);
             if (!empty($data_Output['error'])) {
                 return array(
                     'status' => 'Unsuccessful',
@@ -175,8 +175,8 @@ class ManagePanel
                     $Output['username'] = $usernameC;
                     $Output['subscription_url'] = $Get_Data_Panel['linksubx'] . "/{$subId}";
                     $Output['configs'] = $links_user;
-                    if ($inoice != false) {
-                        $Output['subscription_url'] = "https://$domainhosts/sub/" . $inoice['id_invoice'];
+                    if ($invoice != false) {
+                        $Output['subscription_url'] = "https://$domainhosts/sub/" . $invoice['id_invoice'];
                     }
                 }
             }
@@ -209,8 +209,8 @@ class ManagePanel
                     $Output['username'] = $usernameC;
                     $Output['subscription_url'] = $Get_Data_Panel['linksubx'] . "/{$subId}";
                     $Output['configs'] = [outputlink($Output['subscription_url'])];
-                    if ($inoice != false) {
-                        $Output['subscription_url'] = "https://$domainhosts/sub/" . $inoice['id_invoice'];
+                    if ($invoice != false) {
+                        $Output['subscription_url'] = "https://$domainhosts/sub/" . $invoice['id_invoice'];
                     }
                 }
             }
@@ -253,8 +253,8 @@ class ManagePanel
                 $Output['username'] = $usernameC;
                 $Output['subscription_url'] = "{$Get_Data_Panel['linksubx']}/{$data_Output['uuid']}/";
                 $Output['configs'] = [];
-                if ($inoice != false) {
-                    $Output['subscription_url'] = "https://$domainhosts/sub/" . $inoice['id_invoice'];
+                if ($invoice != false) {
+                    $Output['subscription_url'] = "https://$domainhosts/sub/" . $invoice['id_invoice'];
                 }
             }
         } elseif ($Get_Data_Panel['type'] == "Manualsale") {
@@ -385,9 +385,9 @@ class ManagePanel
             );
         }
         if (isset($Get_Data_Panel['subvip']) && $Get_Data_Panel['subvip'] == "onsubvip") {
-            $inoice = select("invoice", "*", "username", $username, "select");
+            $invoice = select("invoice", "*", "username", $username, "select");
         } else {
-            $inoice = false;
+            $invoice = false;
         }
         if ($Get_Data_Panel['type'] == "marzban") {
             $UsernameData = getuser($username, $Get_Data_Panel['name_panel']);
@@ -440,8 +440,8 @@ class ManagePanel
                 } else {
                     $UsernameData['expire'] = $UsernameData['expire'];
                 }
-                if ($inoice != false) {
-                    $UsernameData['subscription_url'] = "https://$domainhosts/sub/" . $inoice['id_invoice'];
+                if ($invoice != false) {
+                    $UsernameData['subscription_url'] = "https://$domainhosts/sub/" . $invoice['id_invoice'];
                 }
                 if ($Get_Data_Panel['version_panel'] == "1") {
                     $UsernameData['proxies'] = isset($UsernameData['proxy_settings']) ? $UsernameData['proxy_settings'] : null;
@@ -515,8 +515,8 @@ class ManagePanel
                     } else {
                         $expiretime = 0;
                     }
-                    if ($inoice != false) {
-                        $UsernameData['subscription_url'] = "https://$domainhosts/sub/" . $inoice['id_invoice'];
+                    if ($invoice != false) {
+                        $UsernameData['subscription_url'] = "https://$domainhosts/sub/" . $invoice['id_invoice'];
                     }
                     $Output = array(
                         'status' => $UsernameData['status'],
@@ -534,7 +534,7 @@ class ManagePanel
                 }
             }
         } elseif ($Get_Data_Panel['type'] == "x-ui_single") {
-            $user_data = get_clinets($username, $Get_Data_Panel['name_panel']);
+            $user_data = get_clinets($username, $Get_Data_Panel);
             if (!empty($user_data['error'])) {
                 return array(
                     'status' => 'Unsuccessful',
@@ -561,39 +561,60 @@ class ManagePanel
                 );
             }
             $user_data = $user_data['obj'];
-            $expire = $user_data['expiryTime'] / 1000;
-            if ($user_data['enable']) {
-                $user_data['enable'] = "active";
-            } else {
-                $user_data['enable'] = "disabled";
+            $expire = $user_data['client']['expiryTime'] / 1000;
+
+            $used_data_3xui = used_data_3xui($Get_Data_Panel, $username);
+            if (!empty($used_data_3xui['error'])) {
+                return array(
+                    'status' => 'Unsuccessful',
+                    'msg' => $used_data_3xui['error']
+                );
+            } elseif (!empty($used_data_3xui['status']) && $used_data_3xui['status'] != 200) {
+                return array(
+                    'status' => 'Unsuccessful',
+                    'msg' => $used_data_3xui['status']
+                );
             }
-            if ((intval($user_data['total'])) != 0) {
-                if ((intval($user_data['total']) - ($user_data['up'] + $user_data['down'])) <= 0)
+            $used_data_3xui = json_decode($used_data_3xui['body'], true);
+            if (!$used_data_3xui['success']) {
+                return array(
+                    'status' => 'Unsuccessful',
+                    'msg' => $used_data_3xui['msg']
+                );
+            }
+            if ($user_data['client']['enable']) {
+                $user_data['client']['enable'] = "active";
+            } else {
+                $user_data['client']['enable'] = "disabled";
+            }
+            if ((intval($user_data['client']['totalGB'])) != 0) {
+                if ((intval($user_data['client']['totalGB']) - ($used_data_3xui['obj']['up'] + $used_data_3xui['obj']['down'])) <= 0)
                     $user_data['enable'] = "limited";
             }
-            if (intval($user_data['expiryTime']) != 0) {
+            if (intval($user_data['client']['expiryTime']) != 0) {
                 if ($expire - time() <= 0)
                     $user_data['enable'] = "expired";
             }
-            if ($user_data['expiryTime'] < -10000) {
-                $user_data['enable'] = "on_hold";
+            if ($user_data['client']['expiryTime'] < -10000) {
+                $user_data['client']['enable'] = "on_hold";
                 $expire = 0;
             }
+            $linksub = $Get_Data_Panel['linksubx'] . "/{$user_data['client']['subId']}";
+            $used_data_3xui['obj']['lastOnline'] = $used_data_3xui['obj']['lastOnline'] == 0 ? "offline" : date('Y-m-d H:i:s', $used_data_3xui['obj']['lastOnline'] / 1000);
             $linksub = $Get_Data_Panel['linksubx'] . "/{$user_data['subId']}";
             $links_user = outputlink($Get_Data_Panel['linksubx'] . "/{$user_data['subId']}");
             if (isBase64($links_user))
                 $links_user = base64_decode($links_user);
             $links_user = explode("\n", trim($links_user));
-            if ($inoice != false)
-                $linksub = "https://$domainhosts/sub/" . $inoice['id_invoice'];
-            $user_data['lastOnline'] = $user_data['lastOnline'] == 0 ? "offline" : (new DateTime('@' . ($user_data['lastOnline'] / 1000)))->format('Y-m-d H:i:s');
+            if ($invoice != false)
+                $linksub = "https://$domainhosts/sub/" . $invoice['id_invoice'];
             $Output = array(
-                'status' => $user_data['enable'],
-                'username' => $user_data['email'],
-                'data_limit' => $user_data['total'],
+                'status' => $user_data['client']['enable'],
+                'username' => $user_data['client']['email'],
+                'data_limit' => $user_data['client']['totalGB'],
                 'expire' => $expire,
-                'online_at' => $user_data['lastOnline'],
-                'used_traffic' => $user_data['up'] + $user_data['down'],
+                'online_at' => $used_data_3xui['obj']['lastOnline'],
+                'used_traffic' => $used_data_3xui['obj']['up'] + $used_data_3xui['obj']['down'],
                 'links' => $links_user,
                 'subscription_url' => $linksub,
                 'sub_updated_at' => null,
@@ -640,8 +661,8 @@ class ManagePanel
                 } else {
                     $status = "active";
                 }
-                if ($inoice != false) {
-                    $linksuburl = "https://$domainhosts/sub/" . $inoice['id_invoice'];
+                if ($invoice != false) {
+                    $linksuburl = "https://$domainhosts/sub/" . $invoice['id_invoice'];
                 }
                 $Output = array(
                     'status' => $status,
@@ -935,17 +956,10 @@ class ManagePanel
         } elseif ($Get_Data_Panel['type'] == "x-ui_single") {
             $subId = bin2hex(random_bytes(8));
             $config = array(
-                'settings' => json_encode(
-                    array(
-                        'clients' => array(
-                            array(
-                                "id" => generateUUID(),
-                                "enable" => true,
-                                "subId" => $subId,
-                            )
-                        ),
-                    )
-                )
+                "email" => $username,
+                "id" => generateUUID(),
+                "enable" => true,
+                "subId" => $subId,
             );
             $updateinbound = $ManagePanel->Modifyuser($username, $Get_Data_Panel['name_panel'], $config);
             if (!$updateinbound['status']) {
@@ -1135,7 +1149,7 @@ class ManagePanel
                 );
             }
         } elseif ($Get_Data_Panel['type'] == "x-ui_single") {
-            $UsernameData = removeClient($Get_Data_Panel['name_panel'], $username);
+            $UsernameData = removeClient($Get_Data_Panel, $username);
             if (!empty($UsernameData['status']) && $UsernameData['status'] != 200) {
                 return array(
                     'status' => 'Unsuccessful',
@@ -1305,42 +1319,50 @@ class ManagePanel
                 'data' => $modify
             );
         } elseif ($Get_Data_Panel['type'] == "x-ui_single") {
-            $clients = get_clinets($username, $name_panel);
-            if (!empty($clients['error'])) {
+            $data_user = $this->DataUser($name_panel, $username);
+            $data = array(
+                "email" => $username,
+                "totalGB" => isset($config['totalGB']) ? $config['totalGB'] : $data_user['data_limit'],
+                "expiryTime" => isset($config['expiryTime']) ? $config['expiryTime'] : ($data_user['expire'] == 0 ? 0 : $data_user['expire'] * 1000),
+                "tgId" => 0,
+                "enable" => isset($config['enable']) ? $config['enable'] : true,
+            );
+            $modify = updateClient($Get_Data_Panel, $username, $data);
+            attach_service($Get_Data_Panel, $username, json_decode($Get_Data_Panel['inbounds']));
+            if (!empty($modify['error'])) {
                 return array(
                     'status' => false,
-                    'msg' => $clients['error']
+                    'msg' => $modify['error']
                 );
-            } elseif (!empty($clients['status']) && $clients['status'] != 200) {
+            } elseif (!empty($modify['status']) && $modify['status'] != 200) {
                 return array(
                     'status' => false,
-                    'msg' => json_encode($clients)
-                );
-            }
-            $clients = json_decode($clients['body'], true);
-            if (!is_array($clients)) {
-                return array(
-                    'status' => false,
-                    'msg' => 'object invalid'
-                );
-            }
-            if (empty($clients['obj'])) {
-                return array(
-                    'status' => false,
-                    'msg' => "User not found"
+                    'msg' => 'error code : ' . $modify['status']
                 );
             }
-            $clients = $clients['obj'];
+            $modify = json_decode($modify['body'], true);
+            if (!$modify['success']) {
+                return array(
+                    'status' => false,
+                    'msg' => 'error :' . $modify['msg']
+                );
+            }
+            return array(
+                'status' => true,
+                'data' => $modify
+            );
+        } elseif ($Get_Data_Panel['type'] == "alireza_single") {
+            $clients = get_clinetsalireza($username, $name_panel)[0];
             $configs = array(
-                'id' => intval($clients['inboundId']),
+                'id' => intval($Get_Data_Panel['inboundid']),
                 'settings' => json_encode(
                     array(
                         'clients' => array(
                             array(
-                                "id" => $clients['uuid'],
-                                "flow" => "",
+                                "id" => $clients['id'],
+                                "flow" => $clients['flow'],
                                 "email" => $clients['email'],
-                                "totalGB" => $clients['total'],
+                                "totalGB" => $clients['totalGB'],
                                 "expiryTime" => $clients['expiryTime'],
                                 "enable" => true,
                                 "subId" => $clients['subId'],
@@ -1352,7 +1374,7 @@ class ManagePanel
                 ),
             );
             $configs['settings'] = json_encode(array_replace_recursive(json_decode($configs['settings'], true), json_decode($config['settings'], true)));
-            $modify = updateClient($Get_Data_Panel['name_panel'], $clients['uuid'], $configs);
+            $modify = updateClientalireza($Get_Data_Panel['name_panel'], $username, $configs);
             if (!empty($modify['error'])) {
                 return array(
                     'status' => false,
@@ -1548,13 +1570,7 @@ class ManagePanel
                 $status = true;
             }
             $configs = array(
-                'settings' => json_encode(array(
-                    'clients' => array(
-                        array(
-                            "enable" => $status,
-                        )
-                    ),
-                )),
+                "enable" => $status,
             );
             $ManagePanel->Modifyuser($username, $name_panel, $configs);
             $Output = array(
@@ -1660,7 +1676,7 @@ class ManagePanel
                 'msg' => 'successful'
             );
         } elseif ($panel['type'] == 'x-ui_single') {
-            $reset = ResetUserDataUsagex_uisin($username, $panel['name_panel']);
+            $reset = ResetUserDataUsagex_uisin($username, $panel);
             if (!empty($reset['status']) && $reset['status'] != 200) {
                 return array(
                     'status' => false,
@@ -1836,19 +1852,9 @@ class ManagePanel
             );
         } elseif ($panel['type'] == "x-ui_single") {
             $data = array(
-                'settings' => json_encode(
-                    array(
-                        'clients' => array(
-                            array(
-                                "totalGB" => $data_limit_new,
-                                "expiryTime" => $time_new * 1000,
-                                "enable" => true,
-                            )
-                        ),
-                        'decryption' => 'none',
-                        'fallbacks' => array(),
-                    )
-                ),
+                "totalGB" => $data_limit_new,
+                "expiryTime" => $time_new * 1000,
+                "enable" => true,
             );
         } elseif ($panel['type'] == "alireza_single") {
             $data = array(
@@ -1982,15 +1988,7 @@ class ManagePanel
             );
         } elseif ($panel['type'] == "x-ui_single") {
             $data = array(
-                'settings' => json_encode(
-                    array(
-                        'clients' => array(
-                            array(
-                                "totalGB" => $new_limit,
-                            )
-                        ),
-                    )
-                ),
+                "totalGB" => $new_limit,
             );
         } elseif ($panel['type'] == "alireza_single") {
             $data = array(
@@ -2099,15 +2097,7 @@ class ManagePanel
         } elseif ($panel['type'] == "x-ui_single") {
             $new_limit = $new_limit * 1000;
             $data = array(
-                'settings' => json_encode(
-                    array(
-                        'clients' => array(
-                            array(
-                                "expiryTime" => $new_limit,
-                            )
-                        ),
-                    )
-                ),
+                "expiryTime" => $new_limit,
             );
         } elseif ($panel['type'] == "alireza_single") {
             $new_limit = $new_limit * 1000;

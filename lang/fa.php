@@ -2507,6 +2507,53 @@ f,n.n2',
                 'setSuccess' => '✅  زبان با موفقیت تنظیم گردید',
         ],
         'extracted' => [
+                'admin_php' => [
+                        'serverStatus' => '🖥 <b>وضعیت سرور</b>
+
+⚙️ <b>پردازنده</b>
+├ مصرف: <code>{cpu}%</code>
+├ هسته‌ها: <code>{cpuCores}</code> (منطقی: {logicalPro})
+└ فرکانس: <code>{cpuSpeed} GHz</code>
+
+📊 <b>بار سیستم</b> (۱/۵/۱۵ دقیقه)
+└ <code>{load1} | {load5} | {load15}</code>
+
+🧠 <b>رم</b>
+└ <code>{memUsed} / {memTotal}</code> ({memPercent}%)
+
+💾 <b>دیسک</b>
+└ <code>{diskUsed} / {diskTotal}</code> ({diskPercent}%)
+
+🌐 <b>شبکه (لحظه‌ای)</b>
+├ آپلود: <code>{netUp}/s</code>
+└ دانلود: <code>{netDown}/s</code>
+
+📡 <b>ترافیک کل</b>
+├ ارسالی: <code>{netSent}</code>
+└ دریافتی: <code>{netRecv}</code>
+
+🔌 <b>اتصالات</b>
+└ TCP: <code>{tcp}</code> | UDP: <code>{udp}</code>
+
+🛡 <b>Xray</b>
+├ وضعیت: <code>{xrayState}</code>
+└ نسخه: <code>{xrayVersion}</code>
+
+🏷 <b>نسخه پنل:</b> <code>{panelVersion}</code>
+⏱ <b>آپتایم:</b> <code>{uptime}</code>
+
+🔗 <b>IP عمومی</b>
+├ IPv4: <code>{ipv4}</code>
+└ IPv6: <code>{ipv6}</code>',
+                        'xuiErrorCode' => '❌ خطایی رخ داده است کد خطا :  ',
+                        'xuiErrorReason' => '❌ خطایی رخ داده است علت خطا :  ',
+                        'xrayActive' => '🟢 فعال',
+                        'xrayStopped' => '🔴 متوقف',
+                        'ipNone' => 'ندارد',
+                        'eylanErrorCode' => '❌  خطایی رخ داده است کد خطا :  %s',
+                        'eylanUserNotExist' => '❌ یوزر در پنل وجود ندارد.',
+                        'eylanPanelOutput' => 'خروجی پنل :',
+                ],
                 'keyboard_php' => [
                         'setGroupName' => '🎛 تنظیم نام گروه',
                         'subLinkDomain' => '🔗 دامنه لینک ساب',

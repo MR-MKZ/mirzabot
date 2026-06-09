@@ -3497,15 +3497,51 @@ elseif ($datain == "systemsms") {
             sendmessage($from_id, $text_marzban, $optionMarzban, 'HTML');
         }
     } elseif ($marzban_list_get['type'] == "x-ui_single") {
-        $x_ui_check_connect = login($marzban_list_get['code_panel'], false);
-        if ($x_ui_check_connect['success']) {
-            sendmessage($from_id, $textbotlang['Admin']['managepanel']['connectXUi'], $optionX_ui_single, 'HTML');
-        } elseif ($x_ui_check_connect['msg'] == "Invalid username or password.") {
-            $text_marzban = $textbotlang['Admin']['adminphp']['err_invalid_panel_user'];
-            sendmessage($from_id, $text_marzban, $optionX_ui_single, 'HTML');
+        $status_server = status_server_xui($marzban_list_get);
+        if (isset($status_server['status']) && $status_server['status'] != 200) {
+            sendmessage($from_id, $textbotlang['extracted']['admin_php']['xuiErrorCode'] . $status_server['status'], $optionX_ui_single, 'HTML');
+        } elseif (isset($status_server['error']) && $status_server['error'] != 200) {
+            sendmessage($from_id, $textbotlang['extracted']['admin_php']['xuiErrorReason'] . $status_server['error'], $optionX_ui_single, 'HTML');
         } else {
-            $text_marzban = $textbotlang['Admin']['managepanel']['errorStatusPanel'] . sprintf($textbotlang['Admin']['adminphp']['err_error_5'], $x_ui_check_connect['msg']);
-            sendmessage($from_id, $text_marzban, $optionX_ui_single, 'HTML');
+            $status_server = json_decode($status_server['body'], true);
+            function percent($current, $total)
+            {
+                if ($total <= 0)
+                    return 0;
+                return round(($current / $total) * 100, 1);
+            }
+            $text_x_ui = $textbotlang['extracted']['admin_php']['serverStatus'];
+            $o = $status_server['obj'];
+            $replace = [
+                '{cpu}' => round($o['cpu'], 1),
+                '{cpuCores}' => $o['cpuCores'],
+                '{logicalPro}' => $o['logicalPro'],
+                '{cpuSpeed}' => round($o['cpuSpeedMhz'] / 1000, 2),
+                '{load1}' => $o['loads'][0],
+                '{load5}' => $o['loads'][1],
+                '{load15}' => $o['loads'][2],
+                '{memUsed}' => formatBytes($o['mem']['current']),
+                '{memTotal}' => formatBytes($o['mem']['total']),
+                '{memPercent}' => percent($o['mem']['current'], $o['mem']['total']),
+                '{diskUsed}' => formatBytes($o['disk']['current']),
+                '{diskTotal}' => formatBytes($o['disk']['total']),
+                '{diskPercent}' => percent($o['disk']['current'], $o['disk']['total']),
+                '{netUp}' => formatBytes($o['netIO']['up']),
+                '{netDown}' => formatBytes($o['netIO']['down']),
+                '{netSent}' => formatBytes($o['netTraffic']['sent']),
+                '{netRecv}' => formatBytes($o['netTraffic']['recv']),
+                '{tcp}' => $o['tcpCount'],
+                '{udp}' => $o['udpCount'],
+                '{xrayState}' => $o['xray']['state'] === 'running' ? $textbotlang['extracted']['admin_php']['xrayActive'] : $textbotlang['extracted']['admin_php']['xrayStopped'],
+                '{xrayVersion}' => $o['xray']['version'],
+                '{panelVersion}' => $o['panelVersion'],
+                '{uptime}' => $o['uptime'],
+                '{ipv4}' => $o['publicIP']['ipv4'] ?: $textbotlang['extracted']['admin_php']['ipNone'],
+                '{ipv6}' => $o['publicIP']['ipv6'] ?: $textbotlang['extracted']['admin_php']['ipNone'],
+            ];
+
+            $message = strtr($text_x_ui, $replace);
+            sendmessage($from_id, $message, $optionX_ui_single, 'HTML');
         }
     } elseif ($marzban_list_get['type'] == "alireza_single") {
         $x_ui_check_connect = login($marzban_list_get['code_panel'], false);
@@ -8410,11 +8446,27 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         }
     } elseif ($panel['type'] == "ibsng" || $panel['type'] == "mikrotik") {
         update("marzban_panel", "proxies", $text, "name_panel", $user['Processing_value']);
-    }
-    if ($panel['type'] == "ibsng") {
+    } elseif ($panel['type'] == "ibsng") {
         sendmessage($from_id, $textbotlang['Admin']['adminphp']['ok_success_set_3'], $optionibsng, 'HTML');
     } elseif ($panel['type'] == "mikrotik") {
         sendmessage($from_id, $textbotlang['Admin']['adminphp']['ok_success_set_3'], $option_mikrotik, 'HTML');
+    } elseif ($panel['type'] == "x-ui_single") {
+        $data = get_clinets($text, $panel);
+        if (!empty($data['error'])) {
+            sendmessage($from_id, $data['error'], null, 'HTML');
+            return;
+        }
+        if (!empty($data['status']) && $data['status'] != 200) {
+            sendmessage($from_id, sprintf($textbotlang['extracted']['admin_php']['eylanErrorCode'], $data['status']), null, 'HTML');
+            return;
+        }
+        $data = json_decode($data['body'], true);
+        if (!$data['success']) {
+            sendmessage($from_id, $textbotlang['extracted']['admin_php']['eylanUserNotExist'], $optioneylanpanel, 'HTML');
+            sendmessage($from_id, $textbotlang['extracted']['admin_php']['eylanPanelOutput'] . json_encode($data), null, 'HTML');
+            return;
+        }
+        update("marzban_panel", "inbounds", json_encode($data['obj']['inboundIds']), "name_panel", $user['Processing_value']);
     } else {
         sendmessage($from_id, $textbotlang['Admin']['adminphp']['ok_success_set_4'], $optionMarzban, 'HTML');
     }

@@ -2510,6 +2510,53 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'setSuccess' => '✅ Language set successfully',
         ],
         'extracted' => [
+                'admin_php' => [
+                        'serverStatus' => '🖥 <b>Server status</b>
+
+⚙️ <b>CPU</b>
+├ Usage: <code>{cpu}%</code>
+├ Cores: <code>{cpuCores}</code> (logical: {logicalPro})
+└ Frequency: <code>{cpuSpeed} GHz</code>
+
+📊 <b>Load average</b> (1/5/15 min)
+└ <code>{load1} | {load5} | {load15}</code>
+
+🧠 <b>RAM</b>
+└ <code>{memUsed} / {memTotal}</code> ({memPercent}%)
+
+💾 <b>Disk</b>
+└ <code>{diskUsed} / {diskTotal}</code> ({diskPercent}%)
+
+🌐 <b>Network (live)</b>
+├ Upload: <code>{netUp}/s</code>
+└ Download: <code>{netDown}/s</code>
+
+📡 <b>Total traffic</b>
+├ Sent: <code>{netSent}</code>
+└ Received: <code>{netRecv}</code>
+
+🔌 <b>Connections</b>
+└ TCP: <code>{tcp}</code> | UDP: <code>{udp}</code>
+
+🛡 <b>Xray</b>
+├ State: <code>{xrayState}</code>
+└ Version: <code>{xrayVersion}</code>
+
+🏷 <b>Panel version:</b> <code>{panelVersion}</code>
+⏱ <b>Uptime:</b> <code>{uptime}</code>
+
+🔗 <b>Public IP</b>
+├ IPv4: <code>{ipv4}</code>
+└ IPv6: <code>{ipv6}</code>',
+                        'xuiErrorCode' => '❌ An error occurred. Error code:  ',
+                        'xuiErrorReason' => '❌ An error occurred. Reason:  ',
+                        'xrayActive' => '🟢 Running',
+                        'xrayStopped' => '🔴 Stopped',
+                        'ipNone' => 'N/A',
+                        'eylanErrorCode' => '❌  An error occurred. Error code:  %s',
+                        'eylanUserNotExist' => '❌ User does not exist in the panel.',
+                        'eylanPanelOutput' => 'Panel output: ',
+                ],
                 'keyboard_php' => [
                         'setGroupName' => '🎛 Set group name',
                         'subLinkDomain' => '🔗 Subscription link domain',

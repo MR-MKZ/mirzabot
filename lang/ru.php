@@ -2510,6 +2510,53 @@ ID пользователя: %s
                 'setSuccess' => '✅ Язык успешно установлен',
         ],
         'extracted' => [
+                'admin_php' => [
+                        'serverStatus' => '🖥 <b>Состояние сервера</b>
+
+⚙️ <b>Процессор</b>
+├ Загрузка: <code>{cpu}%</code>
+├ Ядра: <code>{cpuCores}</code> (логических: {logicalPro})
+└ Частота: <code>{cpuSpeed} GHz</code>
+
+📊 <b>Средняя нагрузка</b> (1/5/15 мин)
+└ <code>{load1} | {load5} | {load15}</code>
+
+🧠 <b>ОЗУ</b>
+└ <code>{memUsed} / {memTotal}</code> ({memPercent}%)
+
+💾 <b>Диск</b>
+└ <code>{diskUsed} / {diskTotal}</code> ({diskPercent}%)
+
+🌐 <b>Сеть (в реальном времени)</b>
+├ Отдача: <code>{netUp}/s</code>
+└ Приём: <code>{netDown}/s</code>
+
+📡 <b>Всего трафика</b>
+├ Отправлено: <code>{netSent}</code>
+└ Получено: <code>{netRecv}</code>
+
+🔌 <b>Соединения</b>
+└ TCP: <code>{tcp}</code> | UDP: <code>{udp}</code>
+
+🛡 <b>Xray</b>
+├ Состояние: <code>{xrayState}</code>
+└ Версия: <code>{xrayVersion}</code>
+
+🏷 <b>Версия панели:</b> <code>{panelVersion}</code>
+⏱ <b>Аптайм:</b> <code>{uptime}</code>
+
+🔗 <b>Публичный IP</b>
+├ IPv4: <code>{ipv4}</code>
+└ IPv6: <code>{ipv6}</code>',
+                        'xuiErrorCode' => '❌ Произошла ошибка. Код ошибки:  ',
+                        'xuiErrorReason' => '❌ Произошла ошибка. Причина:  ',
+                        'xrayActive' => '🟢 Активен',
+                        'xrayStopped' => '🔴 Остановлен',
+                        'ipNone' => 'Нет',
+                        'eylanErrorCode' => '❌  Произошла ошибка. Код ошибки:  %s',
+                        'eylanUserNotExist' => '❌ Пользователь не найден в панели.',
+                        'eylanPanelOutput' => 'Вывод панели: ',
+                ],
                 'keyboard_php' => [
                         'setGroupName' => '🎛 Настройка имени группы',
                         'subLinkDomain' => '🔗 Домен ссылки подписки',

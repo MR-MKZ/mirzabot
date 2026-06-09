@@ -2510,6 +2510,53 @@ f,n.n2',
                 'setSuccess' => '✅ 语言设置成功',
         ],
         'extracted' => [
+                'admin_php' => [
+                        'serverStatus' => '🖥 <b>服务器状态</b>
+
+⚙️ <b>处理器</b>
+├ 使用率: <code>{cpu}%</code>
+├ 核心: <code>{cpuCores}</code> (逻辑: {logicalPro})
+└ 频率: <code>{cpuSpeed} GHz</code>
+
+📊 <b>系统负载</b> (1/5/15 分钟)
+└ <code>{load1} | {load5} | {load15}</code>
+
+🧠 <b>内存</b>
+└ <code>{memUsed} / {memTotal}</code> ({memPercent}%)
+
+💾 <b>磁盘</b>
+└ <code>{diskUsed} / {diskTotal}</code> ({diskPercent}%)
+
+🌐 <b>网络 (实时)</b>
+├ 上传: <code>{netUp}/s</code>
+└ 下载: <code>{netDown}/s</code>
+
+📡 <b>总流量</b>
+├ 已发送: <code>{netSent}</code>
+└ 已接收: <code>{netRecv}</code>
+
+🔌 <b>连接数</b>
+└ TCP: <code>{tcp}</code> | UDP: <code>{udp}</code>
+
+🛡 <b>Xray</b>
+├ 状态: <code>{xrayState}</code>
+└ 版本: <code>{xrayVersion}</code>
+
+🏷 <b>面板版本:</b> <code>{panelVersion}</code>
+⏱ <b>运行时间:</b> <code>{uptime}</code>
+
+🔗 <b>公网 IP</b>
+├ IPv4: <code>{ipv4}</code>
+└ IPv6: <code>{ipv6}</code>',
+                        'xuiErrorCode' => '❌ 发生错误。错误代码：  ',
+                        'xuiErrorReason' => '❌ 发生错误。原因：  ',
+                        'xrayActive' => '🟢 运行中',
+                        'xrayStopped' => '🔴 已停止',
+                        'ipNone' => '无',
+                        'eylanErrorCode' => '❌  发生错误。错误代码：  %s',
+                        'eylanUserNotExist' => '❌ 用户在面板中不存在。',
+                        'eylanPanelOutput' => '面板输出：',
+                ],
                 'keyboard_php' => [
                         'setGroupName' => '🎛 设置群组名称',
                         'subLinkDomain' => '🔗 订阅链接域名',

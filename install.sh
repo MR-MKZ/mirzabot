@@ -7,6 +7,80 @@ fi
 
 INSTALL_LOG="/tmp/mirza_install.log"
 
+# ── Progress / ETA state ─────────────────────────────────────
+ETA_REMAINING=0   # estimated seconds left for the whole install
+STEP_NO=0         # how many steps have started
+STEP_TOTAL=0      # total steps planned for this run (0 = unknown)
+
+# Seconds -> "9s" or "2m05s"
+_fmt_secs() {
+    local s=$1
+    [ "$s" -lt 0 ] && s=0
+    if [ "$s" -lt 60 ]; then printf '%ds' "$s"; else printf '%dm%02ds' $((s / 60)) $((s % 60)); fi
+}
+
+# Filled/empty bar of WIDTH chars at PCT percent
+_bar() {
+    local pct=$1 width=${2:-14} filled i out=""
+    [ "$pct" -gt 100 ] && pct=100; [ "$pct" -lt 0 ] && pct=0
+    filled=$(( pct * width / 100 ))
+    for ((i = 0; i < width; i++)); do
+        if [ "$i" -lt "$filled" ]; then out+="█"; else out+="░"; fi
+    done
+    printf '%s' "$out"
+}
+
+# Expected duration (seconds) for a step, matched by its label.
+# Keeps the per-step bar and the overall ETA in sync.
+_step_eta() {
+    case "$1" in
+        "Preparing package manager"*)        echo 5  ;;
+        "Adding PHP repository"*|"Retrying PHP repository"*) echo 15 ;;
+        "Updating & upgrading"*|"Re-running system update"*) echo 120 ;;
+        "Installing base tools"*)            echo 25 ;;
+        "Installing PHP 8.2"*)               echo 30 ;;
+        "Installing web stack"*)             echo 90 ;;
+        "Installing phpMyAdmin"*)            echo 40 ;;
+        "Installing extra modules"*)         echo 25 ;;
+        "Enabling & starting services"*)     echo 8  ;;
+        "Configuring firewall"*)             echo 15 ;;
+        "Restarting Apache"*)                echo 5  ;;
+        "Downloading Mirza"*)                echo 20 ;;
+        "Extracting source files"*)          echo 5  ;;
+        "Configuring MySQL root access"*)    echo 10 ;;
+        "Opening firewall ports"*)           echo 4  ;;
+        "Stopping Apache"*)                  echo 4  ;;
+        "Installing Let's Encrypt"*|"Installing certbot"*) echo 25 ;;
+        "Requesting SSL certificate"*)       echo 25 ;;
+        "Installing Apache certbot plugin"*) echo 25 ;;
+        "Configuring SSL on Apache"*)        echo 20 ;;
+        "Enabling & starting Apache"*|"Starting Apache"*) echo 5 ;;
+        "Configuring Apache virtual hosts"*) echo 6  ;;
+        "Creating database & user"*)         echo 5  ;;
+        "Setting Telegram webhook"*)         echo 5  ;;
+        "Initializing database tables"*)     echo 15 ;;
+        *)                                   echo 8  ;;
+    esac
+}
+
+# Plan the run: count pending steps + total expected time (skips done phases).
+plan_eta() {
+    STEP_TOTAL=0; ETA_REMAINING=0; STEP_NO=0
+    phase_done DEPS    || { STEP_TOTAL=$((STEP_TOTAL + 11)); ETA_REMAINING=$((ETA_REMAINING + 378)); }
+    phase_done FILES   || { STEP_TOTAL=$((STEP_TOTAL + 2));  ETA_REMAINING=$((ETA_REMAINING + 25)); }
+    phase_done DBROOT  || { STEP_TOTAL=$((STEP_TOTAL + 1));  ETA_REMAINING=$((ETA_REMAINING + 10)); }
+    if ! phase_done SSL; then
+        if [ -f "/etc/letsencrypt/live/$(state_get DOMAIN)/fullchain.pem" ]; then
+            STEP_TOTAL=$((STEP_TOTAL + 1)); ETA_REMAINING=$((ETA_REMAINING + 5))
+        else
+            STEP_TOTAL=$((STEP_TOTAL + 7)); ETA_REMAINING=$((ETA_REMAINING + 108))
+        fi
+    fi
+    phase_done VHOST   || { STEP_TOTAL=$((STEP_TOTAL + 1)); ETA_REMAINING=$((ETA_REMAINING + 6)); }
+    phase_done DB      || { STEP_TOTAL=$((STEP_TOTAL + 1)); ETA_REMAINING=$((ETA_REMAINING + 5)); }
+    phase_done WEBHOOK || { STEP_TOTAL=$((STEP_TOTAL + 3)); ETA_REMAINING=$((ETA_REMAINING + 25)); }
+}
+
 print_header() {
     echo ""
     echo -e "\033[1;34m╭────────────────────────────────────────────────╮\033[0m"
@@ -17,7 +91,13 @@ print_header() {
 run_step() {
     local msg="$1"
     local cmd="$2"
+    local eta="${3:-$(_step_eta "$msg")}"
+    [ "$eta" -lt 1 ] && eta=1
+    STEP_NO=$((STEP_NO + 1))
+    local counter="$STEP_NO"
+    [ "$STEP_TOTAL" -gt 0 ] && counter="$STEP_NO/$STEP_TOTAL"
     : > "$INSTALL_LOG"
+    local start; start=$(date +%s)
     bash -c "$cmd" >> "$INSTALL_LOG" 2>&1 &
     local pid=$!
     local frames=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
@@ -25,17 +105,32 @@ run_step() {
     local i=0
     tput civis 2>/dev/null
     while kill -0 "$pid" 2>/dev/null; do
-        printf "\r\033[K \033[1;33m%s\033[0m  %s" "${frames[$i]}" "$msg"
+        local el=$(( $(date +%s) - start ))
+        local pct=$(( el * 100 / eta ))
+        [ "$pct" -gt 95 ] && pct=95          # don't show full until it really finishes
+        local left=$(( eta - el )) lefttxt
+        if [ "$left" -gt 0 ]; then lefttxt="~$(_fmt_secs $left) left"; else lefttxt="finishing…"; fi
+        local otxt=""
+        if [ "$ETA_REMAINING" -gt 0 ]; then
+            local orem=$(( ETA_REMAINING - el )); [ "$orem" -lt 0 ] && orem=0
+            otxt=" \033[0;37m· total ~$(_fmt_secs $orem)\033[0m"
+        fi
+        printf "\r\033[K \033[1;33m%s\033[0m \033[0;37m[%s]\033[0m %s  \033[1;36m▕%s▏\033[0m \033[0;37m%s · %s\033[0m%b" \
+            "${frames[$i]}" "$counter" "$msg" "$(_bar "$pct" 14)" "$(_fmt_secs $el)" "$lefttxt" "$otxt"
         i=$(( (i + 1) % n ))
-        sleep 0.1
+        sleep 0.2
     done
     wait "$pid"
     local rc=$?
+    local el=$(( $(date +%s) - start ))
     tput cnorm 2>/dev/null
+    if [ "$ETA_REMAINING" -gt 0 ]; then
+        ETA_REMAINING=$(( ETA_REMAINING - eta )); [ "$ETA_REMAINING" -lt 0 ] && ETA_REMAINING=0
+    fi
     if [ "$rc" -eq 0 ]; then
-        printf "\r\033[K \033[1;32m✔\033[0m  %s\n" "$msg"
+        printf "\r\033[K \033[1;32m✔\033[0m \033[0;37m[%s]\033[0m %s \033[0;37m(%s)\033[0m\n" "$counter" "$msg" "$(_fmt_secs $el)"
     else
-        printf "\r\033[K \033[1;31m✘\033[0m  %s\n" "$msg"
+        printf "\r\033[K \033[1;31m✘\033[0m \033[0;37m[%s]\033[0m %s \033[0;37m(%s)\033[0m\n" "$counter" "$msg" "$(_fmt_secs $el)"
     fi
     return "$rc"
 }
@@ -180,6 +275,121 @@ CONFIG_FILE_DEFAULT="$BOT_DIR_DEFAULT/config.php"
 GIT_REPO="mahdiMGF2/mirzabot"
 LATEST_CACHE="/tmp/.mirza_latest_version"
 IP_CACHE="/tmp/.mirza_server_ip"
+
+STATE_DIR="/root/confmirza"
+STATE_FILE="$STATE_DIR/.mirza_install_state"
+
+state_init() {
+    mkdir -p "$STATE_DIR" 2>/dev/null
+    if [ ! -f "$STATE_FILE" ]; then
+        : > "$STATE_FILE"
+        chmod 600 "$STATE_FILE" 2>/dev/null
+    fi
+}
+
+# state_set KEY VALUE  -> store a persistent answer (domain/token/etc.)
+state_set() {
+    state_init
+    sed -i "/^$1=/d" "$STATE_FILE" 2>/dev/null
+    printf '%s=%s\n' "$1" "$2" >> "$STATE_FILE"
+}
+
+# state_get KEY -> echo the stored value (empty if missing)
+state_get() {
+    [ -f "$STATE_FILE" ] || return 0
+    grep -E "^$1=" "$STATE_FILE" 2>/dev/null | tail -1 | cut -d= -f2-
+}
+
+# phase_done NAME -> 0 if the phase already completed successfully
+phase_done() {
+    [ -f "$STATE_FILE" ] && grep -qxF "PHASE:$1" "$STATE_FILE" 2>/dev/null
+}
+
+# mark_phase NAME -> record a phase as completed
+mark_phase() {
+    state_init
+    grep -qxF "PHASE:$1" "$STATE_FILE" 2>/dev/null || echo "PHASE:$1" >> "$STATE_FILE"
+}
+
+# has_resumable_state -> 0 if an unfinished install is on disk
+has_resumable_state() {
+    [ -f "$STATE_FILE" ] && grep -q '^PHASE:' "$STATE_FILE" 2>/dev/null \
+        && ! phase_done COMPLETE
+}
+
+state_clear() { rm -f "$STATE_FILE" 2>/dev/null; }
+
+# ── apt/dpkg recovery ────────────────────────────────────────
+apt_recover() {
+    local i=0
+    # 1) If a real apt/dpkg is running (e.g. unattended-upgrades), wait for it
+    if pgrep -x 'apt|apt-get|dpkg|unattended-upgr' >/dev/null 2>&1; then
+        echo "Another apt/dpkg process is running; waiting up to 3 minutes for it to finish..."
+        while pgrep -x 'apt|apt-get|dpkg|unattended-upgr' >/dev/null 2>&1; do
+            sleep 3; i=$((i + 1)); [ "$i" -ge 60 ] && break
+        done
+    fi
+    # 2) Disable Ubuntu auto-update timers during install so they cannot re-grab the lock
+    systemctl stop apt-daily.service apt-daily-upgrade.service \
+        unattended-upgrades.service >/dev/null 2>&1
+    systemctl stop apt-daily.timer apt-daily-upgrade.timer >/dev/null 2>&1
+    # 3) No live holder now -> remove stale locks left by the crashed run
+    if ! pgrep -x 'apt|apt-get|dpkg|unattended-upgr' >/dev/null 2>&1; then
+        rm -f /var/lib/apt/lists/lock /var/cache/apt/archives/lock \
+              /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend 2>/dev/null
+    fi
+    # 4) Repair any half-configured packages from the interruption
+    DEBIAN_FRONTEND=noninteractive dpkg --configure -a >/dev/null 2>&1
+    return 0
+}
+export -f apt_recover
+
+# Configure MySQL root login (all output captured by run_step's log).
+setup_mysql_root() {
+    sudo mkdir -p /root/confmirza || return 1
+    touch /root/confmirza/dbrootmirza.txt || return 1
+    sudo chmod -R 777 /root/confmirza/dbrootmirza.txt || return 1
+    local randomdbpasstxt passs userrr
+    randomdbpasstxt=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
+    echo "\$user = 'root';"               >> /root/confmirza/dbrootmirza.txt
+    echo "\$pass = '${randomdbpasstxt}';" >> /root/confmirza/dbrootmirza.txt
+    echo "\$path = '${RANDOM_NUMBER}';"   >> /root/confmirza/dbrootmirza.txt
+    passs=$(grep '$pass' /root/confmirza/dbrootmirza.txt | cut -d"'" -f2)
+    userrr=$(grep '$user' /root/confmirza/dbrootmirza.txt | cut -d"'" -f2)
+    if ! sudo mysql -u "$userrr" -p"$passs" -e "alter user '$userrr'@'localhost' identified with mysql_native_password by '$passs';FLUSH PRIVILEGES;"; then
+        # Recovery via skip-grant-tables
+        sudo sed -i '$ a skip-grant-tables' /etc/mysql/mysql.conf.d/mysqld.cnf
+        sudo systemctl restart mysql
+        sudo mysql <<EOF
+DROP USER IF EXISTS 'root'@'localhost';
+CREATE USER 'root'@'localhost' IDENTIFIED BY '${passs}';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EOF
+        sudo sed -i '/skip-grant-tables/d' /etc/mysql/mysql.conf.d/mysqld.cnf
+        sudo systemctl restart mysql
+        echo "SELECT 1" | mysql -u"$userrr" -p"$passs" 2>/dev/null || return 1
+    fi
+    return 0
+}
+export -f setup_mysql_root
+
+# install_pause "<where>" -> save progress and exit WITHOUT rolling back.
+# Re-running `mirza install` will pick up from the last completed phase.
+install_pause() {
+    local where="$1"
+    echo ""
+    echo -e "  ${C_WARN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${CR}"
+    echo -e "  ${C_WARN}● Installation paused${CR} ${C_DIM}(${where})${CR}"
+    echo -e "  ${C_DIM}This is usually caused by the server losing internet or a network error.${CR}"
+    echo ""
+    echo -e "  ${C_TXT}Completed steps are saved. Just run it again:${CR}"
+    echo -e "      ${C_KEY}mirza install${CR}"
+    echo -e "  ${C_DIM}It resumes from this step; values you already entered (domain/token/...) will not be asked again.${CR}"
+    echo -e "  ${C_WARN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${CR}"
+    echo ""
+    exit 1
+}
 
 # Colored status dot
 _dot() {
@@ -730,10 +940,10 @@ preflight() {
 }
 
 function install_bot() {
-    echo -e "\e[32mInstalling Mirza script ... \033[0m\n"
+    BOT_DIR="/var/www/html/mirzaprobotconfig"
 
-    # Guard: refuse to install if Mirza is already installed
-    if [ -f "$CONFIG_FILE_DEFAULT" ] || [ -d "$BOT_DIR_DEFAULT" ]; then
+    # ── Guard: only block when a PREVIOUS install fully COMPLETED ──
+    if phase_done COMPLETE || { [ -f "$CONFIG_FILE_DEFAULT" ] && ! has_resumable_state; }; then
         clear
         banner
         _sec "Install blocked"
@@ -755,6 +965,32 @@ function install_bot() {
         return 0
     fi
 
+    # ── Resume detector: an unfinished install is on disk ──
+    if has_resumable_state; then
+        clear
+        banner
+        _sec "Resume install"
+        printf "    ${C_WARN}●${CR} ${C_WARN}An unfinished installation was found.${CR}\n"
+        printf "    ${C_DIM}Last completed step:${CR} ${C_KEY}%s${CR}\n" "$(grep '^PHASE:' "$STATE_FILE" 2>/dev/null | tail -1 | cut -d: -f2)"
+        echo ""
+        printf "    ${C_KEY}[1]${CR} ${C_TXT}Resume from where it stopped${CR}\n"
+        printf "    ${C_KEY}[2]${CR} ${C_TXT}Start fresh from the beginning${CR}\n"
+        printf "    ${C_KEY}[0]${CR} ${C_TXT}Back to menu${CR}\n"
+        echo ""
+        printf "  ${C_PROMPT}❯${CR} Your choice: "
+        read -r _resume_choice
+        case "$_resume_choice" in
+            2)
+                state_clear
+                [ -d "$BOT_DIR" ] && sudo rm -rf "$BOT_DIR"
+                echo -e "  ${C_DIM}Starting from scratch...${CR}"; sleep 1 ;;
+            0) show_menu; return 0 ;;
+            *) echo -e "  ${C_OK}●${CR} ${C_OK}Resuming installation from the last step...${CR}"; sleep 1 ;;
+        esac
+    fi
+    state_init
+    plan_eta   # count pending steps + estimate total time left
+
     # ── Pre-flight checks (network/DNS/disk/ram/ports) ──
     clear
     banner
@@ -766,213 +1002,211 @@ function install_bot() {
         return 1
     fi
 
-    # ── Choose which version to install (release / automatic / beta) ──
-    echo ""
-    choose_source
-    local _rc=$?
-    if [ "$_rc" -eq 2 ]; then show_menu; return 0; fi
-    if [ "$_rc" -ne 0 ]; then sleep 2; show_menu; return 1; fi
-    echo ""
-    echo -e "  ${C_DIM}Install target:${CR} ${C_KEY}${SRC_LABEL}${CR}"
-    sleep 1
+    # ╭──────────────────────── PHASE: DEPS ────────────────────────╮
+    if ! phase_done DEPS; then
+        # Choose which version to install (only needed before files are fetched)
+        echo ""
+        choose_source
+        local _rc=$?
+        if [ "$_rc" -eq 2 ]; then show_menu; return 0; fi
+        if [ "$_rc" -ne 0 ]; then sleep 2; show_menu; return 1; fi
+        state_set SRC_ZIP_URL "$SRC_ZIP_URL"
+        state_set SRC_LABEL "$SRC_LABEL"
+        echo ""
+        echo -e "  ${C_DIM}Install target:${CR} ${C_KEY}${SRC_LABEL}${CR}"
+        sleep 1
 
-    print_header "Installing Dependencies"
+        print_header "Installing Dependencies"
 
-    if ! run_step "Adding PHP repository (ondrej/php)" "add-apt-repository -y ppa:ondrej/php"; then
-        if ! run_step "Retrying PHP repository with locale override" "LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php"; then
-            show_step_error
-            echo -e "\e[91mError: Failed to add PPA ondrej/php. Exiting...\033[0m"
-            exit 1
-        fi
-    fi
+        run_step "Preparing package manager (clearing stale apt locks)" "apt_recover" \
+            || { show_step_error; install_pause "Preparing package manager"; }
 
-    if ! run_step "Updating & upgrading system packages" "apt update && apt upgrade -y"; then
-        echo -e "\e[93mUpdate/upgrade failed. Attempting to fix using alternative mirrors...\033[0m"
-        if fix_update_issues; then
-            if ! run_step "Re-running system update after mirror fix" "apt update && apt upgrade -y"; then
+        if ! run_step "Adding PHP repository (ondrej/php)" "add-apt-repository -y ppa:ondrej/php"; then
+            if ! run_step "Retrying PHP repository with locale override" "LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php"; then
                 show_step_error
-                echo -e "\e[91mError: Failed to update even after trying alternative mirrors.\033[0m"
-                exit 1
+                install_pause "Adding PHP repository"
             fi
-        else
-            echo -e "\e[91mError: Failed to update/upgrade packages and mirror fix failed.\033[0m"
-            exit 1
         fi
-    fi
 
-    run_step "Installing base tools (git, curl, wget, unzip, jq)" \
-        "apt-get install -y software-properties-common git unzip curl wget jq" \
-        || { show_step_error; echo -e "\e[91mError: Failed to install base tools.\033[0m"; exit 1; }
+        if ! run_step "Updating & upgrading system packages" "apt-get update -o DPkg::Lock::Timeout=180 && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o DPkg::Lock::Timeout=180"; then
+            echo -e "\e[93mUpdate/upgrade failed. Attempting to fix using alternative mirrors...\033[0m"
+            if fix_update_issues; then
+                if ! run_step "Re-running system update after mirror fix" "apt-get update -o DPkg::Lock::Timeout=180 && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o DPkg::Lock::Timeout=180"; then
+                    show_step_error
+                    install_pause "System update/upgrade"
+                fi
+            else
+                install_pause "System update/upgrade (mirror fix failed)"
+            fi
+        fi
 
-    run_step "Installing PHP 8.2 (fpm + mysql)" \
-        "DEBIAN_FRONTEND=noninteractive apt install -y php8.2 php8.2-fpm php8.2-mysql" \
-        || { show_step_error; echo -e "\e[91mError: Failed to install PHP 8.2.\033[0m"; exit 1; }
+        run_step "Installing base tools (git, curl, wget, unzip, jq)" \
+            "apt-get install -y software-properties-common git unzip curl wget jq" \
+            || { show_step_error; install_pause "Installing base tools"; }
 
-    run_step "Installing web stack (Apache, MySQL, PHP modules)" \
-        "DEBIAN_FRONTEND=noninteractive apt install -y lamp-server^ libapache2-mod-php mysql-server apache2 php-mbstring php-zip php-gd php-json php-curl" \
-        || { show_step_error; echo -e "\e[91mError: Failed to install web stack.\033[0m"; exit 1; }
+        run_step "Installing PHP 8.2 (fpm + mysql)" \
+            "DEBIAN_FRONTEND=noninteractive apt install -y php8.2 php8.2-fpm php8.2-mysql" \
+            || { show_step_error; install_pause "Installing PHP 8.2"; }
 
-    echo 'phpmyadmin phpmyadmin/dbconfig-install boolean true' | sudo debconf-set-selections
-    echo 'phpmyadmin phpmyadmin/app-password-confirm password mirzahipass' | sudo debconf-set-selections
-    echo 'phpmyadmin phpmyadmin/mysql/admin-pass password mirzahipass' | sudo debconf-set-selections
-    echo 'phpmyadmin phpmyadmin/mysql/app-pass password mirzahipass' | sudo debconf-set-selections
-    echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | sudo debconf-set-selections
-    run_step "Installing phpMyAdmin" \
-        "DEBIAN_FRONTEND=noninteractive apt-get install -y phpmyadmin" \
-        || { show_step_error; echo -e "\e[91mError: Failed to install phpMyAdmin.\033[0m"; exit 1; }
+        run_step "Installing web stack (Apache, MySQL, PHP modules)" \
+            "DEBIAN_FRONTEND=noninteractive apt install -y lamp-server^ libapache2-mod-php mysql-server apache2 php-mbstring php-zip php-gd php-json php-curl" \
+            || { show_step_error; install_pause "Installing web stack"; }
 
-    if [ -f /etc/apache2/conf-available/phpmyadmin.conf ]; then
-        sudo rm -f /etc/apache2/conf-available/phpmyadmin.conf
-    fi
-    sudo ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf || {
-        echo -e "\e[91mError: Failed to create symbolic link for phpMyAdmin configuration.\033[0m"
-        exit 1
-    }
+        echo 'phpmyadmin phpmyadmin/dbconfig-install boolean true' | sudo debconf-set-selections
+        echo 'phpmyadmin phpmyadmin/app-password-confirm password mirzahipass' | sudo debconf-set-selections
+        echo 'phpmyadmin phpmyadmin/mysql/admin-pass password mirzahipass' | sudo debconf-set-selections
+        echo 'phpmyadmin phpmyadmin/mysql/app-pass password mirzahipass' | sudo debconf-set-selections
+        echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | sudo debconf-set-selections
+        run_step "Installing phpMyAdmin" \
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y phpmyadmin" \
+            || { show_step_error; install_pause "Installing phpMyAdmin"; }
 
-    run_step "Installing extra modules (php-soap, php-ssh2, libssh2)" \
-        "apt-get install -y php-soap libapache2-mod-php php-ssh2 libssh2-1-dev libssh2-1" \
-        || { show_step_error; echo -e "\e[91mError: Failed to install extra PHP modules.\033[0m"; exit 1; }
-
-    run_step "Enabling & starting services (MySQL, Apache)" \
-        "systemctl enable mysql.service && systemctl start mysql.service && systemctl enable apache2 && systemctl start apache2" \
-        || { show_step_error; echo -e "\e[91mError: Failed to enable/start core services.\033[0m"; exit 1; }
-
-    run_step "Configuring firewall (UFW + Apache)" \
-        "apt-get install -y ufw && ufw allow 'Apache'" \
-        || { show_step_error; echo -e "\e[91mError: Failed to configure UFW.\033[0m"; exit 1; }
-    run_step "Restarting Apache" "systemctl restart apache2" \
-        || { show_step_error; echo -e "\e[91mError: Failed to restart Apache2.\033[0m"; exit 1; }
-
-    echo -e "\n\e[92m All dependencies installed successfully.\033[0m"
-
-    print_header "Downloading Bot Files"
-    BOT_DIR="/var/www/html/mirzaprobotconfig"
-    if [ -d "$BOT_DIR" ]; then
-        echo -e "\e[93mDirectory $BOT_DIR already exists. Removing...\033[0m"
-        sudo rm -rf "$BOT_DIR" || {
-            echo -e "\e[91mError: Failed to remove existing directory $BOT_DIR.\033[0m"
-            exit 1
+        if [ -f /etc/apache2/conf-available/phpmyadmin.conf ]; then
+            sudo rm -f /etc/apache2/conf-available/phpmyadmin.conf
+        fi
+        sudo ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf || {
+            echo -e "\e[91mError: Failed to create symbolic link for phpMyAdmin configuration.\033[0m"
+            install_pause "phpMyAdmin symlink"
         }
-    fi
-    sudo mkdir -p "$BOT_DIR"
-    if [ ! -d "$BOT_DIR" ]; then
-        echo -e "\e[91mError: Failed to create directory $BOT_DIR.\033[0m"
-        exit 1
-    fi
 
-    ZIP_URL="$SRC_ZIP_URL"
-    TEMP_DIR="/tmp/mirzaprobot"
-    mkdir -p "$TEMP_DIR"
-    run_step "Downloading Mirza (${SRC_LABEL})" "wget -O '$TEMP_DIR/bot.zip' '$ZIP_URL'" \
-        || { show_step_error; echo -e "\e[91mError: Failed to download the specified version.\033[0m"; exit 1; }
-    run_step "Extracting source files" "unzip -o '$TEMP_DIR/bot.zip' -d '$TEMP_DIR'" \
-        || { show_step_error; echo -e "\e[91mError: Failed to extract source files.\033[0m"; exit 1; }
+        run_step "Installing extra modules (php-soap, php-ssh2, libssh2)" \
+            "apt-get install -y php-soap libapache2-mod-php php-ssh2 libssh2-1-dev libssh2-1" \
+            || { show_step_error; install_pause "Installing extra PHP modules"; }
 
-    EXTRACTED_DIR=$(find "$TEMP_DIR" -mindepth 1 -maxdepth 1 -type d)
-    mv "$EXTRACTED_DIR"/* "$BOT_DIR" || {
-        echo -e "\e[91mError: Failed to move extracted files.\033[0m"
-        exit 1
-    }
-    rm -rf "$TEMP_DIR"
-    sudo chown -R www-data:www-data "$BOT_DIR"
-    sudo chmod -R 755 "$BOT_DIR"
-    echo -e "\n\033[33mMirza config and script have been installed successfully.\033[0m"
-    wait
-    if [ ! -d "/root/confmirza" ]; then
-        sudo mkdir /root/confmirza || {
-            echo -e "\e[91mError: Failed to create /root/confmirza directory.\033[0m"
-            exit 1
-        }
-        sleep 1
-        touch /root/confmirza/dbrootmirza.txt || {
-            echo -e "\e[91mError: Failed to create dbrootmirza.txt.\033[0m"
-            exit 1
-        }
-        sudo chmod -R 777 /root/confmirza/dbrootmirza.txt || {
-            echo -e "\e[91mError: Failed to set permissions for dbrootmirza.txt.\033[0m"
-            exit 1
-        }
-        sleep 1
-        randomdbpasstxt=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
-        echo "\$user = 'root';" >> /root/confmirza/dbrootmirza.txt
-        echo "\$pass = '${randomdbpasstxt}';" >> /root/confmirza/dbrootmirza.txt
-        echo "\$path = '${RANDOM_NUMBER}';" >> /root/confmirza/dbrootmirza.txt
-        sleep 1
-        passs=$(cat /root/confmirza/dbrootmirza.txt | grep '$pass' | cut -d"'" -f2)
-        userrr=$(cat /root/confmirza/dbrootmirza.txt | grep '$user' | cut -d"'" -f2)
-        sudo mysql -u $userrr -p$passs -e "alter user '$userrr'@'localhost' identified with mysql_native_password by '$passs';FLUSH PRIVILEGES;" || {
-            echo -e "\e[91mError: Failed to alter MySQL user. Attempting recovery...\033[0m"
-            sudo sed -i '$ a skip-grant-tables' /etc/mysql/mysql.conf.d/mysqld.cnf
-            sudo systemctl restart mysql
-            sudo mysql <<EOF
-DROP USER IF EXISTS 'root'@'localhost';
-CREATE USER 'root'@'localhost' IDENTIFIED BY '${passs}';
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-EOF
-            sudo sed -i '/skip-grant-tables/d' /etc/mysql/mysql.conf.d/mysqld.cnf
-            sudo systemctl restart mysql
-            echo "SELECT 1" | mysql -u$userrr -p$passs 2>/dev/null || {
-                echo -e "\e[91mError: Recovery failed. MySQL login still not working.\033[0m"
-                exit 1
-            }
-        }
-        echo "Folder created successfully!"
+        run_step "Enabling & starting services (MySQL, Apache)" \
+            "systemctl enable mysql.service && systemctl start mysql.service && systemctl enable apache2 && systemctl start apache2" \
+            || { show_step_error; install_pause "Enabling core services"; }
+
+        run_step "Configuring firewall (UFW + Apache)" \
+            "apt-get install -y ufw && ufw allow 'Apache'" \
+            || { show_step_error; install_pause "Configuring UFW"; }
+        run_step "Restarting Apache" "systemctl restart apache2" \
+            || { show_step_error; install_pause "Restarting Apache"; }
+
+        mark_phase DEPS
     else
-        echo "Folder already exists."
+        echo -e "  ${C_OK}●${CR} ${C_DIM}Dependencies already installed - skipping.${CR}"
     fi
+    # ╰─────────────────────────────────────────────────────────────╯
+
+    # ╭──────────────────────── PHASE: FILES ───────────────────────╮
+    if ! phase_done FILES; then
+        print_header "Downloading Bot Files"
+        ZIP_URL="$(state_get SRC_ZIP_URL)"; [ -z "$ZIP_URL" ] && ZIP_URL="$SRC_ZIP_URL"
+        SRC_LABEL_RESUME="$(state_get SRC_LABEL)"; [ -z "$SRC_LABEL_RESUME" ] && SRC_LABEL_RESUME="$SRC_LABEL"
+        if [ -d "$BOT_DIR" ]; then
+            sudo rm -rf "$BOT_DIR" || {
+                echo -e "\e[91mError: Failed to remove existing directory $BOT_DIR.\033[0m"
+                install_pause "Cleaning bot directory"
+            }
+        fi
+        sudo mkdir -p "$BOT_DIR"
+        if [ ! -d "$BOT_DIR" ]; then
+            echo -e "\e[91mError: Failed to create directory $BOT_DIR.\033[0m"
+            install_pause "Creating bot directory"
+        fi
+
+        TEMP_DIR="/tmp/mirzaprobot"
+        rm -rf "$TEMP_DIR"; mkdir -p "$TEMP_DIR"
+        run_step "Downloading Mirza (${SRC_LABEL_RESUME})" "wget -O '$TEMP_DIR/bot.zip' '$ZIP_URL'" \
+            || { show_step_error; install_pause "Downloading bot files"; }
+        run_step "Extracting source files" "unzip -o '$TEMP_DIR/bot.zip' -d '$TEMP_DIR'" \
+            || { show_step_error; install_pause "Extracting bot files"; }
+
+        EXTRACTED_DIR=$(find "$TEMP_DIR" -mindepth 1 -maxdepth 1 -type d)
+        mv "$EXTRACTED_DIR"/* "$BOT_DIR" || {
+            echo -e "\e[91mError: Failed to move extracted files.\033[0m"
+            install_pause "Moving bot files"
+        }
+        rm -rf "$TEMP_DIR"
+        sudo chown -R www-data:www-data "$BOT_DIR"
+        sudo chmod -R 755 "$BOT_DIR"
+        wait
+        mark_phase FILES
+    else
+        echo -e "  ${C_OK}●${CR} ${C_DIM}Bot files already downloaded - skipping.${CR}"
+    fi
+    # ╰─────────────────────────────────────────────────────────────╯
+
+    # ╭──────────────────────── PHASE: DBROOT ──────────────────────╮
+    if ! phase_done DBROOT; then
+        if [ ! -f "/root/confmirza/dbrootmirza.txt" ] || ! grep -q '\$pass' /root/confmirza/dbrootmirza.txt 2>/dev/null; then
+            run_step "Configuring MySQL root access" "setup_mysql_root" \
+                || { show_step_error; install_pause "MySQL root setup"; }
+        fi
+        mark_phase DBROOT
+    fi
+    # ╰─────────────────────────────────────────────────────────────╯
+
+    # ── Domain capture (needed for SSL, VHost, config & webhook) ──
     clear
     print_header "SSL Certificate Setup"
-    if [ -n "$ARG_DOMAIN" ]; then
-        domainname="$ARG_DOMAIN"
-        echo -e "  ${C_DIM}Domain (from --domain):${CR} ${C_KEY}${domainname}${CR}"
+    domainname="$(state_get DOMAIN)"
+    if [ -n "$domainname" ]; then
+        echo -e "  ${C_DIM}Domain (resumed):${CR} ${C_KEY}${domainname}${CR}"
     else
-        read -p "Enter the domain: " domainname
+        if [ -n "$ARG_DOMAIN" ]; then
+            domainname="$ARG_DOMAIN"
+            echo -e "  ${C_DIM}Domain (from --domain):${CR} ${C_KEY}${domainname}${CR}"
+        else
+            read -p "Enter the domain: " domainname
+        fi
+        while ! validate_domain "$domainname"; do
+            echo -e "\e[91mInvalid domain. Enter a full domain like bot.example.com (no http://, no slash).\033[0m"
+            read -p "Enter the domain: " domainname
+        done
+        # Verify the domain actually points to this server (certbot needs this)
+        domain_points_here "$domainname"
+        case $? in
+            0) echo -e "  ${C_OK}●${CR} ${C_OK}Domain resolves to this server.${CR}" ;;
+            1) echo -e "  ${C_WARN}!${CR} ${C_WARN}Domain does NOT point to this server's IP ($(get_server_ip)).${CR}"
+               echo -e "  ${C_DIM}Let's Encrypt will fail until the DNS A record points here.${CR}"
+               printf "  ${C_PROMPT}❯${CR} Continue anyway? ${C_DIM}[y/N]${CR}: "
+               read -r _gd
+               if [[ ! "$_gd" =~ ^[Yy]$ ]]; then echo -e "  ${C_BAD}Aborted. Fix the DNS A record and retry.${CR}"; sleep 1; show_menu; return 1; fi ;;
+            2) echo -e "  ${C_WARN}!${CR} ${C_WARN}Could not resolve the domain yet (DNS may still be propagating).${CR}"
+               printf "  ${C_PROMPT}❯${CR} Continue anyway? ${C_DIM}[y/N]${CR}: "
+               read -r _gd
+               if [[ ! "$_gd" =~ ^[Yy]$ ]]; then echo -e "  ${C_BAD}Aborted.${CR}"; sleep 1; show_menu; return 1; fi ;;
+        esac
+        state_set DOMAIN "$domainname"
     fi
-    while ! validate_domain "$domainname"; do
-        echo -e "\e[91mInvalid domain. Enter a full domain like bot.example.com (no http://, no slash).\033[0m"
-        read -p "Enter the domain: " domainname
-    done
-    # Verify the domain actually points to this server (certbot needs this)
-    domain_points_here "$domainname"
-    case $? in
-        0) echo -e "  ${C_OK}●${CR} ${C_OK}Domain resolves to this server.${CR}" ;;
-        1) echo -e "  ${C_WARN}!${CR} ${C_WARN}Domain does NOT point to this server's IP ($(get_server_ip)).${CR}"
-           echo -e "  ${C_DIM}Let's Encrypt will fail until the DNS A record points here.${CR}"
-           printf "  ${C_PROMPT}❯${CR} Continue anyway? ${C_DIM}[y/N]${CR}: "
-           read -r _gd
-           if [[ ! "$_gd" =~ ^[Yy]$ ]]; then echo -e "  ${C_BAD}Aborted. Fix the DNS A record and retry.${CR}"; sleep 1; show_menu; return 1; fi ;;
-        2) echo -e "  ${C_WARN}!${CR} ${C_WARN}Could not resolve the domain yet (DNS may still be propagating).${CR}"
-           printf "  ${C_PROMPT}❯${CR} Continue anyway? ${C_DIM}[y/N]${CR}: "
-           read -r _gd
-           if [[ ! "$_gd" =~ ^[Yy]$ ]]; then echo -e "  ${C_BAD}Aborted.${CR}"; sleep 1; show_menu; return 1; fi ;;
-    esac
     DOMAIN_NAME="$domainname"
     PATHS=$(cat /root/confmirza/dbrootmirza.txt | grep '$path' | cut -d"'" -f2)
 
-    run_step "Opening firewall ports 80 & 443" "ufw allow 80 && ufw allow 443" \
-        || { show_step_error; echo -e "\e[91mError: Failed to open firewall ports.\033[0m"; exit 1; }
-    run_step "Stopping Apache for certificate issuance" "systemctl stop apache2 && systemctl disable apache2" \
-        || { show_step_error; echo -e "\e[91mError: Failed to stop Apache2.\033[0m"; exit 1; }
-    run_step "Installing Let's Encrypt (certbot)" "apt install letsencrypt -y && systemctl enable certbot.timer" \
-        || { show_step_error; echo -e "\e[91mError: Failed to install letsencrypt.\033[0m"; exit 1; }
+    # ╭──────────────────────── PHASE: SSL ─────────────────────────╮
+    if ! phase_done SSL; then
+        if [ -f "/etc/letsencrypt/live/$DOMAIN_NAME/fullchain.pem" ]; then
+            echo -e "  ${C_OK}●${CR} ${C_DIM}SSL certificate for ${DOMAIN_NAME} already exists - skipping issuance.${CR}"
+        else
+            run_step "Opening firewall ports 80 & 443" "ufw allow 80 && ufw allow 443" \
+                || { show_step_error; install_pause "Opening firewall ports"; }
+            run_step "Stopping Apache for certificate issuance" "systemctl stop apache2 && systemctl disable apache2" \
+                || { show_step_error; install_pause "Stopping Apache"; }
+            run_step "Installing Let's Encrypt (certbot)" "apt install letsencrypt -y && systemctl enable certbot.timer" \
+                || { show_step_error; install_pause "Installing certbot"; }
 
-    echo -e "\n\e[36mRequesting SSL certificate from Let's Encrypt (this step is interactive)...\033[0m"
-    sudo certbot certonly --standalone --agree-tos --preferred-challenges http -d $DOMAIN_NAME || {
-        echo -e "\e[91mError: Failed to generate SSL certificate.\033[0m"
-        exit 1
-    }
-    run_step "Installing Apache certbot plugin" "apt install python3-certbot-apache -y" \
-        || { show_step_error; echo -e "\e[91mError: Failed to install python3-certbot-apache.\033[0m"; exit 1; }
-    sudo certbot --apache --agree-tos --preferred-challenges http -d $DOMAIN_NAME || {
-        echo -e "\e[91mError: Failed to configure SSL with Certbot.\033[0m"
-        exit 1
-    }
-    run_step "Enabling & starting Apache" "systemctl enable apache2 && systemctl start apache2" \
-        || { show_step_error; echo -e "\e[91mError: Failed to start Apache2.\033[0m"; exit 1; }
+            run_step "Requesting SSL certificate (Let's Encrypt)" \
+                "certbot certonly --standalone --non-interactive --agree-tos --register-unsafely-without-email --preferred-challenges http -d $DOMAIN_NAME" \
+                || { show_step_error; install_pause "Requesting SSL certificate"; }
+            run_step "Installing Apache certbot plugin" "apt install python3-certbot-apache -y" \
+                || { show_step_error; install_pause "Installing certbot apache plugin"; }
+            run_step "Configuring SSL on Apache" \
+                "certbot --apache --non-interactive --agree-tos --register-unsafely-without-email --redirect --preferred-challenges http -d $DOMAIN_NAME" \
+                || { show_step_error; install_pause "Configuring SSL with certbot"; }
+        fi
+        run_step "Enabling & starting Apache" "systemctl enable apache2 && systemctl start apache2" \
+            || { show_step_error; install_pause "Starting Apache"; }
+        mark_phase SSL
+    else
+        echo -e "  ${C_OK}●${CR} ${C_DIM}SSL certificate already configured - skipping.${CR}"
+    fi
+    # ╰─────────────────────────────────────────────────────────────╯
 
-    VHOST_FILE="/etc/apache2/sites-available/${DOMAIN_NAME}.conf"
-    sudo tee "$VHOST_FILE" > /dev/null <<EOF
+    # ╭──────────────────────── PHASE: VHOST ───────────────────────╮
+    if ! phase_done VHOST; then
+        VHOST_FILE="/etc/apache2/sites-available/${DOMAIN_NAME}.conf"
+        sudo tee "$VHOST_FILE" > /dev/null <<EOF
 <VirtualHost *:80>
     ServerName $DOMAIN_NAME
     DocumentRoot $BOT_DIR
@@ -986,8 +1220,8 @@ EOF
     CustomLog \${APACHE_LOG_DIR}/${DOMAIN_NAME}-access.log combined
 </VirtualHost>
 EOF
-    VHOST_SSL_FILE="/etc/apache2/sites-available/${DOMAIN_NAME}-ssl.conf"
-    sudo tee "$VHOST_SSL_FILE" > /dev/null <<EOF
+        VHOST_SSL_FILE="/etc/apache2/sites-available/${DOMAIN_NAME}-ssl.conf"
+        sudo tee "$VHOST_SSL_FILE" > /dev/null <<EOF
 <VirtualHost *:443>
     ServerName $DOMAIN_NAME
     DocumentRoot $BOT_DIR
@@ -1004,82 +1238,110 @@ EOF
     CustomLog \${APACHE_LOG_DIR}/${DOMAIN_NAME}-access.log combined
 </VirtualHost>
 EOF
-    run_step "Configuring Apache virtual hosts" \
-        "a2ensite '${DOMAIN_NAME}.conf' && a2ensite '${DOMAIN_NAME}-ssl.conf' ; a2dissite 000-default.conf 2>/dev/null ; a2dissite 000-default-le-ssl.conf 2>/dev/null ; a2dissite default-ssl.conf 2>/dev/null ; rm -f /etc/apache2/sites-enabled/000-default.conf /etc/apache2/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/default-ssl.conf ; rm -f /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-available/default-ssl.conf ; a2enmod ssl && systemctl restart apache2" \
-        || { show_step_error; echo -e "\e[91mError: Failed to configure Apache virtual hosts.\033[0m"; exit 1; }
+        run_step "Configuring Apache virtual hosts" \
+            "a2ensite '${DOMAIN_NAME}.conf' && a2ensite '${DOMAIN_NAME}-ssl.conf' ; a2dissite 000-default.conf 2>/dev/null ; a2dissite 000-default-le-ssl.conf 2>/dev/null ; a2dissite default-ssl.conf 2>/dev/null ; rm -f /etc/apache2/sites-enabled/000-default.conf /etc/apache2/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/default-ssl.conf ; rm -f /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-available/default-ssl.conf ; a2enmod ssl && systemctl restart apache2" \
+            || { show_step_error; install_pause "Configuring Apache virtual hosts"; }
+        mark_phase VHOST
+    else
+        echo -e "  ${C_OK}●${CR} ${C_DIM}Apache virtual hosts already configured - skipping.${CR}"
+    fi
+    # ╰─────────────────────────────────────────────────────────────╯
 
+    # ── Bot configuration inputs (token / chat id / botname) ──
     clear
     print_header "Bot Configuration"
-    if [ -n "$ARG_TOKEN" ]; then
-        YOUR_BOT_TOKEN="$ARG_TOKEN"
-        echo -e "\e[33m[+] \e[36mBot Token (from --token):\e[0m ${YOUR_BOT_TOKEN:0:10}..."
+    YOUR_BOT_TOKEN="$(state_get BOT_TOKEN)"
+    if [ -n "$YOUR_BOT_TOKEN" ]; then
+        echo -e "\e[33m[+] \e[36mBot Token (resumed):\e[0m ${YOUR_BOT_TOKEN:0:10}..."
     else
-        printf "\e[33m[+] \e[36mBot Token: \033[0m"
-        read YOUR_BOT_TOKEN
-    fi
-    while [[ ! "$YOUR_BOT_TOKEN" =~ ^[0-9]{8,10}:[a-zA-Z0-9_-]{35}$ ]]; do
-        echo -e "\e[91mInvalid bot token format. Please try again.\033[0m"
-        printf "\e[33m[+] \e[36mBot Token: \033[0m"
-        read YOUR_BOT_TOKEN
-    done
-    # Live-verify the token with Telegram (getMe)
-    while true; do
-        validate_token "$YOUR_BOT_TOKEN"
-        case $? in
-            0) echo -e "  ${C_OK}●${CR} ${C_OK}Token verified with Telegram.${CR}"; break ;;
-            2) echo -e "  ${C_BAD}●${CR} ${C_BAD}Telegram rejected this token (or API unreachable).${CR}"
-               printf "  ${C_PROMPT}❯${CR} Re-enter token, or press Enter to keep it anyway: "
-               read -r _t
-               if [ -z "$_t" ]; then break; fi
-               YOUR_BOT_TOKEN="$_t"
-               while [[ ! "$YOUR_BOT_TOKEN" =~ ^[0-9]{8,10}:[a-zA-Z0-9_-]{35}$ ]]; do
-                   echo -e "\e[91mInvalid format.\033[0m"; printf "  ${C_PROMPT}❯${CR} Bot Token: "; read -r YOUR_BOT_TOKEN
-               done ;;
-            *) break ;;
-        esac
-    done
-    if [ -n "$ARG_ADMIN" ]; then
-        YOUR_CHAT_ID="$ARG_ADMIN"
-        echo -e "\e[33m[+] \e[36mChat id (from --admin):\e[0m ${YOUR_CHAT_ID}"
-    else
-        printf "\e[33m[+] \e[36mChat id: \033[0m"
-        read YOUR_CHAT_ID
-    fi
-    while [[ ! "$YOUR_CHAT_ID" =~ ^-?[0-9]+$ ]]; do
-        echo -e "\e[91mInvalid chat ID format. Please try again.\033[0m"
-        printf "\e[33m[+] \e[36mChat id: \033[0m"
-        read YOUR_CHAT_ID
-    done
-    YOUR_DOMAIN="$DOMAIN_NAME"
-    if [ -n "$ARG_NAME" ]; then
-        YOUR_BOTNAME="$ARG_NAME"
-        echo -e "\e[33m[+] \e[36musernamebot (from --name):\e[0m ${YOUR_BOTNAME}"
-    else
-        while true; do
-            printf "\e[33m[+] \e[36musernamebot: \033[0m"
-            read YOUR_BOTNAME
-            if [ "$YOUR_BOTNAME" != "" ]; then
-                break
-            else
-                echo -e "\e[91mError: Bot username cannot be empty. Please enter a valid username.\033[0m"
-            fi
+        if [ -n "$ARG_TOKEN" ]; then
+            YOUR_BOT_TOKEN="$ARG_TOKEN"
+            echo -e "\e[33m[+] \e[36mBot Token (from --token):\e[0m ${YOUR_BOT_TOKEN:0:10}..."
+        else
+            printf "\e[33m[+] \e[36mBot Token: \033[0m"
+            read YOUR_BOT_TOKEN
+        fi
+        while [[ ! "$YOUR_BOT_TOKEN" =~ ^[0-9]{8,10}:[a-zA-Z0-9_-]{35}$ ]]; do
+            echo -e "\e[91mInvalid bot token format. Please try again.\033[0m"
+            printf "\e[33m[+] \e[36mBot Token: \033[0m"
+            read YOUR_BOT_TOKEN
         done
+        # Live-verify the token with Telegram (getMe)
+        while true; do
+            validate_token "$YOUR_BOT_TOKEN"
+            case $? in
+                0) echo -e "  ${C_OK}●${CR} ${C_OK}Token verified with Telegram.${CR}"; break ;;
+                2) echo -e "  ${C_BAD}●${CR} ${C_BAD}Telegram rejected this token (or API unreachable).${CR}"
+                   printf "  ${C_PROMPT}❯${CR} Re-enter token, or press Enter to keep it anyway: "
+                   read -r _t
+                   if [ -z "$_t" ]; then break; fi
+                   YOUR_BOT_TOKEN="$_t"
+                   while [[ ! "$YOUR_BOT_TOKEN" =~ ^[0-9]{8,10}:[a-zA-Z0-9_-]{35}$ ]]; do
+                       echo -e "\e[91mInvalid format.\033[0m"; printf "  ${C_PROMPT}❯${CR} Bot Token: "; read -r YOUR_BOT_TOKEN
+                   done ;;
+                *) break ;;
+            esac
+        done
+        state_set BOT_TOKEN "$YOUR_BOT_TOKEN"
     fi
+
+    YOUR_CHAT_ID="$(state_get CHAT_ID)"
+    if [ -n "$YOUR_CHAT_ID" ]; then
+        echo -e "\e[33m[+] \e[36mChat id (resumed):\e[0m ${YOUR_CHAT_ID}"
+    else
+        if [ -n "$ARG_ADMIN" ]; then
+            YOUR_CHAT_ID="$ARG_ADMIN"
+            echo -e "\e[33m[+] \e[36mChat id (from --admin):\e[0m ${YOUR_CHAT_ID}"
+        else
+            printf "\e[33m[+] \e[36mChat id: \033[0m"
+            read YOUR_CHAT_ID
+        fi
+        while [[ ! "$YOUR_CHAT_ID" =~ ^-?[0-9]+$ ]]; do
+            echo -e "\e[91mInvalid chat ID format. Please try again.\033[0m"
+            printf "\e[33m[+] \e[36mChat id: \033[0m"
+            read YOUR_CHAT_ID
+        done
+        state_set CHAT_ID "$YOUR_CHAT_ID"
+    fi
+
+    YOUR_DOMAIN="$DOMAIN_NAME"
+    YOUR_BOTNAME="$(state_get BOTNAME)"
+    if [ -n "$YOUR_BOTNAME" ]; then
+        echo -e "\e[33m[+] \e[36musernamebot (resumed):\e[0m ${YOUR_BOTNAME}"
+    else
+        if [ -n "$ARG_NAME" ]; then
+            YOUR_BOTNAME="$ARG_NAME"
+            echo -e "\e[33m[+] \e[36musernamebot (from --name):\e[0m ${YOUR_BOTNAME}"
+        else
+            while true; do
+                printf "\e[33m[+] \e[36musernamebot: \033[0m"
+                read YOUR_BOTNAME
+                if [ "$YOUR_BOTNAME" != "" ]; then
+                    break
+                else
+                    echo -e "\e[91mError: Bot username cannot be empty. Please enter a valid username.\033[0m"
+                fi
+            done
+        fi
+        state_set BOTNAME "$YOUR_BOTNAME"
+    fi
+
     ROOT_PASSWORD=$(cat /root/confmirza/dbrootmirza.txt | grep '$pass' | cut -d"'" -f2)
     ROOT_USER="root"
     echo "SELECT 1" | mysql -u$ROOT_USER -p$ROOT_PASSWORD 2>/dev/null || {
         echo -e "\e[91mError: MySQL connection failed.\033[0m"
-        exit 1
+        install_pause "MySQL connection"
     }
-    if [ $? -eq 0 ]; then
-        wait
-        randomdbpass=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
-        randomdbdb=$(openssl rand -base64 10 | tr -dc 'a-zA-Z' | cut -c1-8)
-        if [[ $(mysql -u root -p$ROOT_PASSWORD -e "SHOW DATABASES LIKE 'mirzaprobot'") ]]; then
-            clear
-            echo -e "\n\e[91mYou have already created the database\033[0m\n"
-        else
-            dbname=mirzaprobot
+
+    randomdbpass=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
+    randomdbdb=$(openssl rand -base64 10 | tr -dc 'a-zA-Z' | cut -c1-8)
+    dbname="mirzaprobot"
+
+    # ╭──────────────────────── PHASE: DB ──────────────────────────╮
+    if ! phase_done DB; then
+        dbuser="$(state_get DBUSER)"
+        dbpass="$(state_get DBPASS)"
+        if [ -z "$dbuser" ] || [ -z "$dbpass" ]; then
             clear
             if [ -n "$ARG_DBUSER" ]; then
                 dbuser="$ARG_DBUSER"
@@ -1092,7 +1354,6 @@ EOF
             if [ "$dbuser" = "" ]; then
                 dbuser=$randomdbdb
             fi
-            # Validate DB username charset (letters/digits/underscore)
             if ! valid_db_ident "$dbuser"; then
                 echo -e "  ${C_WARN}!${CR} ${C_WARN}Invalid DB username (use only A-Z a-z 0-9 _). Using generated name.${CR}"
                 dbuser=$randomdbdb
@@ -1108,35 +1369,45 @@ EOF
             if [ "$dbpass" = "" ]; then
                 dbpass=$randomdbpass
             fi
-            # Validate DB password charset (avoid quotes/specials that break SQL & config.php)
             if ! valid_db_pass "$dbpass"; then
                 echo -e "  ${C_WARN}!${CR} ${C_WARN}Password has unsafe characters or is too short (need 6+, A-Z a-z 0-9 _). Using generated password.${CR}"
                 dbpass=$randomdbpass
             fi
-            mysql -u root -p$ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $dbname;"
-            mysql -u root -p$ROOT_PASSWORD -e "CREATE USER IF NOT EXISTS '$dbuser'@'%' IDENTIFIED WITH mysql_native_password BY '$dbpass'; GRANT ALL PRIVILEGES ON $dbname.* TO '$dbuser'@'%'; FLUSH PRIVILEGES;"
-            mysql -u root -p$ROOT_PASSWORD -e "CREATE USER IF NOT EXISTS '$dbuser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$dbpass'; GRANT ALL PRIVILEGES ON $dbname.* TO '$dbuser'@'localhost'; FLUSH PRIVILEGES;" || {
-                echo -e "\e[91mError: Failed to create database or user.\033[0m"
-                exit 1
-            }
-            echo -e "\n\e[95mDatabase Created.\033[0m"
-            clear
-            ASAS="$"
-            wait
-            sleep 1
-            file_path="/var/www/html/mirzaprobotconfig/config.php"
-            if [ -f "$file_path" ]; then
-              rm "$file_path" || {
+            state_set DBUSER "$dbuser"
+            state_set DBPASS "$dbpass"
+        else
+            echo -e "  ${C_OK}●${CR} ${C_DIM}Database credentials resumed.${CR}"
+        fi
+        # Idempotent: safe to re-run (IF NOT EXISTS), so a resumed install never breaks here
+        run_step "Creating database & user" \
+            "mysql -u root -p$ROOT_PASSWORD -e \"CREATE DATABASE IF NOT EXISTS $dbname;\" && mysql -u root -p$ROOT_PASSWORD -e \"CREATE USER IF NOT EXISTS '$dbuser'@'%' IDENTIFIED WITH mysql_native_password BY '$dbpass'; GRANT ALL PRIVILEGES ON $dbname.* TO '$dbuser'@'%'; FLUSH PRIVILEGES;\" && mysql -u root -p$ROOT_PASSWORD -e \"CREATE USER IF NOT EXISTS '$dbuser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$dbpass'; GRANT ALL PRIVILEGES ON $dbname.* TO '$dbuser'@'localhost'; FLUSH PRIVILEGES;\"" \
+            || { show_step_error; install_pause "Creating database/user"; }
+        mark_phase DB
+    else
+        dbuser="$(state_get DBUSER)"
+        dbpass="$(state_get DBPASS)"
+        echo -e "  ${C_OK}●${CR} ${C_DIM}Database already created - skipping.${CR}"
+    fi
+    # ╰─────────────────────────────────────────────────────────────╯
+
+    # ╭──────────────────────── PHASE: CONFIG ──────────────────────╮
+    if ! phase_done CONFIG; then
+        wait
+        sleep 1
+        file_path="/var/www/html/mirzaprobotconfig/config.php"
+        if [ -f "$file_path" ]; then
+            rm "$file_path" || {
                 echo -e "\e[91mError: Failed to delete old config.php.\033[0m"
-                exit 1
-              }
-              echo -e "File deleted successfully."
-            else
-              echo -e "File not found."
-            fi
-            sleep 1
+                install_pause "Removing old config.php"
+            }
+        fi
+        sleep 1
+        secrettoken="$(state_get SECRET)"
+        if [ -z "$secrettoken" ]; then
             secrettoken=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
-            cat <<EOF > /var/www/html/mirzaprobotconfig/config.php
+            state_set SECRET "$secrettoken"
+        fi
+        cat <<EOF > /var/www/html/mirzaprobotconfig/config.php
 <?php
 // This variable added for high load panels which their response time is long and bot can't communicate with online panel!
 // null for default settings
@@ -1157,50 +1428,58 @@ try { \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options); } catch (\P
 \$usernamebot = '${YOUR_BOTNAME}';
 ?>
 EOF
-            sleep 1
-            run_step "Setting Telegram webhook" \
-                "curl -s -F \"url=https://${YOUR_DOMAIN}/index.php\" -F \"secret_token=${secrettoken}\" \"https://api.telegram.org/bot${YOUR_BOT_TOKEN}/setWebhook\"" \
-                || { show_step_error; echo -e "\e[91mError: Failed to set webhook for bot.\033[0m"; exit 1; }
-
-            MESSAGE="✅ The Mirza bot is installed! for start the bot send /start command."
-            curl -s -X POST "https://api.telegram.org/bot${YOUR_BOT_TOKEN}/sendMessage" -d chat_id="${YOUR_CHAT_ID}" -d text="$MESSAGE" > /dev/null 2>&1 || {
-                echo -e "\e[91mError: Failed to send message to Telegram.\033[0m"
-                exit 1
-            }
-            sleep 3
-            run_step "Starting Apache" "systemctl start apache2" \
-                || { show_step_error; echo -e "\e[91mError: Failed to start Apache2.\033[0m"; exit 1; }
-            sleep 5
-            url="https://${YOUR_DOMAIN}/table.php"
-            run_step "Initializing database tables" "curl -k --max-time 15 '$url' > /dev/null 2>&1" \
-                || echo -e "\e[93mWarning: Could not reach URL immediately, but installation may still be successful.\033[0m"
-            clear
-            banner
-            _sec "Installation complete"
-            printf "    ${C_OK}●${CR} ${C_OK}Mirza is installed and the webhook is set.${CR}\n"
-            printf "    ${C_DIM}Open Telegram and send ${CR}${C_KEY}/start${CR}${C_DIM} to your bot.${CR}\n"
-
-            _sec "Access"
-            _kv "Bot URL" "${C_DIM}https://${YOUR_DOMAIN}${CR}"
-            _kv "phpMyAdmin" "${C_DIM}https://${YOUR_DOMAIN}/phpmyadmin${CR}"
-
-            _sec "Database"
-            _kv "Name" "${C_KEY}${dbname}${CR}"
-            _kv "Username" "${C_KEY}${dbuser}${CR}"
-            _kv "Password" "${C_KEY}${dbpass}${CR}"
-            printf "    ${C_WARN}!${CR} ${C_DIM}Save these credentials somewhere safe.${CR}\n"
-
-            _sec "Manage"
-            _kv "Command" "${C_DIM}run ${CR}${C_KEY}mirza${CR}${C_DIM} anytime to open this panel${CR}"
-            echo ""
-            _rule
-            echo ""
-        fi
-    elif [ "$ROOT_PASSWORD" = "" ] || [ "$ROOT_USER" = "" ]; then
-        echo -e "\n\e[36mThe password is empty.\033[0m\n"
+        sudo chown www-data:www-data /var/www/html/mirzaprobotconfig/config.php 2>/dev/null
+        mark_phase CONFIG
     else
-        echo -e "\n\e[36mThe password is not correct.\033[0m\n"
+        secrettoken="$(state_get SECRET)"
+        echo -e "  ${C_OK}●${CR} ${C_DIM}config.php already written - skipping.${CR}"
     fi
+    # ╰─────────────────────────────────────────────────────────────╯
+
+    # ╭──────────────────────── PHASE: WEBHOOK ─────────────────────╮
+    if ! phase_done WEBHOOK; then
+        sleep 1
+        run_step "Setting Telegram webhook" \
+            "curl -s -F \"url=https://${YOUR_DOMAIN}/index.php\" -F \"secret_token=${secrettoken}\" \"https://api.telegram.org/bot${YOUR_BOT_TOKEN}/setWebhook\"" \
+            || { show_step_error; install_pause "Setting Telegram webhook"; }
+
+        MESSAGE="✅ The Mirza bot is installed! for start the bot send /start command."
+        curl -s -X POST "https://api.telegram.org/bot${YOUR_BOT_TOKEN}/sendMessage" -d chat_id="${YOUR_CHAT_ID}" -d text="$MESSAGE" > /dev/null 2>&1
+        sleep 3
+        run_step "Starting Apache" "systemctl start apache2" \
+            || { show_step_error; install_pause "Starting Apache"; }
+        sleep 5
+        url="https://${YOUR_DOMAIN}/table.php"
+        run_step "Initializing database tables" "curl -k --max-time 15 '$url' > /dev/null 2>&1" \
+            || echo -e "\e[93mWarning: Could not reach URL immediately, but installation may still be successful.\033[0m"
+        mark_phase WEBHOOK
+    fi
+    # ╰─────────────────────────────────────────────────────────────╯
+
+    # ── Done ──
+    mark_phase COMPLETE
+    clear
+    banner
+    _sec "Installation complete"
+    printf "    ${C_OK}●${CR} ${C_OK}Mirza is installed and the webhook is set.${CR}\n"
+    printf "    ${C_DIM}Open Telegram and send ${CR}${C_KEY}/start${CR}${C_DIM} to your bot.${CR}\n"
+
+    _sec "Access"
+    _kv "Bot URL" "${C_DIM}https://${YOUR_DOMAIN}${CR}"
+    _kv "phpMyAdmin" "${C_DIM}https://${YOUR_DOMAIN}/phpmyadmin${CR}"
+
+    _sec "Database"
+    _kv "Name" "${C_KEY}${dbname}${CR}"
+    _kv "Username" "${C_KEY}${dbuser}${CR}"
+    _kv "Password" "${C_KEY}${dbpass}${CR}"
+    printf "    ${C_WARN}!${CR} ${C_DIM}Save these credentials somewhere safe.${CR}\n"
+
+    _sec "Manage"
+    _kv "Command" "${C_DIM}run ${CR}${C_KEY}mirza${CR}${C_DIM} anytime to open this panel${CR}"
+    echo ""
+    _rule
+    echo ""
+
     chmod +x /root/install.sh
     ln -sf /root/install.sh /usr/local/bin/mirza
     self_update_script

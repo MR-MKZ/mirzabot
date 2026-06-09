@@ -7,6 +7,11 @@ fi
 
 INSTALL_LOG="/tmp/mirza_install.log"
 
+export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_MODE=a
+export NEEDRESTART_SUSPEND=1
+export APT_LISTCHANGES_FRONTEND=none
+
 # ── Progress / ETA state ─────────────────────────────────────
 ETA_REMAINING=0   # estimated seconds left for the whole install
 STEP_NO=0         # how many steps have started
@@ -47,6 +52,7 @@ _step_eta() {
         "Enabling & starting services"*)     echo 8  ;;
         "Configuring firewall"*)             echo 15 ;;
         "Restarting Apache"*)                echo 5  ;;
+        "Setting PHP 8.2 as the active"*)    echo 6  ;;
         "Downloading Mirza"*)                echo 20 ;;
         "Extracting source files"*)          echo 5  ;;
         "Configuring MySQL root access"*)    echo 10 ;;
@@ -68,7 +74,7 @@ _step_eta() {
 # Plan the run: count pending steps + total expected time (skips done phases).
 plan_eta() {
     STEP_TOTAL=0; ETA_REMAINING=0; STEP_NO=0
-    phase_done DEPS    || { STEP_TOTAL=$((STEP_TOTAL + 11)); ETA_REMAINING=$((ETA_REMAINING + 378)); }
+    phase_done DEPS    || { STEP_TOTAL=$((STEP_TOTAL + 12)); ETA_REMAINING=$((ETA_REMAINING + 388)); }
     phase_done FILES   || { STEP_TOTAL=$((STEP_TOTAL + 2));  ETA_REMAINING=$((ETA_REMAINING + 25)); }
     phase_done DBROOT  || { STEP_TOTAL=$((STEP_TOTAL + 1));  ETA_REMAINING=$((ETA_REMAINING + 10)); }
     if ! phase_done SSL; then
@@ -1195,10 +1201,12 @@ function install_bot() {
             || { show_step_error; install_pause "Installing base tools"; }
 
         run_step "Installing PHP 8.2 (fpm + mysql)" \
-            "DEBIAN_FRONTEND=noninteractive apt install -y php8.2 php8.2-fpm php8.2-mysql" \
+            "DEBIAN_FRONTEND=noninteractive apt install -y php8.2 php8.2-cli php8.2-fpm php8.2-mysql" \
             || { show_step_error; install_pause "Installing PHP 8.2"; }
 
-        WEBSTACK_CMD="DEBIAN_FRONTEND=noninteractive apt install -y lamp-server^ libapache2-mod-php mysql-server apache2 php-mbstring php-zip php-gd php-json php-curl"
+        # Versioned packages only: unversioned (php-*, lamp-server^) would pull the
+        # PPA's newest PHP (e.g. 8.4) as default and break the bot's mysqli/curl.
+        WEBSTACK_CMD="DEBIAN_FRONTEND=noninteractive apt install -y mysql-server apache2 libapache2-mod-php8.2 php8.2-mbstring php8.2-zip php8.2-gd php8.2-curl php8.2-intl php8.2-xml php8.2-bcmath"
         if ! run_step "Installing web stack (Apache, MySQL, PHP modules)" "$WEBSTACK_CMD"; then
             # Most common cause: a broken/half-configured MySQL from an interrupted run.
             # Safe to repair here because the fresh-server check ran and no DB exists yet.
@@ -1207,6 +1215,10 @@ function install_bot() {
             run_step "Re-installing web stack" "$WEBSTACK_CMD" \
                 || { show_step_error; install_pause "Installing web stack"; }
         fi
+
+        run_step "Setting PHP 8.2 as the active version" \
+            "a2dismod php8.5 php8.4 php8.3 php8.1 php8.0 php7.4 mpm_event mpm_worker 2>/dev/null; a2enmod php8.2 mpm_prefork 2>/dev/null; update-alternatives --set php /usr/bin/php8.2 2>/dev/null; systemctl restart apache2" \
+            || { show_step_error; install_pause "Setting PHP 8.2 as default"; }
 
         echo 'phpmyadmin phpmyadmin/dbconfig-install boolean true' | sudo debconf-set-selections
         echo 'phpmyadmin phpmyadmin/app-password-confirm password mirzahipass' | sudo debconf-set-selections
@@ -1226,7 +1238,7 @@ function install_bot() {
         }
 
         run_step "Installing extra modules (php-soap, php-ssh2, libssh2)" \
-            "apt-get install -y php-soap libapache2-mod-php php-ssh2 libssh2-1-dev libssh2-1" \
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y php8.2-soap php8.2-ssh2 libssh2-1-dev libssh2-1" \
             || { show_step_error; install_pause "Installing extra PHP modules"; }
 
         run_step "Enabling & starting services (MySQL, Apache)" \
@@ -1605,9 +1617,8 @@ EOF
         run_step "Starting Apache" "systemctl start apache2" \
             || { show_step_error; install_pause "Starting Apache"; }
         sleep 5
-        url="https://${YOUR_DOMAIN}/table.php"
-        run_step "Initializing database tables" "curl -k --max-time 15 '$url' > /dev/null 2>&1" \
-            || echo -e "\e[93mWarning: Could not reach URL immediately, but installation may still be successful.\033[0m"
+        run_step "Initializing database tables" "cd '$BOT_DIR' && php8.2 table.php" \
+            || { show_step_error; install_pause "Initializing database tables"; }
         mark_phase WEBHOOK
     fi
     # ╰─────────────────────────────────────────────────────────────╯

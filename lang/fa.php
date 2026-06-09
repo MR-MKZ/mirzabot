@@ -2085,9 +2085,9 @@ f,n.n2',
                 'addTimeVolumeNextMonth' => 'اضافه شدن زمان و حجم به ماه بعد',
                 'adminDeletedService' => '🔗 یک ادمین یک سرویس را از دیتابیس ربات حذف کرد.
 
-- آیدی عددی ادمین :‌$from_id
-- نام ادمین : $first_name
-- نام کاربری سرویس :‌ {$invocie[\'username\']}',
+- آیدی عددی ادمین :‌{from_id}
+- نام ادمین : {first_name}
+- نام کاربری سرویس :‌ {service_username}',
                 'adminSection' => '👨‍🔧 بخش ادمین',
                 'advancedAgent' => 'نماینده پیشرفته',
                 'affiliateGift' => '🎁زیرمجموعه',
@@ -2099,7 +2099,7 @@ f,n.n2',
                 'agentLottery' => '🎁 قرعه کشی نمایندگان',
                 'agentMembershipFee' => '💰 مبلغ عضویت نمایندگی',
                 'agentPurchaseCap' => 'سقف خرید  نماینده',
-                'agentTypeChanged' => 'نوع نماینده به {$agentTypeLabels[$selectedType]} تغییر کرد.',
+                'agentTypeChanged' => 'نوع نماینده به {agent_type} تغییر کرد.',
                 'agentWheelOfLuck' => '🎲 گردونه شانس  نمایندگان',
                 'allAgents' => 'تمام نمایندگان',
                 'allPanels' => 'همه پنل ها',

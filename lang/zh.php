@@ -2088,9 +2088,9 @@ f,n.n2',
                 'addTimeVolumeNextMonth' => '将时间和流量添加到下个月',
                 'adminDeletedService' => '🔗 一位管理员从机器人数据库中删除了一个服务。
 
-- 管理员数字 ID：‌$from_id
-- 管理员姓名：$first_name
-- 服务用户名：‌ {$invocie[\'username\']}',
+- 管理员数字 ID：‌{from_id}
+- 管理员姓名：{first_name}
+- 服务用户名：‌ {service_username}',
                 'adminSection' => '👨‍🔧 管理员部分',
                 'advancedAgent' => '高级代理',
                 'affiliateGift' => '🎁下线',
@@ -2102,7 +2102,7 @@ f,n.n2',
                 'agentLottery' => '🎁 代理抽奖',
                 'agentMembershipFee' => '💰 代理会员金额',
                 'agentPurchaseCap' => '代理购买上限',
-                'agentTypeChanged' => '代理类型已更改为 {$agentTypeLabels[$selectedType]}。',
+                'agentTypeChanged' => '代理类型已更改为 {agent_type}。',
                 'agentWheelOfLuck' => '🎲 代理幸运转盘',
                 'allAgents' => '所有代理',
                 'allPanels' => '所有面板',

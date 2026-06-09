@@ -2088,9 +2088,9 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'addTimeVolumeNextMonth' => 'Adding time and volume to the next month',
                 'adminDeletedService' => '🔗 An admin deleted a service from the bot\'s database.
 
-- Admin numeric ID :‌$from_id
-- Admin name : $first_name
-- Service username :‌ {$invocie[\'username\']}',
+- Admin numeric ID :‌{from_id}
+- Admin name : {first_name}
+- Service username :‌ {service_username}',
                 'adminSection' => '👨‍🔧 Admin section',
                 'advancedAgent' => 'Advanced agent',
                 'affiliateGift' => '🎁Referral',
@@ -2102,7 +2102,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'agentLottery' => '🎁 Agents\' lottery',
                 'agentMembershipFee' => '💰 Agency membership amount',
                 'agentPurchaseCap' => 'Agent purchase limit',
-                'agentTypeChanged' => 'The agent type was changed to {$agentTypeLabels[$selectedType]}.',
+                'agentTypeChanged' => 'The agent type was changed to {agent_type}.',
                 'agentWheelOfLuck' => '🎲 Agents\' wheel of fortune',
                 'allAgents' => 'All agents',
                 'allPanels' => 'All panels',

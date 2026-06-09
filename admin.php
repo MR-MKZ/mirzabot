@@ -6276,7 +6276,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     }
     telegram('answerCallbackQuery', array(
         'callback_query_id' => $callback_query_id,
-        'text' => $textbotlang['keyboard']['agentTypeChanged'],
+        'text' => strtr($textbotlang['keyboard']['agentTypeChanged'], ['{agent_type}' => $agentTypeLabels[$selectedType]]),
         'show_alert' => false,
         'cache_time' => 5,
     ));
@@ -10237,7 +10237,7 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
             'message_thread_id' => $otherreport,
-            'text' => $textbotlang['keyboard']['adminDeletedService'],
+            'text' => strtr($textbotlang['keyboard']['adminDeletedService'], ['{from_id}' => $from_id, '{first_name}' => $first_name, '{service_username}' => $invocie['username']]),
             'parse_mode' => "HTML"
         ]);
     }

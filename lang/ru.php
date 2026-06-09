@@ -2088,9 +2088,9 @@ ID пользователя: %s
                 'addTimeVolumeNextMonth' => 'Добавление времени и объёма на следующий месяц',
                 'adminDeletedService' => '🔗 Администратор удалил сервис из базы данных бота.
 
-- Числовой ID администратора :‌$from_id
-- Имя администратора : $first_name
-- Имя пользователя сервиса :‌ {$invocie[\'username\']}',
+- Числовой ID администратора :‌{from_id}
+- Имя администратора : {first_name}
+- Имя пользователя сервиса :‌ {service_username}',
                 'adminSection' => '👨‍🔧 Раздел администратора',
                 'advancedAgent' => 'Продвинутый агент',
                 'affiliateGift' => '🎁Реферал',
@@ -2102,7 +2102,7 @@ ID пользователя: %s
                 'agentLottery' => '🎁 Лотерея агентов',
                 'agentMembershipFee' => '💰 Сумма членства агентства',
                 'agentPurchaseCap' => 'Лимит покупок агента',
-                'agentTypeChanged' => 'Тип агента изменён на {$agentTypeLabels[$selectedType]}.',
+                'agentTypeChanged' => 'Тип агента изменён на {agent_type}.',
                 'agentWheelOfLuck' => '🎲 Колесо фортуны агентов',
                 'allAgents' => 'Все агенты',
                 'allPanels' => 'Все панели',

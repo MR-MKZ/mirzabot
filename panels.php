@@ -914,7 +914,6 @@ class ManagePanel
     function Revoke_sub($name_panel, $username)
     {
         $Output = array();
-        $ManagePanel = new ManagePanel();
         $Get_Data_Panel = select("marzban_panel", "*", "name_panel", $name_panel, "select");
         if ($Get_Data_Panel['type'] == "marzban") {
             $revoke_sub = revoke_sub($username, $name_panel);
@@ -924,8 +923,7 @@ class ManagePanel
                     'msg' => $revoke_sub['detail']
                 );
             } else {
-                $config = new ManagePanel();
-                $Data_User = $config->DataUser($name_panel, $username);
+                $Data_User = $this->DataUser($name_panel, $username);
                 if (!preg_match('/^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?((\/[^\s\/]+)+)?$/', $Data_User['subscription_url'])) {
                     $Data_User['subscription_url'] = $Get_Data_Panel['url_panel'] . "/" . ltrim($Data_User['subscription_url'], "/");
                 }
@@ -943,8 +941,7 @@ class ManagePanel
                     'msg' => $revoke_sub['detail']
                 );
             } else {
-                $config = new ManagePanel();
-                $Data_User = $config->DataUser($name_panel, $username);
+                $Data_User = $this->DataUser($name_panel, $username);
                 $Data_User['links'] = [base64_decode(outputlink($Data_User['subscription_url']))];
                 $Output = array(
                     'status' => 'successful',
@@ -960,7 +957,7 @@ class ManagePanel
                 "enable" => true,
                 "subId" => $subId,
             );
-            $updateinbound = $ManagePanel->Modifyuser($username, $Get_Data_Panel['name_panel'], $config);
+            $updateinbound = $this->Modifyuser($username, $Get_Data_Panel['name_panel'], $config);
             if (!$updateinbound['status']) {
                 $Output = array(
                     'status' => 'Unsuccessful',
@@ -988,7 +985,7 @@ class ManagePanel
                     )
                 )
             );
-            $updateinbound = $ManagePanel->Modifyuser($username, $Get_Data_Panel['name_panel'], $config);
+            $updateinbound = $this->Modifyuser($username, $Get_Data_Panel['name_panel'], $config);
             if (!$updateinbound['status']) {
                 $Output = array(
                     'status' => 'Unsuccessful',
@@ -1523,8 +1520,7 @@ class ManagePanel
     }
     function Change_status($username, $name_panel)
     {
-        $ManagePanel = new ManagePanel();
-        $DataUserOut = $ManagePanel->DataUser($name_panel, $username);
+        $DataUserOut = $this->DataUser($name_panel, $username);
         $Get_Data_Panel = select("marzban_panel", "*", "name_panel", $name_panel, "select");
         if ($DataUserOut['status'] == "Unsuccessful") {
             $Output = array(
@@ -1547,7 +1543,7 @@ class ManagePanel
                 $status = "active";
             }
             $configs = array("status" => $status);
-            $ManagePanel->Modifyuser($username, $name_panel, $configs);
+            $this->Modifyuser($username, $name_panel, $configs);
             $Output = array(
                 'status' => 'successful',
                 'msg' => null
@@ -1571,7 +1567,7 @@ class ManagePanel
             $configs = array(
                 "enable" => $status,
             );
-            $ManagePanel->Modifyuser($username, $name_panel, $configs);
+            $this->Modifyuser($username, $name_panel, $configs);
             $Output = array(
                 'status' => 'successful',
                 'msg' => null
@@ -1591,7 +1587,7 @@ class ManagePanel
                     ),
                 )),
             );
-            $ManagePanel->Modifyuser($username, $name_panel, $configs);
+            $this->Modifyuser($username, $name_panel, $configs);
             $Output = array(
                 'status' => 'successful',
                 'msg' => null
@@ -1608,7 +1604,7 @@ class ManagePanel
                 $status = true;
             }
             $configs = array("enable" => $status);
-            $ManagePanel->Modifyuser($username, $name_panel, $configs);
+            $this->Modifyuser($username, $name_panel, $configs);
             $Output = array(
                 'status' => 'successful',
                 'msg' => null

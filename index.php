@@ -4336,7 +4336,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         $info_product['Service_time'] = $parts[1];
         $info_product['price_product'] = ($parts[2] * $custompricevalue) + ($parts[1] * $customtimevalueprice);
     } else {
-        $__q8 = $pdo->prepare("SELECT * FROM product WHERE code_product = ? AND (Location = ?or Location = '/all') LIMIT 1");
+        $__q8 = $pdo->prepare("SELECT * FROM product WHERE code_product = ? AND (Location = ? or Location = '/all') LIMIT 1");
         $__q8->bindValue(1, $loc, PDO::PARAM_STR);
         $__q8->bindValue(2, $user['Processing_value'], PDO::PARAM_STR);
         $__q8->execute();

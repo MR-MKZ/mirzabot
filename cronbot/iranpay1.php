@@ -7,7 +7,7 @@ require_once __DIR__ . '/../jdf.php';
 require_once __DIR__ . '/../function.php';
 require __DIR__ . '/../vendor/autoload.php';
 $ManagePanel = new ManagePanel();
-$setting = ($pdo->prepare("SELECT * FROM setting"))->fetch(PDO::FETCH_ASSOC);
+$setting = select("setting", "*", null, null, "select");
 $paymentreports = select("topicid", "idreport", "report", "paymentreport", "select")['idreport'];
 $textbotlang = languagechange();
 $list_service = $pdo->prepare("SELECT * FROM Payment_report WHERE payment_Status = 'Unpaid' AND Payment_Method = 'Currency Rial 3' ORDER BY RAND() LIMIT 10");

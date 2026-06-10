@@ -1314,7 +1314,7 @@ function addFieldToTable($tableName, $fieldName, $defaultValue = null, $datatype
     if ($tableExists['count'] == 0)
         return;
     $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?");
-    $stmt->execute([$pdo->prepare("SELECT DATABASE()")->fetchColumn(), $tableName, $fieldName]);
+    $stmt->execute([$pdo->query("SELECT DATABASE()")->fetchColumn(), $tableName, $fieldName]);
     $filedExists = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($filedExists['count'] != 0)
         return;

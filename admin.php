@@ -1147,10 +1147,11 @@ elseif ($datain == "systemsms") {
                     $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id) AND u.User_Status = 'Active'");
                 } else {
                     $panel = select("marzban_panel", "*", "code_panel", $userdata['selectpanel'], "select");
-                    $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE  u.agent =  :agent AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id AND i.Service_location = :mp2) AND u.User_Status = 'Active'");
+                    $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE  u.agent =  :agent AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id AND i.Service_location = :location) AND u.User_Status = 'Active'");
                 }
                 $stmt->bindParam(':agent', $agent, PDO::PARAM_STR);
-                $stmt->execute([':mp2' => $panel['name_panel']]);
+                $stmt->bindParam(':location', $panel['name_panel'], PDO::PARAM_STR);
+                $stmt->execute();
                 $userslist = json_encode($stmt->fetchAll());
             } elseif ($typeusermessage == "nonecustomer") {
                 $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND NOT EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id) AND u.User_Status = 'Active'");
@@ -1196,10 +1197,11 @@ elseif ($datain == "systemsms") {
                     $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id) AND u.User_Status = 'Active'");
                 } else {
                     $panel = select("marzban_panel", "*", "code_panel", $userdata['selectpanel'], "select");
-                    $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id AND i.Service_location = :mp4) AND u.User_Status = 'Active'");
+                    $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id AND i.Service_location = :location) AND u.User_Status = 'Active'");
                 }
                 $stmt->bindParam(':agent', $agent, PDO::PARAM_STR);
-                $stmt->execute([':mp4' => $panel['name_panel']]);
+                $stmt->bindParam(':location', $panel['name_panel'], PDO::PARAM_STR);
+                $stmt->execute();
                 $userslist = json_encode($stmt->fetchAll());
             } elseif ($typeusermessage == "nonecustomer") {
                 $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND NOT EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id) AND u.User_Status = 'Active'");
@@ -1237,10 +1239,11 @@ elseif ($datain == "systemsms") {
                         $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.last_message_time < :time AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id);");
                     } else {
                         $panel = select("marzban_panel", "*", "code_panel", $userdata['selectpanel'], "select");
-                        $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.last_message_time < :time AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id AND i.Service_location = :mp5);");
+                        $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.last_message_time < :time AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id AND i.Service_location = :location);");
+                        $stmt->bindParam(':location', $panel['name_panel'], PDO::PARAM_STR);
                     }
                     $stmt->bindParam(':time', $timenouser, PDO::PARAM_STR);
-                    $stmt->execute([':mp5' => $panel['name_panel']]);
+                    $stmt->execute();
                     $userslist = json_encode($stmt->fetchAll());
                 } elseif ($typeusermessage == "nonecustomer") {
                     $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.last_message_time < :time AND NOT EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id);");
@@ -1253,11 +1256,12 @@ elseif ($datain == "systemsms") {
                     $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND u.last_message_time < :time AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id);");
                 } else {
                     $panel = select("marzban_panel", "*", "code_panel", $userdata['selectpanel'], "select");
-                    $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND u.last_message_time < :time AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id AND i.Service_location = :mp6);");
+                    $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND u.last_message_time < :time AND EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id AND i.Service_location = :location);");
+                    $stmt->bindParam(':location', $panel['name_panel'], PDO::PARAM_STR);
                 }
                 $stmt->bindParam(':agent', $agent, PDO::PARAM_STR);
                 $stmt->bindParam(':time', $timenouser, PDO::PARAM_STR);
-                $stmt->execute([':mp6' => $panel['name_panel']]);
+                $stmt->execute();
                 $userslist = json_encode($stmt->fetchAll());
             } elseif ($typeusermessage == "nonecustomer") {
                 $stmt = $pdo->prepare("SELECT u.id FROM user u WHERE u.agent =  :agent AND u.last_message_time < :time AND NOT EXISTS ( SELECT 1 FROM invoice i WHERE i.id_user = u.id);");
@@ -7619,13 +7623,15 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         return;
     }
     if ($userdata['type_price'] == "static") {
-        $stmt = $pdo->prepare("UPDATE  product set price_product = price_product + :price WHERE Location = :mp18 AND agent = :mp19");
+        $stmt = $pdo->prepare("UPDATE  product set price_product = price_product + :price WHERE Location = :location AND agent = :agent");
         $stmt->bindParam(':price', $text, PDO::PARAM_STR);
     } else {
-        $stmt = $pdo->prepare("UPDATE  product set price_product = price_product + (price_product * :price / 100)  WHERE Location = :mp20 AND agent = :mp21");
+        $stmt = $pdo->prepare("UPDATE  product set price_product = price_product + (price_product * :price / 100)  WHERE Location = :location AND agent = :agent");
         $stmt->bindParam(':price', $text, PDO::PARAM_STR);
     }
-    $stmt->execute([':mp20' => $userdata['namepanel'], ':mp21' => $userdata['agent'], ':mp18' => $userdata['namepanel'], ':mp19' => $userdata['agent']]);
+    $stmt->bindParam(':location', $userdata['namepanel'], PDO::PARAM_STR);
+    $stmt->bindParam(':agent', $userdata['agent'], PDO::PARAM_STR);
+    $stmt->execute();
     sendmessage($from_id, $textbotlang['Admin']['adminphp']['ok_success_amount_2'], $shopkeyboard, 'HTML');
     step("home", $from_id);
 } elseif ($text == $textbotlang['keyboard']['decreaseGroupPrice']) {

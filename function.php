@@ -869,9 +869,10 @@ function DirectPayment($order_id, $image = 'images.jpg')
         }
         $affiliatescommission = select("affiliates", "*", null, null, "select");
         $marzbanporsant_one_buy = select("affiliates", "*", null, null, "select");
-        $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != :mp1  AND id_user = :id_user AND Status != 'Unpaid'");
+        $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != :name_product  AND id_user = :id_user AND Status != 'Unpaid'");
         $stmt->bindParam(':id_user', $Balance_id['id']);
-        $stmt->execute([':mp1' => $textbotlang['Admin']['adminphp']['db_test_service_name']]);
+        $stmt->bindParam(':name_product', $textbotlang['Admin']['adminphp']['db_test_service_name']);
+        $stmt->execute();
         $countinvoice = $stmt->rowCount();
         if ($affiliatescommission['status_commission'] == "oncommission" && ($Balance_id['affiliates'] != null && intval($Balance_id['affiliates']) != 0)) {
             if ($marzbanporsant_one_buy['porsant_one_buy'] == "on_buy_porsant") {

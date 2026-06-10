@@ -899,9 +899,10 @@ switch ($data['actions']) {
         }
         $affiliatescommission = select("affiliates", "*", null, null, "select");
         $marzbanporsant_one_buy = select("affiliates", "*", null, null, "select");
-        $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != :mp5  AND id_user = :id_user");
+        $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != :name_product AND id_user = :id_user");
         $stmt->bindParam(':id_user', $user_info['id']);
-        $stmt->execute([':mp5' => $textbotlang['Admin']['adminphp']['db_test_service_name']]);
+        $stmt->bindParam(':name_product', $textbotlang['Admin']['adminphp']['db_test_service_name']);
+        $stmt->execute();
         $countinvoice = $stmt->rowCount();
         if ($affiliatescommission['status_commission'] == "oncommission" && ($user_info['affiliates'] != null && intval($user_info['affiliates']) != 0)) {
             if ($marzbanporsant_one_buy['porsant_one_buy'] == "on_buy_porsant") {

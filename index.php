@@ -3982,9 +3982,10 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     }
     $affiliatescommission = select("affiliates", "*", null, null, "select");
     $marzbanporsant_one_buy = select("affiliates", "*", null, null, "select");
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != :mp4  AND id_user = :id_user AND Status != 'Unpaid'");
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != :name_product  AND id_user = :id_user AND Status != 'Unpaid'");
     $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute([':mp4' => $textbotlang['Admin']['adminphp']['db_test_service_name']]);
+    $stmt->bindParam(':name_product', $textbotlang['Admin']['adminphp']['db_test_service_name']);
+    $stmt->execute();
     $countinvoice = $stmt->rowCount();
     if ($affiliatescommission['status_commission'] == "oncommission" && ($user['affiliates'] != null && intval($user['affiliates']) != 0)) {
         if ($marzbanporsant_one_buy['porsant_one_buy'] == "on_buy_porsant") {
@@ -6104,9 +6105,10 @@ if (preg_match('/^sendresidcart-(.*)/', $datain, $dataget)) {
         sendmessage($from_id, $textbotlang['extracted']['index_php']['buttonDisabledForYou'], null, 'HTML');
         return;
     }
-    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != :mp5  AND id_user = :id_user AND status != 'Unpaid'");
+    $stmt = $pdo->prepare("SELECT * FROM invoice WHERE name_product != :name_product  AND id_user = :id_user AND status != 'Unpaid'");
     $stmt->bindParam(':id_user', $from_id);
-    $stmt->execute([':mp5' => $textbotlang['Admin']['adminphp']['db_test_service_name']]);
+    $stmt->bindParam(':name_product', $textbotlang['Admin']['adminphp']['db_test_service_name']);
+    $stmt->execute();
     $countinvoice = $stmt->rowCount();
     if (intval($setting['statusfirstwheel']) == 1 and $countinvoice != 0) {
         sendmessage($from_id, $textbotlang['extracted']['index_php']['noPurchaseUsersOnly'], null, 'HTML');

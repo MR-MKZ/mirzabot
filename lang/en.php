@@ -2511,6 +2511,10 @@ We hope you had a good experience with the ease and speed of your service. If yo
         ],
         'extracted' => [
                 'admin_php' => [
+                        'panelNotFound' => '❌ The requested panel was not found.',
+                        'panelErrorCode' => '❌ An error occurred. Error code: %s',
+                        'selectPanelForOrder' => '📌 Select from the list below which panel the order should be created on',
+                        'panelSelectedSuccess' => '✅ Panel selected successfully',
                         'serverStatus' => '🖥 <b>Server status</b>
 
 ⚙️ <b>CPU</b>
@@ -2558,6 +2562,8 @@ We hope you had a good experience with the ease and speed of your service. If yo
                         'eylanPanelOutput' => 'Panel output: ',
                 ],
                 'keyboard_php' => [
+                        'panelSetting' => '🎛 Panel Settings',
+                        'mirzaAgentPanel' => 'Mirza Agent',
                         'setGroupName' => '🎛 Set group name',
                         'subLinkDomain' => '🔗 Subscription link domain',
                         'panelTypeSanaei' => 'Sanaei single port',
@@ -2566,6 +2572,10 @@ We hope you had a good experience with the ease and speed of your service. If yo
                         'currencyToman' => 'Toman',
                 ],
                 'index_php' => [
+                        'langBtnFa' => '🇮🇷 فارسی',
+                        'langBtnEn' => '🇬🇧 English',
+                        'langBtnZh' => '🇨🇳 中文',
+                        'langBtnRu' => '🇷🇺 Русский',
                         'acceptRulesButton' => '✅ I accept the rules',
                         'affiliateBalanceGift' => '🎁 An amount of {addbalancediscount} was added to your balance from your referral with user ID {from_id}.',
                         'unlimited' => 'Unlimited',

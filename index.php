@@ -1047,10 +1047,6 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             unset($keyboarddate['Extra_volume']);
             unset($keyboarddate['Extra_time']);
         }
-        if ($marzban['type'] == "eylanpanel") {
-            unset($keyboarddate['config']);
-            unset($keyboarddate['changelink']);
-        }
         if ($marzban['type'] == "WGDashboard") {
             unset($keyboarddate['config']);
             unset($keyboarddate['changestatus']);
@@ -6651,12 +6647,12 @@ if (isset($update['message']['successful_payment'])) {
     $keyboard_language = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => "🇮🇷 فارسی", 'callback_data' => "setlang:fa"],
-                ['text' => "🇬🇧 English", 'callback_data' => "setlang:en"],
+                ['text' => $textbotlang['extracted']['index_php']['langBtnFa'], 'callback_data' => "setlang:fa"],
+                ['text' => $textbotlang['extracted']['index_php']['langBtnEn'], 'callback_data' => "setlang:en"],
             ],
             [
-                ['text' => "🇨🇳 中文", 'callback_data' => "setlang:zh"],
-                ['text' => "🇷🇺 Русский", 'callback_data' => "setlang:ru"],
+                ['text' => $textbotlang['extracted']['index_php']['langBtnZh'], 'callback_data' => "setlang:zh"],
+                ['text' => $textbotlang['extracted']['index_php']['langBtnRu'], 'callback_data' => "setlang:ru"],
             ],
             [
                 ['text' => $textbotlang['users']['backbtn'], 'callback_data' => "account"]

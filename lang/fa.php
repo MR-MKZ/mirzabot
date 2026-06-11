@@ -2508,6 +2508,10 @@ f,n.n2',
         ],
         'extracted' => [
                 'admin_php' => [
+                        'panelNotFound' => '❌ پنل مورد نظر یافت نشد.',
+                        'panelErrorCode' => '❌  خطایی رخ داده است کد خطا :  %s',
+                        'selectPanelForOrder' => '📌 از لیست پایین انتخاب کنید که سفارش از کدام پنل ساخته شود',
+                        'panelSelectedSuccess' => '✅ پنل با موفقیت انتخاب شد',
                         'serverStatus' => '🖥 <b>وضعیت سرور</b>
 
 ⚙️ <b>پردازنده</b>
@@ -2555,6 +2559,8 @@ f,n.n2',
                         'eylanPanelOutput' => 'خروجی پنل :',
                 ],
                 'keyboard_php' => [
+                        'panelSetting' => '🎛 تنظیم پنل',
+                        'mirzaAgentPanel' => 'نمایندگی میرزا',
                         'setGroupName' => '🎛 تنظیم نام گروه',
                         'subLinkDomain' => '🔗 دامنه لینک ساب',
                         'panelTypeSanaei' => 'ثنایی تک پورت',
@@ -2563,6 +2569,10 @@ f,n.n2',
                         'currencyToman' => 'تومان',
                 ],
                 'index_php' => [
+                        'langBtnFa' => '🇮🇷 فارسی',
+                        'langBtnEn' => '🇬🇧 English',
+                        'langBtnZh' => '🇨🇳 中文',
+                        'langBtnRu' => '🇷🇺 Русский',
                         'acceptRulesButton' => '✅ قوانین را می پذیرم',
                         'affiliateBalanceGift' => '🎁 مبلغ {addbalancediscount} به موجودی شما از طرف زیر مجموعه با شناسه کاربری {from_id} اضافه گردید.',
                         'unlimited' => 'نامحدود',

@@ -1190,7 +1190,8 @@ $keyboardtypepanel = json_encode([
             ['text' => $textbotlang['keyboard']['marzneshin'], 'callback_data' => "typepanel#marzneshin"]
         ],
         [
-            ['text' => $textbotlang['keyboard']['passargadPanel'], 'callback_data' => "typepanel#pasarguard"]
+            ['text' => $textbotlang['keyboard']['passargadPanel'], 'callback_data' => "typepanel#pasarguard"],
+            ['text' => $textbotlang['extracted']['keyboard_php']['mirzaAgentPanel'], 'callback_data' => "typepanel#mirza_agent"]
         ],
         [
             ['text' => $textbotlang['extracted']['keyboard_php']['panelTypeSanaei'], 'callback_data' => 'typepanel#x-ui_single'],
@@ -1633,4 +1634,21 @@ $keyboard_stat = json_encode([
             ['text' => $textbotlang['keyboard']['statsAtDate'], 'callback_data' => 'view_stat_time'],
         ]
     ]
+]);
+$option_mirza = json_encode([
+    'keyboard' => [
+        [['text' => $textbotlang['keyboard']['panelFeatureStatus']]],
+        [['text' => $textbotlang['keyboard']['panelName']], ['text' => $textbotlang['keyboard']['deletePanel']]],
+        [['text' => $textbotlang['keyboard']['editPassword']]],
+        [['text' => $textbotlang['keyboard']['editPanelUrl']], ['text' => $textbotlang['extracted']['keyboard_php']['panelSetting']]],
+        [['text' => $textbotlang['keyboard']['accountCreateLimit']], ['text' => $textbotlang['keyboard']['changeUserGroup']]],
+        [['text' => $textbotlang['keyboard']['customVolumePrice']], ['text' => $textbotlang['keyboard']['extraVolumePrice']]],
+        [['text' => $textbotlang['keyboard']['extraTimePrice']], ['text' => $textbotlang['keyboard']['customTimePrice']]],
+        [['text' => $textbotlang['keyboard']['minCustomVolume']], ['text' => $textbotlang['keyboard']['maxCustomVolume']]],
+        [['text' => $textbotlang['keyboard']['minCustomTime']], ['text' => $textbotlang['keyboard']['maxCustomTime']]],
+        [['text' => $textbotlang['keyboard']['hidePanelForUser']]],
+        [['text' => $textbotlang['keyboard']['removeFromHiddenList']]],
+        [['text' => $textbotlang['Admin']['backAdminBtn']], ['text' => $textbotlang['Admin']['backMenuBtn']]]
+    ],
+    'resize_keyboard' => true
 ]);

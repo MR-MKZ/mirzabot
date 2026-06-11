@@ -1331,7 +1331,7 @@ function addFieldToTable($tableName, $fieldName, $defaultValue = null, $datatype
 }
 function outtypepanel($typepanel, $message)
 {
-    global $from_id, $optionMarzban, $optionX_ui_single, $optionhiddfy, $optionalireza, $optionalireza_single, $optionmarzneshin, $option_mikrotik, $optionwg, $options_ui, $optioneylanpanel, $optionibsng;
+    global $from_id, $optionMarzban, $optionX_ui_single, $optionhiddfy, $option_mirza, $optionalireza_single, $optionmarzneshin, $option_mikrotik, $optionwg, $options_ui, $optionibsng;
     if ($typepanel == "marzban") {
         sendmessage($from_id, $message, $optionMarzban, 'HTML');
     } elseif ($typepanel == "x-ui_single") {
@@ -1350,6 +1350,8 @@ function outtypepanel($typepanel, $message)
         sendmessage($from_id, $message, $optionibsng, 'HTML');
     } elseif ($typepanel == "mikrotik") {
         sendmessage($from_id, $message, $option_mikrotik, 'HTML');
+    } elseif ($typepanel == "mirza_agent") {
+        sendmessage($from_id, $message, $option_mirza, 'HTML');
     }
 }
 

@@ -2511,6 +2511,10 @@ ID пользователя: %s
         ],
         'extracted' => [
                 'admin_php' => [
+                        'panelNotFound' => '❌ Запрошенная панель не найдена.',
+                        'panelErrorCode' => '❌ Произошла ошибка. Код ошибки: %s',
+                        'selectPanelForOrder' => '📌 Выберите из списка ниже, на какой панели создать заказ',
+                        'panelSelectedSuccess' => '✅ Панель успешно выбрана',
                         'serverStatus' => '🖥 <b>Состояние сервера</b>
 
 ⚙️ <b>Процессор</b>
@@ -2558,6 +2562,8 @@ ID пользователя: %s
                         'eylanPanelOutput' => 'Вывод панели: ',
                 ],
                 'keyboard_php' => [
+                        'panelSetting' => '🎛 Настройка панели',
+                        'mirzaAgentPanel' => 'Агент Mirza',
                         'setGroupName' => '🎛 Настройка имени группы',
                         'subLinkDomain' => '🔗 Домен ссылки подписки',
                         'panelTypeSanaei' => 'Sanaei один порт',
@@ -2566,6 +2572,10 @@ ID пользователя: %s
                         'currencyToman' => 'туман',
                 ],
                 'index_php' => [
+                        'langBtnFa' => '🇮🇷 فارسی',
+                        'langBtnEn' => '🇬🇧 English',
+                        'langBtnZh' => '🇨🇳 中文',
+                        'langBtnRu' => '🇷🇺 Русский',
                         'acceptRulesButton' => '✅ Я принимаю правила',
                         'affiliateBalanceGift' => '🎁 Сумма {addbalancediscount} добавлена на ваш баланс от вашего реферала с ID пользователя {from_id}.',
                         'unlimited' => 'Безлимит',

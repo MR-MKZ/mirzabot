@@ -677,7 +677,7 @@ if (in_array($text, $textadmin) || $datain == "admin") {
         savedata("save", "username", "null");
         savedata("save", "password", "null");
         return;
-    } elseif ($userdata['type'] == "s_ui" || $userdata['type'] == "WGDashboard" || $userdata['type'] == "x-ui_single") {
+    } elseif ($userdata['type'] == "s_ui" || $userdata['type'] == "WGDashboard" || $userdata['type'] == "x-ui_single" || $userdata['type'] == "mirza_agent") {
         sendmessage($from_id, $textbotlang['Admin']['adminphp']['ask_send_token'], $backadmin, 'HTML');
         step('add_password_panel', $from_id);
         savedata("save", "username", "null");
@@ -3574,6 +3574,8 @@ elseif ($datain == "systemsms") {
             $message = strtr($text_x_ui, $replace);
             sendmessage($from_id, $message, $optionX_ui_single, 'HTML');
         }
+    } elseif ($marzban_list_get['type'] == "mirza_agent") {
+        sendmessage($from_id, $textbotlang['users']['selectoption'], $option_mirza, 'HTML');
     } elseif ($marzban_list_get['type'] == "alireza_single") {
         $x_ui_check_connect = login($marzban_list_get['code_panel'], false);
         if ($x_ui_check_connect['success']) {
@@ -8549,7 +8551,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         }
         $data = json_decode($data['body'], true);
         if (!$data['success']) {
-            sendmessage($from_id, $textbotlang['extracted']['admin_php']['eylanUserNotExist'], $optioneylanpanel, 'HTML');
+            sendmessage($from_id, $textbotlang['extracted']['admin_php']['eylanUserNotExist'], $optionX_ui_single, 'HTML');
             sendmessage($from_id, $textbotlang['extracted']['admin_php']['eylanPanelOutput'] . json_encode($data), null, 'HTML');
             return;
         }
@@ -10791,4 +10793,33 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['Admin']['SettingnowPayment']['saveApi'], $Swapinokey, 'HTML');
     update("PaySetting", "ValuePay", $text, "NamePay", "marchent_floypay");
     step('home', $from_id);
+} elseif ($text == $textbotlang['extracted']['keyboard_php']['panelSetting']) {
+    $panel = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
+    if (!$panel) {
+        sendmessage($from_id, $textbotlang['extracted']['admin_php']['panelNotFound'], null, 'HTML');
+        return;
+    }
+    $list_panel = get_panel_list($panel);
+    if (!empty($data['error'])) {
+        sendmessage($from_id, $data['error'], null, 'HTML');
+        return;
+    }
+    if (!empty($data['status']) && $data['status'] != 200) {
+        sendmessage($from_id, sprintf($textbotlang['extracted']['admin_php']['panelErrorCode'], $data['status']), null, 'HTML');
+        return;
+    }
+    $list_panel = json_decode($list_panel['body'], true)['obj'] ?? [];
+    $list_panel_keyboard = ['inline_keyboard' => []];
+    foreach ($list_panel as $result) {
+        $list_panel_keyboard['inline_keyboard'][] = [
+            ['text' => $result['name_panel'], 'callback_data' => "set_panel_id_mirza:{$result['id']}:{$panel['id']}"],
+        ];
+    }
+    sendmessage($from_id, $textbotlang['extracted']['admin_php']['selectPanelForOrder'], json_encode($list_panel_keyboard), 'HTML');
+} elseif (preg_match('/set_panel_id_mirza:(.*):(.*)/', $datain, $dataget)) {
+    $panel_id_mirza = $dataget[1];
+    $panel_id = $dataget[2];
+    deletemessage($from_id, $message_id);
+    update("marzban_panel", "inbounds", $panel_id_mirza, "id", $panel_id);
+    sendmessage($from_id, $textbotlang['extracted']['admin_php']['panelSelectedSuccess'], $option_mirza, 'HTML');
 }

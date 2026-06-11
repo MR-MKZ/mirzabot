@@ -2511,6 +2511,10 @@ f,n.n2',
         ],
         'extracted' => [
                 'admin_php' => [
+                        'panelNotFound' => '❌ 未找到所需的面板。',
+                        'panelErrorCode' => '❌ 发生错误，错误代码：%s',
+                        'selectPanelForOrder' => '📌 请从下方列表中选择该订单将在哪个面板上创建',
+                        'panelSelectedSuccess' => '✅ 面板选择成功',
                         'serverStatus' => '🖥 <b>服务器状态</b>
 
 ⚙️ <b>处理器</b>
@@ -2558,6 +2562,8 @@ f,n.n2',
                         'eylanPanelOutput' => '面板输出：',
                 ],
                 'keyboard_php' => [
+                        'panelSetting' => '🎛 面板设置',
+                        'mirzaAgentPanel' => 'Mirza 代理',
                         'setGroupName' => '🎛 设置群组名称',
                         'subLinkDomain' => '🔗 订阅链接域名',
                         'panelTypeSanaei' => 'Sanaei 单端口',
@@ -2566,6 +2572,10 @@ f,n.n2',
                         'currencyToman' => '托曼',
                 ],
                 'index_php' => [
+                        'langBtnFa' => '🇮🇷 فارسی',
+                        'langBtnEn' => '🇬🇧 English',
+                        'langBtnZh' => '🇨🇳 中文',
+                        'langBtnRu' => '🇷🇺 Русский',
                         'acceptRulesButton' => '✅ 我接受规则',
                         'affiliateBalanceGift' => '🎁 来自用户 ID 为 {from_id} 的下线，金额 {addbalancediscount} 已添加到您的余额。',
                         'unlimited' => '无限制',

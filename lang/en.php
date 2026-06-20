@@ -1543,12 +1543,20 @@ User balance after reduction: %s',
 
 
 ',
-                        'ask_send_api' => '⚙️ Send the API of the plisio.net site
-        
-        plisio api :%s',
-                        'ask_enter_api' => '💳 Obtain your NOWPAYMENT API and enter it in this section
-        
- Your current api: %s',
+                        'ask_send_api' => '⚙️ Please send your Plisio API Key.
+
+🔑 To get your API key, visit the following site:
+plisio.net
+
+📌 Your current key:
+<code>%s</code>',
+                        'ask_enter_api' => '⚙️ Please send your NowPayments API Key.
+
+🔑 To get your API key, visit the following site:
+nowpayments.io
+
+📌 Your current key:
+<code>%s</code>',
                         'ask_enter_payment_merchant' => '💳 Obtain your merchant code from Aghaye Pardakht and enter it in this section
         
 Your current merchant code: %s',

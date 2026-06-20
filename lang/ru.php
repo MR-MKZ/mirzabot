@@ -1543,12 +1543,21 @@ f,n.n2',
 
 
 ',
-                        'ask_send_api' => '⚙️ Отправьте API сайта plisio.net
-        
-        plisio api :%s',
-                        'ask_enter_api' => '💳 Получите ваш API NOWPAYMENT и введите его в этом разделе
-        
- Ваш текущий api: %s',
+                        'ask_send_api' => '⚙️ Пожалуйста, отправьте ваш API Key для Plisio.
+
+🔑 Чтобы получить API ключ, посетите следующий сайт:
+plisio.net
+
+📌 Ваш текущий ключ:
+<code>%s</code>',
+                        
+'ask_enter_api' => '⚙️ Пожалуйста, отправьте ваш API Key для NowPayments.
+
+🔑 Чтобы получить API ключ, посетите следующий сайт:
+nowpayments.io
+
+📌 Ваш текущий ключ:
+<code>%s</code>',
                         'ask_enter_payment_merchant' => '💳 Получите ваш код продавца от Aghaye Pardakht и введите его в этом разделе
         
 Ваш текущий код продавца: %s',

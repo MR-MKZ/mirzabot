@@ -1543,12 +1543,20 @@ f,n.n2',
 
 
 ',
-                        'ask_send_api' => '⚙️ 请发送 plisio.net 网站的 API
-        
-        plisio api :%s',
-                        'ask_enter_api' => '💳 获取您的 NOWPAYMENT API 并在此部分输入
-        
- 您当前的 api：%s',
+                        'ask_send_api' => '⚙️ 请发送您的 Plisio API 密钥。
+
+🔑 要获取 API 密钥，请访问以下网站：
+plisio.net
+
+📌 您当前的密钥：
+<code>%s</code>',
+                        'ask_enter_api' => '⚙️ 请发送您的 NowPayments API 密钥。
+
+🔑 要获取 API 密钥，请访问以下网站：
+nowpayments.io
+
+📌 您当前的密钥：
+<code>%s</code>',
                         'ask_enter_payment_merchant' => '💳 从 Aghaye Pardakht 获取您的商户代码并在此部分输入
         
 您当前的商户代码：%s',

@@ -1544,12 +1544,20 @@ f,n.n2',
 🔰 مجموع فروش یک ماه گذشته : %s تومان
 
 ',
-                        'ask_send_api' => '⚙️ api سایت plisio.net را ارسال نمایید
-        
-        api plisio :%s',
-                        'ask_enter_api' => '💳 API NOWPAMENT خود را دریافت و در این قسمت وارد کنید
-        
- api فعلی شما : %s',
+                        'ask_send_api' => '⚙️ لطفاً API Key درگاه Plisio را ارسال نمایید.
+
+🔑 برای دریافت کلید API به سایت زیر مراجعه کنید:
+plisio.net
+
+📌 کلید فعلی شما:
+<code>%s</code>',
+                        'ask_enter_api' => '⚙️ لطفاً API Key درگاه NowPayments را ارسال نمایید.
+
+🔑 برای دریافت کلید API به سایت زیر مراجعه کنید:
+nowpayments.io
+
+📌 کلید فعلی شما:
+<code>%s</code>',
                         'ask_enter_payment_merchant' => '💳 مرچنت کد خود را ازآقای پرداخت دریافت و در این قسمت وارد کنید
         
 مرچنت کد فعلی شما : %s',

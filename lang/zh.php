@@ -1972,7 +1972,7 @@ nowpayments.io
         ⚠️ 尊敬的用户；您不是我们频道的成员
 请通过下方按钮加入频道
 加入后，点击检查成员资格按钮',
-                'cryptoPayment' => '💸 使用加密货币支付',
+                'cryptoPayment' => '💰 使用 NowPayments 支付加密货币',
                 'discount' => '🎁 礼品码',
                 'extend' => '♻️ 续费服务',
                 'faq' => '❓ 常见问题',
@@ -2029,7 +2029,7 @@ nowpayments.io
  服务信息：
 {config}
 🧑‍🦯 您可以通过按下方按钮并选择您的操作系统来获取连接方法',
-                'nowPayment' => '💵 外币支付 1',
+                'nowPayment' => '💰 使用 Plisio 支付加密货币',
                 'nowPaymentTron' => '💵 Tron 加密货币充值',
                 'paymentNotVerify' => '里亚尔网关',
                 'preInvoice' => '📇 您的预开发票：

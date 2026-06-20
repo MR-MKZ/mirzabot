@@ -1972,7 +1972,7 @@ Connection link:
         ⚠️ Dear user; you are not a member of our channel
 Join the channel via the button below
 After joining, click the check membership button',
-                'cryptoPayment' => '💸 Pay with cryptocurrency',
+                'cryptoPayment' => '💰 Crypto Payment with NowPayments',
                 'discount' => '🎁 Gift code',
                 'extend' => '♻️ Renew service',
                 'faq' => '❓ FAQ',
@@ -2029,7 +2029,7 @@ After joining, click the check membership button',
  Service information :
 {config}
 🧑‍🦯 You can get the connection method by pressing the button below and selecting your operating system',
-                'nowPayment' => '💵 Foreign currency payment 1',
+                'nowPayment' => '💰 Crypto Payment with Plisio',
                 'nowPaymentTron' => '💵 Tron crypto deposit',
                 'paymentNotVerify' => 'Rial gateway',
                 'preInvoice' => '📇 Your pro forma invoice:

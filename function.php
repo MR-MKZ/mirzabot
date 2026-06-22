@@ -1720,7 +1720,7 @@ function bottext_put_overrides($lang, array $map)
         return true;
     }
     $tmp = $file . '.' . uniqid('tmp', true);
-    if (@ز($tmp, json_encode($map, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX) === false)
+    if (@file_put_contents($tmp, json_encode($map, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX) === false)
         return false;
     if (!@rename($tmp, $file)) {
         @unlink($tmp);

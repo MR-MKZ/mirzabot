@@ -39,6 +39,7 @@ return [
                 ['label' => 'After-purchase message', 'key' => 'textbot.afterText'],
                 ['label' => 'Test account message', 'key' => 'textbot.testExpired'],
                 ['label' => 'FAQ text', 'key' => 'textbot.faqDesc'],
+                ['label' => 'Tariff list text', 'key' => 'textbot.tariffListDesc'],
                 ['label' => 'Rules text', 'key' => 'textbot.rules'],
                 ['label' => 'Pre-invoice text', 'key' => 'textbot.preInvoice'],
             ],

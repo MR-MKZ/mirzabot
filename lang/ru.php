@@ -39,6 +39,7 @@ return [
                 ['label' => 'Сообщение после покупки', 'key' => 'textbot.afterText'],
                 ['label' => 'Сообщение тест-аккаунта', 'key' => 'textbot.testExpired'],
                 ['label' => 'Текст FAQ', 'key' => 'textbot.faqDesc'],
+                ['label' => 'Текст тарифов', 'key' => 'textbot.tariffListDesc'],
                 ['label' => 'Текст правил', 'key' => 'textbot.rules'],
                 ['label' => 'Текст предварительного счёта', 'key' => 'textbot.preInvoice'],
             ],

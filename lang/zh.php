@@ -39,6 +39,7 @@ return [
                 ['label' => '购买后消息', 'key' => 'textbot.afterText'],
                 ['label' => '测试账号消息', 'key' => 'textbot.testExpired'],
                 ['label' => '常见问题文本', 'key' => 'textbot.faqDesc'],
+                ['label' => '资费说明文本', 'key' => 'textbot.tariffListDesc'],
                 ['label' => '规则文本', 'key' => 'textbot.rules'],
                 ['label' => '预开票文本', 'key' => 'textbot.preInvoice'],
             ],

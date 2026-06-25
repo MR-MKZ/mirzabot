@@ -39,6 +39,7 @@ return [
                 ['label' => 'پیام بعد از خرید', 'key' => 'textbot.afterText'],
                 ['label' => 'پیام اکانت تست', 'key' => 'textbot.testExpired'],
                 ['label' => 'متن سؤالات متداول', 'key' => 'textbot.faqDesc'],
+                ['label' => 'متن تعرفه اشتراک‌ها', 'key' => 'textbot.tariffListDesc'],
                 ['label' => 'متن قوانین', 'key' => 'textbot.rules'],
                 ['label' => 'متن پیش‌فاکتور', 'key' => 'textbot.preInvoice'],
             ],

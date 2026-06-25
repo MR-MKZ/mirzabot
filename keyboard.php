@@ -48,6 +48,20 @@ if (is_array($keyboardLayout) && isset($keyboardLayout['keyboard']) && is_array(
     $keyboardRows = $keyboardLayout['keyboard'];
 }
 
+if (!empty($keyboardRows)) {
+    $allowed_btn_styles = ['primary', 'success', 'danger'];
+    foreach ($keyboardRows as $kb_r => $kb_row) {
+        if (!is_array($kb_row)) {
+            continue;
+        }
+        foreach ($kb_row as $kb_c => $kb_btn) {
+            if (is_array($kb_btn) && isset($kb_btn['style']) && !in_array($kb_btn['style'], $allowed_btn_styles, true)) {
+                unset($keyboardRows[$kb_r][$kb_c]['style']);
+            }
+        }
+    }
+}
+
 if ($setting['inlinebtnmain'] == "oninline" && !empty($keyboardRows)) {
     $trace_keyboard = $keyboardRows;
     foreach ($trace_keyboard as $key => $callback_set) {

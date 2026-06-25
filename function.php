@@ -587,7 +587,6 @@ function nowPayments($payment, $price_amount, $order_id, $order_description)
     ]));
 
     $response = curl_exec($curl);
-    curl_close($curl);
     return json_decode($response, true);
 }
 function StatusPayment($paymentid)
@@ -609,7 +608,6 @@ function StatusPayment($paymentid)
     ));
     $response = curl_exec($curl);
     $response = json_decode($response, true);
-    curl_close($curl);
     return $response;
 }
 function channel(array $id_channel)
@@ -670,7 +668,6 @@ function trnado($order_id, $price)
 
     $response = curl_exec($curl);
 
-    curl_close($curl);
     return json_decode($response, true);
 }
 function formatBytes($bytes, $precision = 2): string
@@ -1274,7 +1271,6 @@ function plisio($order_id, $price, $from_id)
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     $response = json_decode(curl_exec($ch), true);
-    curl_close($ch);
     return $response['data'];
 }
 function checkConnection($address, $port)
@@ -1674,115 +1670,28 @@ function languagechange($path_dir = null, string $lang = 'fa')
         bottext_apply_overrides($texts, $lang);
     return $texts;
 }
-function bottext_overrides_file($lang)
-{
-    return __DIR__ . '/lang/overrides/' . preg_replace('/[^a-z]/', '', (string) $lang) . '.json';
-}
-function bottext_get_overrides($lang)
-{
-    $file = bottext_overrides_file($lang);
-    if (!is_file($file))
-        return [];
-    $data = json_decode((string) @file_get_contents($file), true);
-    return is_array($data) ? $data : [];
-}
 function bottext_apply_overrides(array &$base, $lang)
 {
-    foreach (bottext_get_overrides($lang) as $dotted => $value) {
-        if (!is_string($value))
+    $row = select("setting", "*", null, null, "select");
+    $raw = is_array($row) ? ($row['text_edit'] ?? null) : null;
+    if (!is_string($raw) || $raw === '')
+        return;
+    $map = json_decode($raw, true);
+    if (!is_array($map))
+        return;
+    $langMap = $map[$lang] ?? null;
+    if (!is_array($langMap))
+        return;
+    foreach ($langMap as $group => $pairs) {
+        if (!is_array($pairs))
             continue;
-        $keys = explode('.', $dotted);
-        $last = array_pop($keys);
-        $ref = &$base;
-        $ok = true;
-        foreach ($keys as $k) {
-            if (!is_array($ref)) {
-                $ok = false;
-                break;
-            }
-            if (!isset($ref[$k]) || !is_array($ref[$k]))
-                $ref[$k] = [];
-            $ref = &$ref[$k];
-        }
-        if ($ok && is_array($ref))
-            $ref[$last] = $value;
-        unset($ref);
-    }
-}
-function bottext_put_overrides($lang, array $map)
-{
-    $file = bottext_overrides_file($lang);
-    if (!is_dir(dirname($file)))
-        @mkdir(dirname($file), 0775, true);
-    if (empty($map)) {
-        if (is_file($file))
-            @unlink($file);
-        return true;
-    }
-    $tmp = $file . '.' . uniqid('tmp', true);
-    if (@file_put_contents($tmp, json_encode($map, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX) === false)
-        return false;
-    if (!@rename($tmp, $file)) {
-        @unlink($tmp);
-        return false;
-    }
-    return true;
-}
-function generateAuthStr($length = 10)
-{
-    $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    return substr(str_shuffle(str_repeat($characters, ceil($length / strlen($characters)))), 0, $length);
-}
-function createqrcode($contents)
-{
-    $builder = new Builder(
-        writer: new PngWriter(),
-        writerOptions: [],
-        data: $contents,
-        encoding: new Encoding('UTF-8'),
-        errorCorrectionLevel: ErrorCorrectionLevel::High,
-        size: 500,
-        margin: 10,
-    );
-
-    $result = $builder->build();
-    return $result;
-}
-function sanitize_recursive(array $data): array
-{
-    $sanitized_data = [];
-    foreach ($data as $key => $value) {
-        $sanitized_key = htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
-        if (is_array($value)) {
-            $sanitized_data[$sanitized_key] = sanitize_recursive($value);
-        } elseif (is_string($value)) {
-            $sanitized_data[$sanitized_key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-        } elseif (is_int($value)) {
-            $sanitized_data[$sanitized_key] = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
-        } elseif (is_float($value)) {
-            $sanitized_data[$sanitized_key] = filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-        } elseif (is_bool($value) || is_null($value)) {
-            $sanitized_data[$sanitized_key] = $value;
-        } else {
-            $sanitized_data[$sanitized_key] = $value;
+        if (!isset($base[$group]) || !is_array($base[$group]))
+            $base[$group] = [];
+        foreach ($pairs as $k => $v) {
+            if (is_string($v))
+                $base[$group][$k] = $v;
         }
     }
-    return $sanitized_data;
-}
-
-function check_active_btn($keyboard, $text_var)
-{
-    $trace_keyboard = json_decode($keyboard, true)['keyboard'];
-    $status = false;
-    foreach ($trace_keyboard as $key => $callback_set) {
-        foreach ($callback_set as $keyboard_key => $keyboard) {
-            if ($keyboard['text'] == $text_var) {
-                $status = true;
-                break;
-            }
-        }
-    }
-    return $status;
 }
 function deleteFolder($folderPath)
 {
@@ -1967,4 +1876,18 @@ function parseConfigs($input)
     }
 
     return $configs;
+}
+function check_active_btn($keyboard, $text_var)
+{
+    $trace_keyboard = json_decode($keyboard, true)['keyboard'];
+    $status = false;
+    foreach ($trace_keyboard as $key => $callback_set) {
+        foreach ($callback_set as $keyboard_key => $keyboard) {
+            if ($keyboard['text'] == $text_var) {
+                $status = true;
+                break;
+            }
+        }
+    }
+    return $status;
 }

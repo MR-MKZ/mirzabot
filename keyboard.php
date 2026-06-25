@@ -1667,3 +1667,20 @@ $option_mirza = json_encode([
     ],
     'resize_keyboard' => true
 ]);
+function keyboard_list_text($lang)
+{
+    global $textbotlang;
+    $keyboard_text = ['inline_keyboard' => []];
+    $keyboard_list_text = $textbotlang['bottext']['items'];
+    $keyboard_text['inline_keyboard'][] = [
+        ['text' => ($lang == 'fa' ? "✅" : "") . $textbotlang['bottext']['langs']['fa'], 'callback_data' => "bt_lang:fa"],
+        ['text' => ($lang == 'en' ? "✅" : "") . $textbotlang['bottext']['langs']['en'], 'callback_data' => "bt_lang:en"],
+        ['text' => ($lang == 'ru' ? "✅" : "") . $textbotlang['bottext']['langs']['ru'], 'callback_data' => "bt_lang:ru"],
+        ['text' => ($lang == 'zh' ? "✅" : "") . $textbotlang['bottext']['langs']['zh'], 'callback_data' => "bt_lang:zh"],
+    ];
+    foreach ($keyboard_list_text as $data) {
+        $keyboard_text['inline_keyboard'][] = [['text' => $data['label'], 'callback_data' => "bt_edit|$lang|{$data['key']}"]];
+    }
+    $keyboard_text['inline_keyboard'][] = [['text' => $textbotlang['bottext']['btn_close'], 'callback_data' => 'bt_close']];
+    return json_encode($keyboard_text);
+}

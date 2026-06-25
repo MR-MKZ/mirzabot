@@ -188,6 +188,7 @@ try {
         timeauto_not_verify varchar(20) NOT NULL,
         status_keyboard_config varchar(20)  NULL,
         cron_status TEXT NOT NULL,
+        text_edit JSON NULL,
         limitnumber varchar(200)  NULL)
         ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci");
         $stmt->execute();
@@ -217,6 +218,7 @@ timeauto_not_verify,status_keyboard_config,cron_status
         $stmt->execute();
     } else {
         addFieldToTable("setting", "cron_status", $status_cron, "TEXT");
+        addFieldToTable("setting", "text_edit", "{}", "JSON");
         addFieldToTable("setting", "status_keyboard_config", "1", "varchar(20)");
         addFieldToTable("setting", "statusnoteforf", "1", "varchar(20)");
         addFieldToTable("setting", "timeauto_not_verify", "4", "varchar(20)");

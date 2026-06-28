@@ -6089,27 +6089,6 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     $typepanel = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
     outtypepanel($typepanel['type'], $textbotlang['Admin']['algorithmExtend']['saveData']);
     step('home', $from_id);
-} elseif ($text == $textbotlang['keyboard']['autoConfirmReceipt'] && $adminrulecheck['rule'] == "administrator") {
-    $paymentverify = select("PaySetting", "ValuePay", "NamePay", "autoconfirmcart", "select")['ValuePay'];
-    if ($paymentverify == "onauto") {
-        sendmessage($from_id, $textbotlang['Admin']['adminphp']['err_confirm_2'], null, 'HTML');
-        return;
-    }
-    $PaySetting = select("PaySetting", "ValuePay", "NamePay", "statuscardautoconfirm", "select")['ValuePay'];
-    $card_Status_auto = json_encode([
-        'inline_keyboard' => [
-            [
-                ['text' => $PaySetting, 'callback_data' => $PaySetting],
-            ],
-        ]
-    ]);
-    sendmessage($from_id, $textbotlang['Admin']['Status']['autoConfirmCard'], $card_Status_auto, 'HTML');
-} elseif ($datain == "onautoconfirm" && $adminrulecheck['rule'] == "administrator") {
-    update("PaySetting", "ValuePay", "offautoconfirm", "NamePay", "statuscardautoconfirm");
-    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['autoConfirmOff'], null);
-} elseif ($datain == "offautoconfirm" && $adminrulecheck['rule'] == "administrator") {
-    update("PaySetting", "ValuePay", "onautoconfirm", "NamePay", "statuscardautoconfirm");
-    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['autoConfirmOn'], null);
 } elseif ($text == "/token") {
     $secret_key = select("admin", "*", "id_admin", $from_id, "select");
     $secret_key = base64_encode($secret_key['password']);
@@ -8372,11 +8351,6 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     step("home", $from_id);
     update("setting", "agentreqprice", $text, null, null);
 } elseif ($text == $textbotlang['keyboard']['autoConfirmNoCheck'] && $adminrulecheck['rule'] == "administrator") {
-    $paymentverify = select("PaySetting", "ValuePay", "NamePay", "statuscardautoconfirm", "select")['ValuePay'];
-    if ($paymentverify == "onautoconfirm") {
-        sendmessage($from_id, $textbotlang['Admin']['adminphp']['err_confirm_3'], null, 'HTML');
-        return;
-    }
     $paymentverify = select("PaySetting", "ValuePay", "NamePay", "autoconfirmcart", "select")['ValuePay'];
     $keyboardverify = json_encode([
         'inline_keyboard' => [

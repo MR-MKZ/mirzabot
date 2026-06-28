@@ -202,7 +202,7 @@ function KeyboardProduct($location, $query, $pricediscount, $datakeyboard, $stat
             ['text' =>  $result['name_product'], 'callback_data' => "{$datakeyboard}{$result['code_product']}{$valuetow}"]
         ];
     }
-    if ($statuscustom) $product['inline_keyboard'][] = [['text' => $textbotlang['users']['customsellvolume']['title'], 'callback_data' => $customvolume]];
+    if ($statuscustom) $product['inline_keyboard'][] = [['text' => $textbotlang['users']['customSellVolume']['title'], 'callback_data' => $customvolume]];
     $product['inline_keyboard'][] = [
         ['text' => $textbotlang['users']['status']['backinfo'], 'callback_data' => $backuser],
     ];

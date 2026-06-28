@@ -187,7 +187,7 @@ $CartManage = json_encode([
         [['text' => $textbotlang['keyboard']['disableShowCard']], ['text' => $textbotlang['keyboard']['enableShowCard']]],
         [['text' => $textbotlang['keyboard']['groupShowCard']]],
         [['text' => $textbotlang['keyboard']['exportActiveCardUsers']]],
-        [['text' => $textbotlang['keyboard']['autoConfirmReceipt']], ['text' => $textbotlang['keyboard']['cashbackCartToCart']]],
+        [['text' => $textbotlang['keyboard']['cashbackCartToCart']]],
         [['text' => $textbotlang['keyboard']['showCartAfterFirstPay']]],
         [['text' => $textbotlang['keyboard']['minAmountCartToCart']], ['text' => $textbotlang['keyboard']['maxAmountCartToCart']]],
         [['text' => $textbotlang['keyboard']['setEducationCartToCart']]],

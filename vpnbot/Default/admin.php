@@ -40,7 +40,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     step("getpricvolumeadmin", $from_id);
 } elseif ($user['step'] == "getpricvolumeadmin") {
     if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidvlue'], $backadmin, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidValue'], $backadmin, 'HTML');
         return;
     }
     if (intval($text) < intval($setting['minpricevolume'])) {
@@ -59,7 +59,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     step("getpricvtimeadmin", $from_id);
 } elseif ($user['step'] == "getpricvtimeadmin") {
     if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidvlue'], $backadmin, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidValue'], $backadmin, 'HTML');
         return;
     }
     if (intval($text) < intval($setting['minpricetime'])) {
@@ -95,7 +95,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     if ($Payment_report['payment_Status'] == "paid" || $Payment_report['payment_Status'] == "reject") {
         telegram('answerCallbackQuery', array(
             'callback_query_id' => $callback_query_id,
-            'text' => $textbotlang['Admin']['Payment']['reviewedpayment'],
+            'text' => $textbotlang['Admin']['Payment']['reviewedPayment'],
             'show_alert' => true,
             'cache_time' => 5,
         ));
@@ -147,7 +147,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     if ($Payment_report['payment_Status'] == "reject" || $Payment_report['payment_Status'] == "paid") {
         telegram('answerCallbackQuery', array(
             'callback_query_id' => $callback_query_id,
-            'text' => $textbotlang['Admin']['Payment']['reviewedpayment'],
+            'text' => $textbotlang['Admin']['Payment']['reviewedPayment'],
             'show_alert' => true,
             'cache_time' => 5,
         ));
@@ -155,7 +155,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     }
     update("Payment_report", "payment_Status", "reject", "id_order", $id_order);
 
-    sendmessage($from_id, $textbotlang['Admin']['Payment']['Reasonrejecting'], $backadmin, 'HTML');
+    sendmessage($from_id, $textbotlang['Admin']['Payment']['reasonRejecting'], $backadmin, 'HTML');
     step('reject-dec', $from_id);
     Editmessagetext($from_id, $message_id, $text_inline, null);
 } elseif ($user['step'] == "reject-dec") {
@@ -165,7 +165,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
 ✍️ $text
 🛒 کد پیگیری پرداخت: {$user['Processing_value_one']}
                 ";
-    sendmessage($from_id, $textbotlang['Admin']['Payment']['Rejected'], $keyboardadmin, 'HTML');
+    sendmessage($from_id, $textbotlang['Admin']['Payment']['rejected'], $keyboardadmin, 'HTML');
     sendmessage($user['Processing_value'], $text_reject, null, 'HTML');
     step('home', $from_id);
     $text_report = "❌ یک ادمین رسید پرداخت کارت به کارت را رد کرد.
@@ -198,15 +198,15 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     $keyboardadmin = json_encode($keyboardadmin);
     sendmessage($from_id, "📌 در بخش زیر می توانید لیست ادمین ها را مشاهده کنید همچنین با زدن دکمه ضربدر می توانید یک ادمین را حذف کنید", $keyboardadmin, 'HTML');
 } elseif ($datain == "addnewadmin") {
-    sendmessage($from_id, $textbotlang['Admin']['manageadmin']['getid'], $backadmin, 'HTML');
+    sendmessage($from_id, $textbotlang['Admin']['manageadmin']['getId'], $backadmin, 'HTML');
     step('addadmin', $from_id);
 } elseif ($user['step'] == "addadmin") {
     if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidvlue'], $backadmin, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidValue'], $backadmin, 'HTML');
         return;
     }
-    sendmessage($from_id, $textbotlang['Admin']['manageadmin']['addadminset'], $keyboardadmin, 'HTML');
-    sendmessage($user['Processing_value'], $textbotlang['Admin']['manageadmin']['adminedsenduser'], null, 'HTML');
+    sendmessage($from_id, $textbotlang['Admin']['manageadmin']['addAdminSet'], $keyboardadmin, 'HTML');
+    sendmessage($user['Processing_value'], $textbotlang['Admin']['manageadmin']['adminAddedSendUser'], null, 'HTML');
     step('home', $from_id);
     $admin_ids[] = $text;
     update("botsaz", "admin_ids", json_encode($admin_ids), "bot_token", $ApiToken);
@@ -234,7 +234,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
         $id_user = $text;
     }
     if (!in_array($id_user, $users_ids)) {
-        sendmessage($from_id, $textbotlang['Admin']['not-user'], null, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['notUser'], null, 'HTML');
         return;
     }
     $date = date("Y-m-d");
@@ -361,7 +361,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     step('addbalanceusercurrent', $from_id);
 } elseif ($user['step'] == "addbalanceusercurrent") {
     if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['Balance']['Invalidprice'], $backadmin, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['Balance']['invalidPrice'], $backadmin, 'HTML');
         return;
     }
     if ($text > 100000000) {
@@ -375,7 +375,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     $Payment_Method = "add balance by admin";
     $invoice = null;
     $stmt->execute([$user['Processing_value'], $randomString, $dateacc, $text, $payment_Status, $Payment_Method, $invoice, $ApiToken]);
-    sendmessage($from_id, $textbotlang['Admin']['ManageUser']['addbalanced'], $keyboardadmin, 'html');
+    sendmessage($from_id, $textbotlang['Admin']['manageUser']['addBalanced'], $keyboardadmin, 'html');
     $userbalance = json_decode(file_get_contents("data/{$user['Processing_value']}/{$user['Processing_value']}.json"), true);
     $Balance_add_user = $userbalance['Balance'] + $text;
     $userbalance['Balance'] = $Balance_add_user;
@@ -391,7 +391,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     step('addbalanceuser', $from_id);
 } elseif ($user['step'] == "addbalanceuser") {
     if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['Balance']['Invalidprice'], $backadmin, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['Balance']['invalidPrice'], $backadmin, 'HTML');
         return;
     }
     if ($text > 100000000) {
@@ -405,7 +405,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     $Payment_Method = "low balance by admin";
     $invoice = null;
     $stmt->execute([$user['Processing_value'], $randomString, $dateacc, $text, $payment_Status, $Payment_Method, $invoice, $ApiToken]);
-    sendmessage($from_id, $textbotlang['Admin']['ManageUser']['lowbalanced'], $keyboardadmin, 'html');
+    sendmessage($from_id, $textbotlang['Admin']['manageUser']['lowBalanced'], $keyboardadmin, 'html');
     $userbalance = json_decode(file_get_contents("data/{$user['Processing_value']}/{$user['Processing_value']}.json"), true);
     $Balance_add_user = intval($userbalance['Balance']) - intval($text);
     $userbalance['Balance'] = $Balance_add_user;
@@ -487,7 +487,7 @@ if ($text == "📞 تنظیم نام کاربری پشتیبانی") {
     $userdata = json_decode($user['Processing_value'], true);
     $product = select("product", "*", "code_product", $userdata['code_product'], "select");
     if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidvlue'], null, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidValue'], null, 'HTML');
         return;
     }
     if (intval($text) < intval($product['price_product'])) {

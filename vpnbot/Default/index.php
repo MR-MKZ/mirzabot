@@ -66,7 +66,7 @@ if (!is_dir('data')) {
 }
 if (!in_array($from_id, $users_ids) && $settingmain['statusnewuser'] == "onnewuser" && $from_id != 0) {
 
-    $newuser = sprintf($textbotlang['Admin']['ManageUser']['newuser'], $first_name, $username, "<a href = \"tg://user?id=$from_id\">$from_id</a>");
+    $newuser = sprintf($textbotlang['Admin']['manageUser']['newUser'], $first_name, $username, "<a href = \"tg://user?id=$from_id\">$from_id</a>");
     foreach ($admin_ids as $admin) {
         sendmessage($admin, $newuser, null, 'HTML');
     }
@@ -591,7 +591,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
     $locationproduct->bindValue(1, $userbot['agent'], PDO::PARAM_STR);
     $locationproduct->execute();
     if (($locationproduct)->rowCount() == 0) {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['nullpanel'], null, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['managepanel']['nullPanel'], null, 'HTML');
         return;
     }
     if (($locationproduct)->rowCount() == 1) {
@@ -604,7 +604,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
         if ($locationproduct['hide_user'] != null) {
             $list_user = json_decode($locationproduct['hide_user'], true);
             if (in_array($from_id, $list_user)) {
-                sendmessage($from_id, $textbotlang['Admin']['managepanel']['nullpanel'], null, 'HTML');
+                sendmessage($from_id, $textbotlang['Admin']['managepanel']['nullPanel'], null, 'HTML');
                 return;
             }
         }
@@ -613,7 +613,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
         $countinovoice = $stmt->rowCount();
         if ($locationproduct['limit_panel'] != "unlimited") {
             if ($countinovoice >= $locationproduct['limit_panel']) {
-                sendmessage($from_id, $textbotlang['Admin']['managepanel']['limitedpanelfirst'], null, 'HTML');
+                sendmessage($from_id, $textbotlang['Admin']['managepanel']['limitedPanelFirst'], null, 'HTML');
                 return;
             }
         }
@@ -644,7 +644,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
             } else {
                 $nullproduct = select("product", "*", "agent", $userbot['agent'], "count");
                 if ($nullproduct == 0) {
-                    sendmessage($from_id, $textbotlang['Admin']['Product']['nullpProduct'], null, 'HTML');
+                    sendmessage($from_id, $textbotlang['Admin']['Product']['nullProduct'], null, 'HTML');
                     return;
                 }
                 sendmessage($from_id, "📌 دسته بندی خود را انتخاب نمایید!", KeyboardCategory($marzban_list_get['name_panel'], $userbot['agent'], "backuser"), 'HTML');
@@ -696,7 +696,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
     $countinovoice = $stmt->rowCount();
     if ($locationproduct['limit_panel'] != "unlimited") {
         if ($countinovoice >= $locationproduct['limit_panel']) {
-            sendmessage($from_id, $textbotlang['Admin']['managepanel']['limitedpanel'], null, 'HTML');
+            sendmessage($from_id, $textbotlang['Admin']['managepanel']['limitedPanel'], null, 'HTML');
             return;
         }
     }
@@ -722,7 +722,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
         } else {
             $nullproduct = select("product", "*", "agent", $userbot['agent'], "count");
             if ($nullproduct == 0) {
-                sendmessage($from_id, $textbotlang['Admin']['Product']['nullpProduct'], null, 'HTML');
+                sendmessage($from_id, $textbotlang['Admin']['Product']['nullProduct'], null, 'HTML');
                 return;
             }
             Editmessagetext($from_id, $message_id, "📌 دسته بندی خود را انتخاب نمایید!", KeyboardCategory($locationproduct['name_panel'], $userbot['agent'], "backuser"));
@@ -778,7 +778,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
         return;
     }
     if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['Product']['Invalidvolume'], $backuser, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['Product']['invalidVolume'], $backuser, 'HTML');
         return;
     }
     $customtimevalueprice = $setting['pricetime'];
@@ -797,7 +797,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $userdate['name_panel'], "select");
     if ($user['step'] == "getvolumecustomusername") {
         if (!ctype_digit($text)) {
-            sendmessage($from_id, $textbotlang['Admin']['Product']['Invalidtime'], $backuser, 'HTML');
+            sendmessage($from_id, $textbotlang['Admin']['Product']['invalidTime'], $backuser, 'HTML');
             return;
         }
         $maintime = json_decode($marzban_list_get['maintime'], true);
@@ -878,7 +878,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
         $customtimevalueprice = $setting['pricetime'];
         $datapish = array(
             "Volume_constraint" => $userdate['volume'],
-            "name_product" => $textbotlang['users']['customsellvolume']['title'],
+            "name_product" => $textbotlang['users']['customSellVolume']['title'],
             "code_product" => "customvolume",
             "Service_time" => $userdate['time'],
             "price_product" => ($userdate['volume'] * $custompricevalue) + ($userdate['time'] * $customtimevalueprice)
@@ -894,9 +894,9 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
         $username_ac = $random_number . "_" . $username_ac;
     }
     if (intval($datapish['Volume_constraint']) == 0)
-        $datapish['Volume_constraint'] = $textbotlang['users']['status']['Unlimited'];
+        $datapish['Volume_constraint'] = $textbotlang['users']['status']['unlimited'];
     if (intval($datapish['Service_time']) == 0)
-        $datapish['Service_time'] = $textbotlang['users']['status']['Unlimited'];
+        $datapish['Service_time'] = $textbotlang['users']['status']['unlimited'];
     $info_product_price_product = number_format($datapish['price_product']);
     $userBalance = number_format($user['Balance']);
     $replacements = [
@@ -973,7 +973,7 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
         $customtimevaluepriceBot = $setting['minpricetime'];
         $datafactor = array(
             "Volume_constraint" => $userdate['volume'],
-            "name_product" => $textbotlang['users']['customsellvolume']['title'],
+            "name_product" => $textbotlang['users']['customSellVolume']['title'],
             "Service_time" => $userdate['time'],
             "code_product" => "customvolume",
             "price_product" => ($userdate['volume'] * $custompricevalue) + ($userdate['time'] * $customtimevalueprice),
@@ -1139,9 +1139,9 @@ if ($text == $text_bot_var['btn_keyboard']['buy'] && $setting['active_step_note'
 🧑‍🦯 شما میتوانید شیوه اتصال را  با فشردن دکمه زیر و انتخاب سیستم عامل خود را دریافت کنید";
     }
     if (intval($datafactor['Service_time']) == 0)
-        $datafactor['Service_time'] = $textbotlang['users']['status']['Unlimited'];
+        $datafactor['Service_time'] = $textbotlang['users']['status']['unlimited'];
     if (intval($datafactor['Volume_constraint']) == 0)
-        $datafactor['Volume_constraint'] = $textbotlang['users']['status']['Unlimited'];
+        $datafactor['Volume_constraint'] = $textbotlang['users']['status']['unlimited'];
     $textcreatuser = str_replace('{username}', "<code>{$dataoutput['username']}</code>", $textafterpay);
     $textcreatuser = str_replace('{name_service}', $datafactor['name_product'], $textcreatuser);
     $textcreatuser = str_replace('{location}', $marzban_list_get['name_panel'], $textcreatuser);
@@ -1266,7 +1266,7 @@ $textonebuy
     step("get_price", $from_id);
 } elseif ($user['step'] == "get_price") {
     if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidvlue'], $backuser, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['agent']['invalidValue'], $backuser, 'HTML');
         return;
     }
     $dateacc = date('Y/m/d H:i:s');
@@ -1337,7 +1337,7 @@ $textonebuy
     update("invoice", "user_info", json_encode($DataUserOut), "id_invoice", $nameloc['id_invoice']);
     if (isset($DataUserOut['msg']) && $DataUserOut['msg'] == "User not found") {
         update("invoice", "Status", "disabledn", "id_invoice", $nameloc['id_invoice']);
-        sendmessage($from_id, $textbotlang['users']['status']['UserNotFound'], $keyboard, 'html');
+        sendmessage($from_id, $textbotlang['users']['status']['userNotFound'], $keyboard, 'html');
         step('home', $from_id);
         return;
     }
@@ -1371,9 +1371,9 @@ $textonebuy
         'deactivev' => $textbotlang['users']['status']['disabled'],
     ][$status];
     #--------------[ expire ]---------------#
-    $expirationDate = $DataUserOut['expire'] ? jdate('Y/m/d', $DataUserOut['expire']) : $textbotlang['users']['status']['Unlimited'];
+    $expirationDate = $DataUserOut['expire'] ? jdate('Y/m/d', $DataUserOut['expire']) : $textbotlang['users']['status']['unlimited'];
     #-------------[ data_limit ]----------------#
-    $LastTraffic = $DataUserOut['data_limit'] ? formatBytes($DataUserOut['data_limit']) : $textbotlang['users']['status']['Unlimited'];
+    $LastTraffic = $DataUserOut['data_limit'] ? formatBytes($DataUserOut['data_limit']) : $textbotlang['users']['status']['unlimited'];
     #---------------[ RemainingVolume ]--------------#
     $output = $DataUserOut['data_limit'] - $DataUserOut['used_traffic'];
     $RemainingVolume = $DataUserOut['data_limit'] ? formatBytes($output) : "نامحدود";
@@ -1625,7 +1625,7 @@ $output
         return;
     }
     if (!ctype_digit($text)) {
-        sendmessage($from_id, $textbotlang['Admin']['Product']['Invalidvolume'], $backuser, 'HTML');
+        sendmessage($from_id, $textbotlang['Admin']['Product']['invalidVolume'], $backuser, 'HTML');
         return;
     }
     $customtimevalueprice = $setting['pricetime'];
@@ -1637,7 +1637,7 @@ $output
 } elseif ($user['step'] == "gettimecustomextend" || preg_match('/^selectproductextends_(.*)/', $datain, $dataget)) {
     if ($user['step'] == "gettimecustomextend") {
         if (!ctype_digit($text)) {
-            sendmessage($from_id, $textbotlang['Admin']['customvolume']['invalidtime'], $backuser, 'HTML');
+            sendmessage($from_id, $textbotlang['Admin']['customvolume']['invalidTime'], $backuser, 'HTML');
             return;
         }
     }
@@ -1658,7 +1658,7 @@ $output
         $customtimevalueprice = $setting['pricetime'];
         $datapish = array(
             "Volume_constraint" => $userdate['volume'],
-            "name_product" => $textbotlang['users']['customsellvolume']['title'],
+            "name_product" => $textbotlang['users']['customSellVolume']['title'],
             "code_product" => "customvolume",
             "Service_time" => $text,
             "price_product" => ($userdate['volume'] * $custompricevalue) + ($text * $customtimevalueprice)
@@ -1736,7 +1736,7 @@ $output
         $customtimevaluepriceBot = $setting['minpricetime'];
         $datafactor = array(
             "Volume_constraint" => $userdate['volume'],
-            "name_product" => $textbotlang['users']['customsellvolume']['title'],
+            "name_product" => $textbotlang['users']['customSellVolume']['title'],
             "Service_time" => $userdate['time'],
             "code_product" => "custom_volume",
             "price_product" => ($userdate['volume'] * $custompricevalue) + ($userdate['time'] * $customtimevalueprice),
@@ -1891,7 +1891,7 @@ $output
             ]
         ]
     ]);
-    Editmessagetext($from_id, $message_id, $textbotlang['users']['changelink']['warnchange'], $keyboardextend);
+    Editmessagetext($from_id, $message_id, $textbotlang['users']['changeLink']['warnchange'], $keyboardextend);
 } elseif (preg_match('/confirmchange_(\w+)/', $datain, $dataget)) {
     $id_invoice = $dataget[1];
     $nameloc = select("invoice", "*", "id_invoice", $id_invoice, "select");

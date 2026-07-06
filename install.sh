@@ -441,7 +441,7 @@ repair_mysql() {
     apt-get autoremove -y >/dev/null 2>&1
     rm -rf /var/lib/mysql /var/log/mysql /etc/mysql
     dpkg --configure -a >/dev/null 2>&1
-    apt-get update >/dev/null 2>&1
+    apt-get update --allow-releaseinfo-change >/dev/null 2>&1
     return 0
 }
 export -f repair_mysql
@@ -945,7 +945,7 @@ deb http://$mirror/ubuntu/ $UBUNTU_CODENAME main restricted universe multiverse
 deb http://$mirror/ubuntu/ $UBUNTU_CODENAME-updates main restricted universe multiverse
 deb http://$mirror/ubuntu/ $UBUNTU_CODENAME-security main restricted universe multiverse
 EOF
-        if apt-get update 2>/dev/null; then
+        if apt-get update --allow-releaseinfo-change 2>/dev/null; then
             echo -e "\e[32mSuccessfully updated using mirror: $mirror\033[0m"
             return 0
         fi
@@ -1154,10 +1154,10 @@ function install_bot() {
             fi
         fi
 
-        if ! run_step "Updating & upgrading system packages" "apt-get update -o DPkg::Lock::Timeout=180 && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o DPkg::Lock::Timeout=180"; then
+        if ! run_step "Updating & upgrading system packages" "apt-get update --allow-releaseinfo-change -o DPkg::Lock::Timeout=180 && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o DPkg::Lock::Timeout=180"; then
             echo -e "\e[93mUpdate/upgrade failed. Attempting to fix using alternative mirrors...\033[0m"
             if fix_update_issues; then
-                if ! run_step "Re-running system update after mirror fix" "apt-get update -o DPkg::Lock::Timeout=180 && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o DPkg::Lock::Timeout=180"; then
+                if ! run_step "Re-running system update after mirror fix" "apt-get update --allow-releaseinfo-change -o DPkg::Lock::Timeout=180 && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o DPkg::Lock::Timeout=180"; then
                     show_step_error
                     install_pause "System update/upgrade"
                 fi
@@ -1652,7 +1652,7 @@ function update_bot() {
     echo ""
     echo -e "  ${C_DIM}Update target:${CR} ${C_KEY}${TARGET_LABEL}${CR}"
     print_header "Updating Mirza Bot"
-    run_step "Updating system packages" "apt update && apt upgrade -y" \
+    run_step "Updating system packages" "apt update --allow-releaseinfo-change && apt upgrade -y" \
         || { show_step_error; echo -e "\e[91mError updating the server. Exiting...\033[0m"; exit 1; }
     echo -e "\e[92mServer packages updated successfully...\033[0m\n"
     TEMP_DIR="/tmp/mirzaprobot_update"
@@ -1831,7 +1831,7 @@ function remove_bot() {
     sudo apt-get purge -y mysql-client-core-8.0 mysql-server-core-8.0 mysql-common php-mysql php8.2-mysql php8.3-mysql php-mariadb-mysql-kbs
     sudo apt-get autoremove --purge -y
     sudo apt-get clean
-    sudo apt-get update
+    sudo apt-get update --allow-releaseinfo-change
     echo -e "\e[92mMySQL has been completely removed.\033[0m" | tee -a "$LOG_FILE"
     echo -e "\e[33mRemoving PHPMyAdmin...\033[0m" | tee -a "$LOG_FILE"
     if dpkg -s phpmyadmin &>/dev/null; then

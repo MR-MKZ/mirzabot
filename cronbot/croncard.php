@@ -12,6 +12,9 @@ $ManagePanel = new ManagePanel();
 $setting = select("setting", "*");
 if ($setting['Bot_Status'] == "botstatusoff")
     return;
+$autoconfirm = select("PaySetting", "ValuePay", "NamePay", "autoconfirmcart", "select")['ValuePay'];
+if ($autoconfirm != "onauto")
+    return;
 $paymentreports = select("topicid", "idreport", "report", "paymentreport", "select")['idreport'];
 $stmt = $pdo->prepare("SELECT * FROM Payment_report WHERE payment_Status = 'waiting' AND (Payment_Method = 'cart to cart' OR Payment_Method = 'arze digital offline') AND bottype IS NULL");
 $stmt->execute();

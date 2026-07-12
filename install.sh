@@ -840,6 +840,84 @@ function renew_ssl() {
     show_menu
 }
 
+function backup_bot() {
+    clear
+    banner
+    _sec "Backup Database"
+
+    CONFIG_PATH="/var/www/html/mirzaprobotconfig/config.php"
+    if [ ! -f "$CONFIG_PATH" ]; then
+        printf "    ${C_BAD}●${CR} ${C_BAD}Mirza is not installed. config.php not found.${CR}\n"
+        echo ""
+        printf "  ${C_PROMPT}❯${CR} Press Enter to return to the menu... "
+        read -r _
+        show_menu
+        return 1
+    fi
+
+    local dbhost dbname dbuser dbpass bot_token admin_id
+    dbhost=$(grep '^\$dbhost' "$CONFIG_PATH" | cut -d"'" -f2)
+    dbname=$(grep '^\$dbname' "$CONFIG_PATH" | cut -d"'" -f2)
+    dbuser=$(grep '^\$usernamedb' "$CONFIG_PATH" | cut -d"'" -f2)
+    dbpass=$(grep '^\$passworddb' "$CONFIG_PATH" | cut -d"'" -f2)
+    bot_token=$(grep '^\$APIKEY' "$CONFIG_PATH" | cut -d"'" -f2)
+    admin_id=$(grep '^\$adminnumber' "$CONFIG_PATH" | cut -d"'" -f2)
+    [ -z "$dbhost" ] && dbhost="localhost"
+
+    if [ -z "$dbname" ] || [ -z "$dbuser" ] || [ -z "$dbpass" ]; then
+        printf "    ${C_BAD}●${CR} ${C_BAD}Could not read database credentials from config.php${CR}\n"
+        echo ""
+        printf "  ${C_PROMPT}❯${CR} Press Enter to return to the menu... "
+        read -r _
+        show_menu
+        return 1
+    fi
+
+    _kv "Database" "${C_DIM}${dbname}${CR}"
+    _kv "DB User" "${C_DIM}${dbuser}${CR}"
+    _kv "DB Host" "${C_DIM}${dbhost}${CR}"
+    echo ""
+
+    local backup_date
+    backup_date=$(date +"%Y-%m-%d_%H-%M-%S")
+    local backup_file="/root/mirza_backup_${backup_date}.sql"
+
+    run_step "Exporting database (${dbname})" \
+        "mysqldump -h '$dbhost' -u '$dbuser' -p'$dbpass' --no-tablespaces --ssl-mode=DISABLED '$dbname' > '$backup_file'" \
+        || { show_step_error; echo -e "\n  ${C_BAD}●${CR} ${C_BAD}Backup failed. See details above.${CR}"; echo ""; printf "  ${C_PROMPT}❯${CR} Press Enter to return to the menu... "; read -r _; show_menu; return 1; }
+
+    local file_size
+    file_size=$(du -h "$backup_file" 2>/dev/null | awk '{print $1}')
+    _kv "File" "${C_OK}${backup_file}${CR}"
+    _kv "Size" "${C_DIM}${file_size}${CR}"
+
+    if [ -n "$bot_token" ] && [ -n "$admin_id" ]; then
+        echo ""
+        local send_result
+        send_result=$(curl -s -o /dev/null -w "%{http_code}" \
+            -F "chat_id=${admin_id}" \
+            -F "document=@${backup_file}" \
+            -F "caption=📦 Mirza DB Backup (${backup_date})" \
+            "https://api.telegram.org/bot${bot_token}/sendDocument" 2>/dev/null)
+        if [ "$send_result" = "200" ]; then
+            _kv "Telegram" "$(_dot ok) ${C_OK}Backup sent to admin chat (${admin_id})${CR}"
+        else
+            _kv "Telegram" "$(_dot bad) ${C_BAD}Failed to send (HTTP ${send_result})${CR}"
+            printf "    ${C_DIM}Make sure the bot token and admin chat ID are correct.${CR}\n"
+        fi
+    else
+        echo ""
+        printf "    ${C_WARN}!${CR} ${C_WARN}Bot token or admin ID not found in config - skipping Telegram send.${CR}\n"
+    fi
+
+    echo ""
+    printf "    ${C_OK}✔${CR} ${C_OK}Backup saved to:${CR} ${C_KEY}${backup_file}${CR}\n"
+    echo ""
+    printf "  ${C_PROMPT}❯${CR} Press Enter to return to the menu... "
+    read -r _
+    show_menu
+}
+
 function show_menu() {
     show_logo
     _sec "Menu"
@@ -848,11 +926,12 @@ function show_menu() {
     _mi "3" "Remove Mirza"
     _mi "4" "Migrate: Free -> Pro (Beta)"
     _mi "5" "Renew SSL certificate"
-    _mi "6" "Help & Parameters"
-    _mi "7" "Exit"
+    _mi "6" "Backup Database"
+    _mi "7" "Help & Parameters"
+    _mi "8" "Exit"
     _rule
     echo ""
-    printf  "  ${C_PROMPT}❯${CR} Select an option ${C_DIM}[1-7]${CR}: "
+    printf  "  ${C_PROMPT}❯${CR} Select an option ${C_DIM}[1-8]${CR}: "
     read -r option
     case $option in
         1) install_bot ;;
@@ -860,8 +939,9 @@ function show_menu() {
         3) remove_bot ;;
         4) migrate_to_pro ;;
         5) renew_ssl ;;
-        6) show_help_screen ;;
-        7) echo -e "\n${C_OK}Exiting...${CR}"; exit 0 ;;
+        6) backup_bot ;;
+        7) show_help_screen ;;
+        8) echo -e "\n${C_OK}Exiting...${CR}"; exit 0 ;;
         *) echo -e "\n${C_BAD}Invalid option. Please try again.${CR}"; sleep 1; show_menu ;;
     esac
 }
@@ -877,6 +957,7 @@ function show_help_screen() {
     _kv "remove" "${C_DIM}Remove Mirza and its services${CR}"
     _kv "migrate" "${C_DIM}Migrate Free -> Pro${CR}"
     _kv "renew" "${C_DIM}Renew the bot domain SSL certificate${CR}"
+    _kv "backup" "${C_DIM}Backup database & send to Telegram${CR}"
     _kv "menu" "${C_DIM}Open this interactive panel (default)${CR}"
 
     _sec "Install parameters"
@@ -899,6 +980,7 @@ function show_help_screen() {
     printf "    ${C_KEY}mirza update --version 0.1.6${CR}\n"
     printf "    ${C_KEY}mirza update --channel release${CR}\n"
     printf "    ${C_KEY}mirza remove${CR}\n"
+    printf "    ${C_KEY}mirza backup${CR}\n"
 
     echo ""
     _rule
@@ -2104,6 +2186,7 @@ print_usage() {
     remove             Remove Mirza
     migrate            Migrate Free -> Pro
     renew              Renew the bot domain SSL certificate
+    backup             Backup database & send to Telegram
     menu               Show interactive menu (default)
 
   Options:
@@ -2130,7 +2213,7 @@ process_arguments() {
     local cmd="menu"
     # First non-flag token is the command
     case "$1" in
-        install|update|remove|migrate|renew|menu) cmd="$1"; shift ;;
+        install|update|remove|migrate|renew|backup|menu) cmd="$1"; shift ;;
         -h|--help) print_usage; exit 0 ;;
         "") cmd="menu" ;;
         --*) cmd="menu" ;;            # only flags given -> menu, but still parse flags
@@ -2159,6 +2242,7 @@ process_arguments() {
         remove)  remove_bot ;;
         migrate) migrate_to_pro ;;
         renew)   renew_ssl ;;
+        backup)  backup_bot ;;
         menu|*)  show_menu ;;
     esac
 }

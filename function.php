@@ -1838,7 +1838,7 @@ function createPayZarinpal($price, $order_id)
     $marchent_zarinpal = select("PaySetting", "ValuePay", "NamePay", "merchant_zarinpal", "select")['ValuePay'];
     $curl = curl_init();
     curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://api.zarinpal.com/pg/v4/payment/request.json',
+        CURLOPT_URL => 'https://payment.zarinpal.com/pg/v4/payment/request.json',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,

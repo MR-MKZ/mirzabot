@@ -1008,10 +1008,7 @@ n2',
 ➖➖➖➖➖➖➖➖➖➖➖
 🔹 | 如果您有<b>添加新功能</b>的建议或改进机器人性能的想法，我们很乐意听取。
 ➖➖➖➖➖➖➖➖➖➖➖
-🔹 | 此外，如果您需要<b>指导</b>或帮助，可以通过私信联系客服团队。
-
-📩 | 要发送报告、建议或请求指导，请在 <b>Mirza 群组</b>中留言：
-<a href="https://t.me/mirzapanelgroup" rel="nofollow" target="_blank">Mirza Group</a>',
+🔹 | 此外，如果您需要<b>指导</b>或帮助，可以通过私信联系客服团队。',
                         'ask_select_panel' => '🪚 要使用此功能，请选择下方的一个面板',
                         'err_admin' => '❌ 此部分仅主管理员可用',
                         'err_notfound_set_settings' => '❌ 无法查看节点设置',
@@ -1270,15 +1267,7 @@ f,n.n2',
                         'err_notfound_user_6' => '❌ 列表中没有用户',
                         'btn_27' => '人员列表👇',
                         'msg_panel_admin_bot_report' => '💎 | Version Bot: %s
-📌 | Version Mini App: 0.1.1
-
-<blockquote>🔹 | 此机器人完全免费，由 Mirza 团队开发</blockquote>
-
-<blockquote>🔹 | 任何对此机器人的出售或收费均视为违规。</blockquote>
-
-<blockquote>🔹 | 如果您发现任何出售或收费行为，请追踪并追回您的款项。</blockquote>
-
-<blockquote>🐞 | 如果您在机器人运行中遇到错误或问题，请通过管理面板中的 **📬 机器人反馈** 按钮联系我们。</blockquote>',
+📌 | Version Mini App: 0.1.1',
                         'ok_payment_gateway_name' => '
 📌 网关名称：<code>%s</code>
  - 成功支付次数：<code>%s</code>

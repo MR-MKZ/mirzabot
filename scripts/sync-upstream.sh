@@ -5,10 +5,13 @@
 #
 # Customizations live ONLY on draft. Releases/tags are created ONLY from draft.
 # Normal git merge keeps your draft commits; re-added old features usually stay.
+# scripts/custom-watchlist.txt lists lang keys / phrases to alert on if upstream
+# touches them (so you can search and re-check your customizations).
 #
 # Code sync only (default — never publishes releases):
 #   ./scripts/sync-upstream.sh
 #   ./scripts/sync-upstream.sh --push
+#   ./scripts/sync-upstream.sh --check-watch   # only run customization alerts
 #
 # Sync code + create any missing releases on your fork:
 #   ./scripts/sync-upstream.sh --release
@@ -19,6 +22,7 @@
 #   UPSTREAM_REMOTE=upstream  ORIGIN_REMOTE=origin
 #   CUSTOM_BRANCH=draft       MAIN_BRANCH=main
 #   UPSTREAM_REPO=mahdiMGF2/mirzabot
+#   WATCHLIST_FILE=scripts/custom-watchlist.txt
 
 set -euo pipefail
 
@@ -28,6 +32,7 @@ CUSTOM_BRANCH="${CUSTOM_BRANCH:-draft}"
 MAIN_BRANCH="${MAIN_BRANCH:-main}"
 UPSTREAM_BRANCH="${UPSTREAM_BRANCH:-main}"
 UPSTREAM_REPO="${UPSTREAM_REPO:-mahdiMGF2/mirzabot}"
+WATCHLIST_FILE="${WATCHLIST_FILE:-scripts/custom-watchlist.txt}"
 
 DO_PUSH=0
 DRY_RUN=0
@@ -37,6 +42,8 @@ DO_RELEASE=0
 RELEASE_ONLY=0
 LATEST_ONLY=0
 RETARGET=0
+CHECK_WATCH_ONLY=0
+SKIP_WATCH=0
 
 RED=$'\033[31m'
 GREEN=$'\033[32m'
@@ -69,6 +76,7 @@ Notes:
   - Keep fork changes committed on draft before syncing
   - Releases/tags always target draft (or --branch), never plain upstream
   - Your draft commits (restored features, text edits) are kept by normal merge
+  - Edit scripts/custom-watchlist.txt to track lang keys / phrases you customized
 
 How release sync works:
   - Reads releases from the upstream GitHub repo
@@ -82,6 +90,9 @@ Options:
   -m, --main NAME         Local main mirror branch (default: main)
       --upstream-branch   Upstream branch (default: main)
       --upstream-repo     Upstream GitHub repo (default: mahdiMGF2/mirzabot)
+      --watch-file PATH   Customization watchlist (default: scripts/custom-watchlist.txt)
+      --check-watch       Only fetch + print watchlist alerts (no merge/release)
+      --skip-watch        Skip watchlist alerts during sync
       --skip-main         Do not update local main
       --push              Push main + custom branch to origin after code sync
       --release           After code sync, mirror missing upstream releases
@@ -100,6 +111,9 @@ while [[ $# -gt 0 ]]; do
         -m|--main) MAIN_BRANCH="${2:?}"; shift 2 ;;
         --upstream-branch) UPSTREAM_BRANCH="${2:?}"; shift 2 ;;
         --upstream-repo) UPSTREAM_REPO="${2:?}"; shift 2 ;;
+        --watch-file) WATCHLIST_FILE="${2:?}"; shift 2 ;;
+        --check-watch) CHECK_WATCH_ONLY=1; shift ;;
+        --skip-watch) SKIP_WATCH=1; shift ;;
         --skip-main) SKIP_MAIN=1; shift ;;
         --push) DO_PUSH=1; shift ;;
         --release) DO_RELEASE=1; shift ;;
@@ -138,6 +152,148 @@ remote_exists() {
 
 branch_exists_local() {
     git show-ref --verify --quiet "refs/heads/$1"
+}
+
+tree_contains() {
+    local treeish="$1" needle="$2"
+    git grep -Fq -- "$needle" "$treeish" -- lang 2>/dev/null
+}
+
+worktree_contains() {
+    local needle="$1"
+    git grep -Fq -- "$needle" -- lang 2>/dev/null
+}
+
+upstream_range_mentions() {
+    local from_ref="$1" to_ref="$2" needle="$3"
+    git diff -U0 "$from_ref" "$to_ref" -- lang 2>/dev/null | grep -Fq -- "$needle"
+}
+
+print_search_hints() {
+    local primary="$1"
+    local hints_csv="${2:-}"
+    local hint
+    printf '  search: %s\n' "$primary"
+    printf '  tip:    rg -n %q lang/\n' "$primary"
+    if [[ -n "$hints_csv" && "$hints_csv" != "$primary" ]]; then
+        IFS=',' read -r -a hint_arr <<<"$hints_csv"
+        for hint in "${hint_arr[@]}"; do
+            hint="$(printf '%s' "$hint" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            [[ -n "$hint" && "$hint" != "$primary" ]] || continue
+            printf '  also:   rg -n %q lang/\n' "$hint"
+        done
+    fi
+}
+
+check_customization_watchlist() {
+    local upstream_ref="$1"
+    local draft_ref="${2:-$CUSTOM_BRANCH}"
+    local base_ref alerts=0
+    local kind key hints phrase note rest
+    local use_worktree=0
+
+    [[ "$SKIP_WATCH" -eq 1 ]] && return 0
+
+    if [[ ! -f "$WATCHLIST_FILE" ]]; then
+        warn "No watchlist at ${WATCHLIST_FILE} (skipping customization alerts)"
+        return 0
+    fi
+
+    # Prefer worktree when checking local removals that are not committed yet
+    if [[ -n "$(git status --porcelain -- lang)" ]]; then
+        use_worktree=1
+        info "Lang worktree has local edits — phrase checks use working tree + draft tip for keys"
+    fi
+
+    base_ref="$(git merge-base "$draft_ref" "$upstream_ref" 2>/dev/null || true)"
+    [[ -n "$base_ref" ]] || base_ref="$draft_ref"
+
+    echo
+    info "Checking customization watchlist (${WATCHLIST_FILE})..."
+    info "draft=${draft_ref}  upstream=${upstream_ref}  base=${base_ref:0:12}"
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line%%#*}"
+        line="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+        [[ -n "$line" ]] || continue
+
+        kind="${line%%|*}"
+        rest="${line#*|}"
+
+        case "$kind" in
+            lang_key)
+                key="${rest%%|*}"
+                hints="${rest#*|}"
+                [[ "$key" != "$hints" ]] || hints="$key"
+
+                if upstream_range_mentions "$base_ref" "$upstream_ref" "$key"; then
+                    alerts=$((alerts + 1))
+                    printf '\n%s[ALERT]%s Upstream CHANGED watched lang key (new commits since merge-base)\n' "$RED" "$RESET"
+                    printf '  key:    %s%s%s\n' "$BOLD" "$key" "$RESET"
+                    print_search_hints "$key" "$hints"
+                    printf '  files:  lang/*.php\n'
+                    printf '  action: re-check this key and keep your customized text\n'
+                elif git diff "$draft_ref" "$upstream_ref" -- lang 2>/dev/null | grep -Fq -- "$key"; then
+                    # Permanent fork diff — informational, not a new upstream change
+                    printf '\n%s[INFO]%s Key customized on draft (differs from upstream; OK unless ALERT above)\n' "$CYAN" "$RESET"
+                    printf '  key:    %s\n' "$key"
+                    printf '  search: %s\n' "$key"
+                fi
+                ;;
+            phrase)
+                phrase="${rest%%|*}"
+                note="${rest#*|}"
+                [[ "$phrase" != "$note" ]] || note=""
+
+                local_has=0
+                upstream_has=0
+                if tree_contains "$upstream_ref" "$phrase"; then
+                    upstream_has=1
+                fi
+                if [[ "$use_worktree" -eq 1 ]]; then
+                    worktree_contains "$phrase" && local_has=1 || local_has=0
+                else
+                    tree_contains "$draft_ref" "$phrase" && local_has=1 || local_has=0
+                fi
+
+                if [[ "$upstream_has" -eq 1 && "$local_has" -eq 0 ]]; then
+                    alerts=$((alerts + 1))
+                    printf '\n%s[ALERT]%s Upstream still has text you removed — can return on merge\n' "$RED" "$RESET"
+                    printf '  phrase: %s%s%s\n' "$BOLD" "$phrase" "$RESET"
+                    [[ -n "$note" ]] && printf '  note:   %s\n' "$note"
+                    print_search_hints "$phrase" ""
+                    printf '  action: after merge, rg and delete again if it reappears\n'
+                fi
+
+                if [[ "$local_has" -eq 1 ]]; then
+                    alerts=$((alerts + 1))
+                    printf '\n%s[ALERT]%s Watched phrase still present in your tree — expected removed?\n' "$YELLOW" "$RESET"
+                    printf '  phrase: %s%s%s\n' "$BOLD" "$phrase" "$RESET"
+                    [[ -n "$note" ]] && printf '  note:   %s\n' "$note"
+                    print_search_hints "$phrase" ""
+                fi
+
+                if upstream_range_mentions "$base_ref" "$upstream_ref" "$phrase"; then
+                    alerts=$((alerts + 1))
+                    printf '\n%s[ALERT]%s Upstream recently touched a watched phrase\n' "$RED" "$RESET"
+                    printf '  phrase: %s%s%s\n' "$BOLD" "$phrase" "$RESET"
+                    [[ -n "$note" ]] && printf '  note:   %s\n' "$note"
+                    print_search_hints "$phrase" ""
+                fi
+                ;;
+            *)
+                warn "Unknown watchlist kind '${kind}' in: ${line}"
+                ;;
+        esac
+    done <"$WATCHLIST_FILE"
+
+    echo
+    if [[ "$alerts" -eq 0 ]]; then
+        ok "Watchlist clear — no hits on your customization markers."
+    else
+        warn "Watchlist raised ${alerts} alert(s). Use the search tips above (rg) to inspect lang/."
+    fi
+    return 0
 }
 
 require_gh() {
@@ -361,6 +517,8 @@ sync_code() {
 
     info "Current HEAD vs ${UPSTREAM_REF}: behind=$(git rev-list --count "HEAD..${UPSTREAM_REF}" 2>/dev/null || echo 0), ahead=$(git rev-list --count "${UPSTREAM_REF}..HEAD" 2>/dev/null || echo 0)"
 
+    check_customization_watchlist "$UPSTREAM_REF" "$CUSTOM_BRANCH"
+
     if [[ "$SKIP_MAIN" -eq 0 ]]; then
         if ! branch_exists_local "$MAIN_BRANCH"; then
             info "Creating local ${MAIN_BRANCH} from ${UPSTREAM_REF}"
@@ -409,12 +567,15 @@ sync_code() {
                 echo
                 warn "Resolve conflicts (keep your draft customizations where needed), then:"
                 echo "  git add -A && git commit"
+                echo "  ./scripts/sync-upstream.sh --check-watch"
                 echo "  ./scripts/sync-upstream.sh --push"
                 echo
                 warn "To abort: git merge --abort"
                 exit 1
             fi
             ok "Merged ${UPSTREAM_REF} into ${CUSTOM_BRANCH}"
+            info "Re-checking watchlist after merge..."
+            check_customization_watchlist "$UPSTREAM_REF" "$CUSTOM_BRANCH"
         fi
     fi
 }
@@ -430,7 +591,7 @@ remote_exists "$UPSTREAM_REMOTE" || die "Remote '${UPSTREAM_REMOTE}' not found. 
 
 remote_exists "$ORIGIN_REMOTE" || die "Remote '${ORIGIN_REMOTE}' not found."
 
-if [[ "$DRY_RUN" -eq 0 ]]; then
+if [[ "$DRY_RUN" -eq 0 && "$CHECK_WATCH_ONLY" -eq 0 ]]; then
     require_clean_worktree
 fi
 
@@ -440,11 +601,21 @@ info "Starting on branch: ${START_BRANCH}"
 info "Fetching ${UPSTREAM_REMOTE} (branches + tags)..."
 run git fetch "$UPSTREAM_REMOTE" --tags --prune
 
+UPSTREAM_REF="${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH}"
+
+if [[ "$CHECK_WATCH_ONLY" -eq 1 ]]; then
+    run git checkout "$CUSTOM_BRANCH" 2>/dev/null || true
+    check_customization_watchlist "$UPSTREAM_REF" "$CUSTOM_BRANCH"
+    ok "Watchlist check finished."
+    exit 0
+fi
+
 if [[ "$RELEASE_ONLY" -eq 0 ]]; then
     sync_code
 else
     info "Release-only mode: skipping code merge"
     run git checkout "$CUSTOM_BRANCH"
+    check_customization_watchlist "$UPSTREAM_REF" "$CUSTOM_BRANCH"
 fi
 
 LATEST_TAG="$(latest_upstream_tag)"

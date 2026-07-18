@@ -1008,10 +1008,7 @@ Use the buttons below to change the agent type.',
 ➖➖➖➖➖➖➖➖➖➖➖
 🔹 | If you have a suggestion for <b>adding a new feature</b> or an idea to improve the bot\'s performance, we\'d be happy to hear it.
 ➖➖➖➖➖➖➖➖➖➖➖
-🔹 | Also, if you need <b>guidance</b> or help, you can contact the support team via direct message.
-
-📩 | To send a report, suggestion, or request for guidance, leave a message in the <b>Mirza group</b>:
-<a href="https://t.me/mirzapanelgroup" rel="nofollow" target="_blank">Mirza Group</a>',
+🔹 | Also, if you need <b>guidance</b> or help, you can contact the support team via direct message.',
                         'ask_select_panel' => '🪚 To use this feature, select one of the panels below',
                         'err_admin' => '❌ This section is only available to the main admin',
                         'err_notfound_set_settings' => '❌ Node settings cannot be viewed',
@@ -1270,15 +1267,7 @@ To hide a panel, select your panels from the list below, then send the /end_hide
                         'err_notfound_user_6' => '❌ There is no user in the list',
                         'btn_27' => 'List of people👇',
                         'msg_panel_admin_bot_report' => '💎 | Version Bot: %s
-📌 | Version Mini App: 0.1.1
-
-<blockquote>🔹 | This bot is completely free and is developed by the Mirza team</blockquote>
-
-<blockquote>🔹 | Any sale or charging of money for this bot is considered a violation.</blockquote>
-
-<blockquote>🔹 | If you see any sale or charging of money, please track and reclaim your money.</blockquote>
-
-<blockquote>🐞 | If you encounter a bug or problem in the bot\'s operation, contact us via the **📬 Bot report** button in the admin panel.</blockquote>',
+📌 | Version Mini App: 0.1.1',
                         'ok_payment_gateway_name' => '
 📌 Gateway name: <code>%s</code>
  - Number of successful payments: <code>%s</code>

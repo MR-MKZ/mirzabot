@@ -1,0 +1,18 @@
+# Customization watchlist — checked on every upstream sync.
+# Format (one per line):
+#   lang_key|<php_array_key>|<comma-separated search hints>
+#   phrase|<literal text to search>|<optional note>
+#
+# Seeded from draft customizations (removed Mirza group link + anti-sales notices).
+
+lang_key|msg_help_bot_group_message|msg_help_bot_group_message,mirzapanelgroup,Mirza Group,گروه میرزا
+lang_key|msg_panel_admin_bot_report|msg_panel_admin_bot_report,فروش یا دریافت,considered a violation,полностью бесплатный,完全免费,این ربات کاملاً رایگان,This bot is completely free
+
+# Phrases that should NOT come back into draft after a merge
+phrase|mirzapanelgroup|Mirza Telegram group link
+phrase|هرگونه فروش یا دریافت وجه|FA anti-sales notice
+phrase|Any sale or charging of money|EN anti-sales notice
+phrase|Любая продажа или взимание платы|RU anti-sales notice
+phrase|任何对此机器人的出售或收费|ZH anti-sales notice
+phrase|این ربات کاملاً رایگان است|FA free-bot notice
+phrase|This bot is completely free|EN free-bot notice

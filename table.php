@@ -697,6 +697,7 @@ try {
         ['maxbalance', '1000000'],
         ['marchent_tronseller', '0'],
         ['walletaddress', '0'],
+        ['statuscardautoconfirm', 'offautoconfirm'],
         ['urlpaymenttron', 'https://tronseller.storeddownloader.fun/api/GetOrderToken'],
         ['statustarnado', 'offternado'],
         ['apiternado', '0'],

@@ -1,18 +1,27 @@
-# Customization watchlist — checked on every upstream sync.
-# Format (one per line):
-#   lang_key|<php_array_key>|<comma-separated search hints>
-#   phrase|<literal text to search>|<optional note>
+# Watched customizations — checked AFTER merging upstream into draft.
+# Alert only if merge dropped a keep-marker or brought back a forbidden phrase.
 #
-# Seeded from draft customizations (removed Mirza group link + anti-sales notices).
+# Format:
+#   keep|<marker>|note     — must still exist on draft after merge
+#   phrase|<text>|note     — must NOT reappear on draft after merge
+#   lang_key|<key>|hints   — alert if that key's content changed during merge
+#
+# Search tips when alerted:
+#   rg -n statuscardautoconfirm admin.php index.php payment/ table.php
+#   rg -n onautoconfirm admin.php index.php payment/
+#   rg -n cartAuto index.php lang/
+#   rg -n autoConfirmReceipt keyboard.php admin.php
 
-lang_key|msg_help_bot_group_message|msg_help_bot_group_message,mirzapanelgroup,Mirza Group,گروه میرزا
-lang_key|msg_panel_admin_bot_report|msg_panel_admin_bot_report,فروش یا دریافت,considered a violation,полностью бесплатный,完全免费,این ربات کاملاً رایگان,This bot is completely free
+# Card-to-card SMS auto-confirm (restored on draft; upstream removed in 8073714)
+keep|statuscardautoconfirm|PaySetting wiring in admin/index/payment/table
+keep|textbotlang['textbot']['cartAuto']|index.php unique-amount auto-confirm path
+keep|autoConfirmReceipt|admin keyboard toggle
+file|payment/card.php|SMS webhook handler (must not be deleted by merge)
 
-# Phrases that should NOT come back into draft after a merge
+
+# Optional — uncomment if you still strip these from lang files:
 phrase|mirzapanelgroup|Mirza Telegram group link
 phrase|هرگونه فروش یا دریافت وجه|FA anti-sales notice
 phrase|Any sale or charging of money|EN anti-sales notice
-phrase|Любая продажа или взимание платы|RU anti-sales notice
-phrase|任何对此机器人的出售或收费|ZH anti-sales notice
-phrase|این ربات کاملاً رایگان است|FA free-bot notice
-phrase|This bot is completely free|EN free-bot notice
+lang_key|msg_help_bot_group_message|mirzapanelgroup,Mirza Group
+lang_key|msg_panel_admin_bot_report|فروش یا دریافت,considered a violation

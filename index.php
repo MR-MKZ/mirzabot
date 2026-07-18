@@ -4572,6 +4572,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     step('get_step_payment', $from_id);
 } elseif ($user['step'] == "get_step_payment") {
     if ($datain == "cart_to_offline") {
+        $PaySetting = select("PaySetting", "ValuePay", "NamePay", "statuscardautoconfirm", "select")['ValuePay'];
         $checkpay = $pdo->prepare("SELECT * FROM Payment_report WHERE id = :user_id AND payment_Status = 'Unpaid'");
         $checkpay->bindValue(':user_id', $from_id, PDO::PARAM_STR);
         $checkpay->execute();
@@ -4608,14 +4609,32 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
         /* freed */
         $cardQuery = null;
         $price_copy = $user['Processing_value'];
-        $valueprice = number_format($user['Processing_value']);
-        $replacements = [
-            '{price}' => $valueprice,
-            '{card_number}' => $card_number,
-            '{name_card}' => $PaySettingname,
-        ];
-        $price_copy = intval($user['Processing_value'] . "0");
-        $textcart = strtr($textbotlang['textbot']['cart'], $replacements);
+        if ($PaySetting == "onautoconfirm") {
+            $random_number = rand(0, 2000);
+            $user['Processing_value'] = intval($user['Processing_value']) + $random_number;
+            if (in_array($user['Processing_value'], $pricepayment)) {
+                $random_number = rand(0, 2000);
+                $user['Processing_value'] = intval($user['Processing_value']) + $random_number;
+            }
+            $valueshow = "{$user['Processing_value']}0";
+            $replacements = [
+                '{price}' => $valueshow,
+                '{card_number}' => $card_number,
+                '{name_card}' => $PaySettingname,
+            ];
+            $price_copy = $valueshow;
+            $textcart = strtr($textbotlang['textbot']['cartAuto'], $replacements);
+            update("user", "Processing_value", $user['Processing_value'], "id", $from_id);
+        } else {
+            $valueprice = number_format($user['Processing_value']);
+            $replacements = [
+                '{price}' => $valueprice,
+                '{card_number}' => $card_number,
+                '{name_card}' => $PaySettingname,
+            ];
+            $price_copy = intval($user['Processing_value'] . "0");
+            $textcart = strtr($textbotlang['textbot']['cart'], $replacements);
+        }
         $invoice = "{$user['Processing_value_tow']}|{$user['Processing_value_one']}";
         $dateacc = date('Y/m/d H:i:s');
         $randomString = bin2hex(random_bytes(5));

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # Sync your customized fork with the upstream mirzabot source,
 # and optionally mirror upstream GitHub Releases onto your fork
-# using your customized branch (not vanilla upstream source).
+# using your customized branch (default: draft — not vanilla upstream).
+#
+# Customizations live ONLY on draft. Releases/tags are created ONLY from draft.
+# Normal git merge keeps your draft commits; re-added old features usually stay.
 #
 # Code sync only (default — never publishes releases):
 #   ./scripts/sync-upstream.sh
@@ -62,10 +65,15 @@ Release sync (creates missing GitHub releases on YOUR fork):
   ./scripts/sync-upstream.sh --release --latest-only
   ./scripts/sync-upstream.sh --release-only
 
+Notes:
+  - Keep fork changes committed on draft before syncing
+  - Releases/tags always target draft (or --branch), never plain upstream
+  - Your draft commits (restored features, text edits) are kept by normal merge
+
 How release sync works:
   - Reads releases from the upstream GitHub repo
   - For each release missing on your fork, creates the same tag/title
-  - GitHub tag is created at your CUSTOM branch HEAD (includes customizations)
+  - GitHub tag is created at your draft HEAD (includes customizations)
   - Notes = upstream notes + custom-changes section
   - Existing fork releases are left alone (unless --retarget)
 
@@ -140,7 +148,6 @@ require_gh() {
 }
 
 json_query() {
-    # Prefer jq; fall back to go-jq via python if needed
     if command -v jq >/dev/null 2>&1; then
         jq "$@"
     else
@@ -168,7 +175,6 @@ latest_upstream_tag() {
 custom_changes_block() {
     local base_ref="$1"
     local log=""
-    # Prefer comparing to the upstream tag object if present; else upstream/main
     if git rev-parse -q --verify "refs/tags/${base_ref}" >/dev/null; then
         log="$(git log --oneline "${base_ref}..${CUSTOM_BRANCH}" 2>/dev/null | head -n 40 || true)"
     else
@@ -226,7 +232,6 @@ delete_fork_release_and_tag() {
         warn "Deleting existing fork release ${tag}..."
         run gh release delete "$tag" -R "$origin_slug" --yes --cleanup-tag
     else
-        # Tag may exist without a release
         if [[ "$DRY_RUN" -eq 1 ]]; then
             info "Would delete remote tag ${tag} if present"
         else
@@ -265,7 +270,6 @@ create_or_sync_release() {
     notes_file="$(mktemp)"
     build_release_notes "$tag" "$upstream_body" "$custom_sha" "$origin_slug" >"$notes_file"
 
-    # Create tag ON GITHUB at the customized commit (do not push local upstream tags).
     create_args=(
         release create "$tag"
         -R "$origin_slug"
@@ -312,13 +316,8 @@ sync_releases() {
         fi
 
         create_or_sync_release "$tag" "$origin_slug" "$custom_sha"
-        if fork_has_release "$tag" "$origin_slug" || [[ "$DRY_RUN" -eq 1 ]]; then
-            # dry-run counts as would-create; real run verify loosely
-            if [[ "$DRY_RUN" -eq 1 ]]; then
-                created=$((created + 1))
-            elif fork_has_release "$tag" "$origin_slug"; then
-                created=$((created + 1))
-            fi
+        if [[ "$DRY_RUN" -eq 1 ]] || fork_has_release "$tag" "$origin_slug"; then
+            created=$((created + 1))
         fi
     done < <(list_upstream_release_tags)
 
@@ -408,9 +407,9 @@ sync_code() {
             if [[ "$merge_status" -ne 0 ]]; then
                 err "Merge conflict while syncing upstream into '${CUSTOM_BRANCH}'."
                 echo
-                warn "Resolve conflicts, then:"
+                warn "Resolve conflicts (keep your draft customizations where needed), then:"
                 echo "  git add -A && git commit"
-                echo "  ./scripts/sync-upstream.sh --release"
+                echo "  ./scripts/sync-upstream.sh --push"
                 echo
                 warn "To abort: git merge --abort"
                 exit 1

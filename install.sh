@@ -43,7 +43,8 @@ _step_eta() {
         "Adding PHP repository"*|"Retrying PHP repository"*) echo 15 ;;
         "Updating & upgrading"*|"Re-running system update"*) echo 120 ;;
         "Installing base tools"*)            echo 25 ;;
-        "Installing PHP 8.2"*)               echo 30 ;;
+        "Installing PHP dependencies"*)      echo 60 ;;
+        "Installing PHP "*)                  echo 30 ;;
         "Installing web stack"*)             echo 90 ;;
         "Repairing broken MySQL"*)           echo 90 ;;
         "Re-installing web stack"*)          echo 90 ;;
@@ -52,7 +53,7 @@ _step_eta() {
         "Enabling & starting services"*)     echo 8  ;;
         "Configuring firewall"*)             echo 15 ;;
         "Restarting Apache"*)                echo 5  ;;
-        "Setting PHP 8.2 as the active"*)    echo 6  ;;
+        "Setting PHP as the active"*|"Setting PHP "*) echo 6  ;;
         "Downloading Mirza"*)                echo 20 ;;
         "Extracting source files"*)          echo 5  ;;
         "Configuring MySQL root access"*)    echo 10 ;;
@@ -75,7 +76,7 @@ _step_eta() {
 plan_eta() {
     STEP_TOTAL=0; ETA_REMAINING=0; STEP_NO=0
     phase_done DEPS    || { STEP_TOTAL=$((STEP_TOTAL + 12)); ETA_REMAINING=$((ETA_REMAINING + 388)); }
-    phase_done FILES   || { STEP_TOTAL=$((STEP_TOTAL + 2));  ETA_REMAINING=$((ETA_REMAINING + 25)); }
+    phase_done FILES   || { STEP_TOTAL=$((STEP_TOTAL + 3));  ETA_REMAINING=$((ETA_REMAINING + 85)); }
     phase_done DBROOT  || { STEP_TOTAL=$((STEP_TOTAL + 1));  ETA_REMAINING=$((ETA_REMAINING + 10)); }
     if ! phase_done SSL; then
         if [ -f "/etc/letsencrypt/live/$(state_get DOMAIN)/fullchain.pem" ]; then
@@ -360,6 +361,91 @@ apt_recover() {
 }
 export -f apt_recover
 
+OS_ID=""; OS_VERSION_ID=""; OS_CODENAME=""; OS_PRETTY=""
+detect_os() {
+    [ -n "$OS_ID" ] && return 0
+    [ -f /etc/os-release ] || return 1
+    local fields
+    fields=$(. /etc/os-release 2>/dev/null; printf '%s\t%s\t%s\t%s' \
+        "${ID:-}" "${VERSION_ID:-}" "${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}" "${PRETTY_NAME:-unknown}")
+    IFS=$'\t' read -r OS_ID OS_VERSION_ID OS_CODENAME OS_PRETTY <<< "$fields"
+    return 0
+}
+export -f detect_os
+
+os_major() {
+    detect_os
+    local m="${OS_VERSION_ID%%.*}"
+    case "$m" in ''|*[!0-9]*) echo 0 ;; *) echo "$m" ;; esac
+}
+export -f os_major
+
+php_ppa_has_series() {
+    [ -n "$1" ] || return 1
+    local try
+    for try in 1 2 3; do
+        curl -fsSL --max-time 10 -o /dev/null \
+            "https://ppa.launchpadcontent.net/ondrej/php/ubuntu/dists/$1/Release" 2>/dev/null && return 0
+        sleep 2
+    done
+    return 1
+}
+export -f php_ppa_has_series
+
+php_repo_disable() {
+    local f n=0
+    for f in /etc/apt/sources.list.d/*ondrej*php*.sources /etc/apt/sources.list.d/*ondrej*php*.list; do
+        [ -f "$f" ] || continue
+        mv -f "$f" "$f.disabled-by-mirza" && n=$((n + 1))
+    done
+    [ "$n" -gt 0 ]
+}
+export -f php_repo_disable
+
+setup_php_repo() {
+    detect_os
+    export DEBIAN_FRONTEND=noninteractive
+    # add-apt-repository lives in software-properties-common - minimal cloud
+    # images (and the 26.04 minimal image in particular) do not ship it.
+    if ! command -v add-apt-repository >/dev/null 2>&1; then
+        apt-get update -o DPkg::Lock::Timeout=180 >/dev/null 2>&1
+        apt-get install -y software-properties-common ca-certificates curl gnupg \
+            -o DPkg::Lock::Timeout=180 || return 1
+    fi
+    add-apt-repository -y ppa:ondrej/php || \
+        LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php || return 1
+
+    # Does the PPA actually build for this release? Pinning to an older series
+    if [ -n "$OS_CODENAME" ] && ! php_ppa_has_series "$OS_CODENAME"; then
+        echo "ondrej/php publishes no packages for '$OS_CODENAME' - disabling the PPA and using the PHP shipped with $OS_PRETTY."
+        php_repo_disable || echo "Warning: no ondrej/php source file found to disable."
+    fi
+    return 0
+}
+export -f setup_php_repo
+
+export PHP_VER_CANDIDATES="8.2 8.3 8.4 8.5"
+
+# 0 when apt has an installable candidate for this package.
+_apt_has_candidate() {
+    local cand
+    cand=$(apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/{print $2; exit}')
+    [ -n "$cand" ] && [ "$cand" != "(none)" ]
+}
+export -f _apt_has_candidate
+
+resolve_php_ver() {
+    local v
+    for v in $PHP_VER_CANDIDATES; do
+        if _apt_has_candidate "php$v" && _apt_has_candidate "libapache2-mod-php$v"; then
+            echo "$v"; return 0
+        fi
+    done
+    echo "8.2"
+    return 1
+}
+export -f resolve_php_ver
+
 # Configure MySQL root login (all output captured by run_step's log).
 setup_mysql_root() {
     sudo mkdir -p /root/confmirza || return 1
@@ -373,26 +459,109 @@ setup_mysql_root() {
     echo "\$path = '${RANDOM_NUMBER}';"   >> /root/confmirza/dbrootmirza.txt
     passs=$(grep '$pass' /root/confmirza/dbrootmirza.txt | cut -d"'" -f2)
     userrr=$(grep '$user' /root/confmirza/dbrootmirza.txt | cut -d"'" -f2)
-    if ! sudo mysql -u "$userrr" -p"$passs" -e "alter user '$userrr'@'localhost' identified with mysql_native_password by '$passs';FLUSH PRIVILEGES;"; then
-        # Recovery via skip-grant-tables
-        sudo sed -i '$ a skip-grant-tables' /etc/mysql/mysql.conf.d/mysqld.cnf
-        sudo systemctl restart mysql
-        sudo mysql <<EOF
+    local alter_ok=0
+    if sudo mysql -u "$userrr" -p"$passs" -e "alter user '$userrr'@'localhost' identified with mysql_native_password by '$passs';FLUSH PRIVILEGES;"; then
+        alter_ok=1
+    elif sudo mysql -e "alter user '$userrr'@'localhost' identified with mysql_native_password by '$passs';FLUSH PRIVILEGES;"; then
+        alter_ok=1
+    elif sudo mysql -e "alter user '$userrr'@'localhost' identified with caching_sha2_password by '$passs';FLUSH PRIVILEGES;"; then
+        alter_ok=1
+    elif sudo mysql -e "alter user '$userrr'@'localhost' identified by '$passs';FLUSH PRIVILEGES;"; then
+        alter_ok=1
+    fi
+    if [ "$alter_ok" -eq 1 ]; then
+        echo "SELECT 1" | mysql -u"$userrr" -p"$passs" >/dev/null 2>&1 && return 0
+    fi
+
+    local dropin_dir=""
+    local d
+    for d in /etc/mysql/mysql.conf.d /etc/mysql/mariadb.conf.d /etc/mysql/conf.d; do
+        [ -d "$d" ] && { dropin_dir="$d"; break; }
+    done
+    [ -n "$dropin_dir" ] || return 1
+    local dropin="$dropin_dir/zz-mirza-recovery.cnf"
+    printf '[mysqld]\nskip-grant-tables\n' | sudo tee "$dropin" >/dev/null || return 1
+    sudo systemctl restart mysql
+    sudo mysql <<EOF
+FLUSH PRIVILEGES;
 DROP USER IF EXISTS 'root'@'localhost';
 CREATE USER 'root'@'localhost' IDENTIFIED BY '${passs}';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 EOF
-        sudo sed -i '/skip-grant-tables/d' /etc/mysql/mysql.conf.d/mysqld.cnf
-        sudo systemctl restart mysql
-        echo "SELECT 1" | mysql -u"$userrr" -p"$passs" 2>/dev/null || return 1
-    fi
+    sudo rm -f "$dropin"
+    # Older installer versions appended the option to mysqld.cnf directly.
+    sudo sed -i '/^skip-grant-tables/d' /etc/mysql/mysql.conf.d/mysqld.cnf 2>/dev/null
+    sudo systemctl restart mysql
+    echo "SELECT 1" | mysql -u"$userrr" -p"$passs" >/dev/null 2>&1 || return 1
     return 0
 }
 export -f setup_mysql_root
 
+# Install Composer to /usr/local/bin/composer when it is not already available.
+# The installer is verified against the official signature before it is run.
+ensure_composer() {
+    if command -v composer >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local php_bin setup expected actual
+    php_bin="$(command -v php)" || return 1
+    setup="$(mktemp /tmp/composer-setup.XXXXXX.php)"
+
+    expected="$("$php_bin" -r "echo @file_get_contents('https://composer.github.io/installer.sig');" 2>/dev/null | tr -d '[:space:]')"
+    if ! "$php_bin" -r "exit(@copy('https://getcomposer.org/installer', '$setup') ? 0 : 1);"; then
+        rm -f "$setup"
+        echo "Failed to download the Composer installer." >&2
+        return 1
+    fi
+
+    actual="$("$php_bin" -r "echo hash_file('sha384', '$setup');" 2>/dev/null | tr -d '[:space:]')"
+    if [ -z "$expected" ] || [ "$expected" != "$actual" ]; then
+        rm -f "$setup"
+        echo "Composer installer signature mismatch - refusing to run it." >&2
+        return 1
+    fi
+
+    "$php_bin" "$setup" --quiet --install-dir=/usr/local/bin --filename=composer
+    local rc=$?
+    rm -f "$setup"
+    [ "$rc" -eq 0 ] && command -v composer >/dev/null 2>&1
+}
+export -f ensure_composer
+
+# Build vendor/ from composer.json + composer.lock. vendor/ is not shipped in the
+# release archive, so this must run on every install, update and migration.
+install_php_deps() {
+    local dir="$1"
+
+    if [ ! -f "$dir/composer.json" ]; then
+        echo "No composer.json in $dir - skipping dependency installation."
+        return 0
+    fi
+
+    ensure_composer || return 1
+
+    COMPOSER_ALLOW_SUPERUSER=1 COMPOSER_NO_INTERACTION=1 \
+        composer install --working-dir="$dir" \
+        --no-dev --optimize-autoloader --prefer-dist --no-progress || return 1
+
+    if [ ! -f "$dir/vendor/autoload.php" ]; then
+        echo "composer install finished but $dir/vendor/autoload.php is missing." >&2
+        return 1
+    fi
+
+    chown -R www-data:www-data "$dir/vendor" 2>/dev/null
+    return 0
+}
+export -f install_php_deps
+
 # True if a package is installed and configured.
 _pkg_installed() { dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q 'install ok installed'; }
+
+_pkg_installed_glob() {
+    dpkg-query -W -f='${Package} ${Status}\n' "$1" 2>/dev/null | grep -q 'install ok installed'
+}
 
 # Refuse to install on a server that already has conflicting software.
 # Only runs on a brand-new install (never on resume / Mirza's own partial state).
@@ -400,12 +569,11 @@ precheck_fresh_server() {
     local found=()
     _pkg_installed apache2 && found+=("apache2 (web server)")
     { _pkg_installed nginx || _pkg_installed nginx-core || _pkg_installed nginx-full; } && found+=("nginx (web server)")
-    { _pkg_installed mysql-server || _pkg_installed mysql-server-8.0; } && found+=("mysql-server")
-    { _pkg_installed mariadb-server || _pkg_installed mariadb-server-10.6; } && found+=("mariadb-server")
+    { _pkg_installed mysql-server || _pkg_installed_glob 'mysql-server-[0-9]*'; } && found+=("mysql-server")
+    { _pkg_installed mariadb-server || _pkg_installed_glob 'mariadb-server-[0-9]*'; } && found+=("mariadb-server")
     _pkg_installed phpmyadmin && found+=("phpMyAdmin")
     # Known VPN panels
     { [ -d /opt/marzban ] || [ -d /var/lib/marzban ]; } && found+=("Marzban panel")
-    { [ -d /etc/x-ui ] || [ -d /usr/local/x-ui ]; } && found+=("x-ui / 3x-ui panel")
     { [ -d /opt/hiddify-manager ] || [ -d /opt/hiddify-config ]; } && found+=("Hiddify panel")
 
     if [ ${#found[@]} -gt 0 ]; then
@@ -417,23 +585,21 @@ precheck_fresh_server() {
         local f
         for f in "${found[@]}"; do printf "      ${C_WARN}-${CR} ${C_TXT}%s${CR}\n" "$f"; done
         echo ""
-        printf "    ${C_TXT}Use a clean Ubuntu 22.04/24.04 server (no web server, database, or panel)${CR}\n"
+        printf "    ${C_TXT}Use a clean Ubuntu 22.04/24.04/26.04 server (no web server, database, or panel)${CR}\n"
         printf "    ${C_TXT}or reinstall the OS, then run the installer again.${CR}\n"
         return 1
     fi
     return 0
 }
 
-# Repair a broken / half-configured MySQL left by an interrupted apt run.
-# Safe to wipe data here: this only runs during a fresh install, before any
-# Mirza database is created (the fresh-server precheck guarantees no real DB).
+
 repair_mysql() {
     export DEBIAN_FRONTEND=noninteractive
     systemctl stop mysql 2>/dev/null
     # 1) Gentle fix first
     dpkg --configure -a >/dev/null 2>&1
     apt-get install -f -y >/dev/null 2>&1
-    if dpkg-query -W -f='${Status}' mysql-server-8.0 2>/dev/null | grep -q 'install ok installed'; then
+    if dpkg-query -W -f='${Package} ${Status}\n' 'mysql-server-[0-9]*' 2>/dev/null | grep -q 'install ok installed'; then
         return 0
     fi
     # 2) Hard reset: purge MySQL and wipe its (empty) data dir, then reinstall fresh
@@ -446,8 +612,7 @@ repair_mysql() {
 }
 export -f repair_mysql
 
-# install_pause "<where>" -> save progress and exit WITHOUT rolling back.
-# Re-running `mirza install` will pick up from the last completed phase.
+
 install_pause() {
     local where="$1"
     echo ""
@@ -1122,37 +1287,78 @@ function fix_update_issues() {
     echo -e "\e[33mTrying to fix update issues by changing mirrors...\033[0m"
     # Broken apt mirrors are often a DNS problem - fix DNS first
     ensure_dns
-    cp /etc/apt/sources.list /etc/apt/sources.list.backup
-    if [ -f /etc/os-release ]; then
-        . /etc/apt/sources.list
-        VERSION_ID=$(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f2)
-        UBUNTU_CODENAME=$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d '=' -f2)
-    else
+    if ! detect_os || [ -z "$OS_CODENAME" ]; then
         echo -e "\e[91mCould not detect Ubuntu version.\033[0m"
         return 1
     fi
-    MIRRORS=(
-        "archive.ubuntu.com"
-        "us.archive.ubuntu.com"
-        "fr.archive.ubuntu.com"
-        "de.archive.ubuntu.com"
-        "mirrors.digitalocean.com"
-        "mirrors.linode.com"
-    )
+
+    # Ubuntu 24.04+ (and 26.04) ship the deb822 file and often have no
+    # /etc/apt/sources.list at all - rewrite whichever one this release uses.
+    local DEB822=/etc/apt/sources.list.d/ubuntu.sources
+    local LEGACY=/etc/apt/sources.list
+    local target="" fmt=""
+    if [ -f "$DEB822" ]; then target="$DEB822"; fmt="deb822"
+    else target="$LEGACY"; fmt="legacy"; fi
+    [ -f "$target" ] && cp "$target" "$target.mirzabackup"
+
+    local parked=""
+    if [ "$fmt" = "deb822" ] && [ -s "$LEGACY" ]; then
+        cp "$LEGACY" "$LEGACY.mirzabackup" && : > "$LEGACY" && parked="$LEGACY"
+    fi
+
+    # arm64/armhf live on ports.ubuntu.com, not the archive mirrors.
+    local arch path MIRRORS
+    arch=$(dpkg --print-architecture 2>/dev/null || uname -m)
+    case "$arch" in
+        arm64|armhf|ppc64el|s390x|riscv64)
+            MIRRORS=("ports.ubuntu.com")
+            path="ubuntu-ports"
+            ;;
+        *)
+            MIRRORS=(
+                "archive.ubuntu.com"
+                "us.archive.ubuntu.com"
+                "fr.archive.ubuntu.com"
+                "de.archive.ubuntu.com"
+                "mirrors.digitalocean.com"
+                "mirrors.linode.com"
+            )
+            path="ubuntu"
+            ;;
+    esac
+
+    local mirror
     for mirror in "${MIRRORS[@]}"; do
         echo -e "\e[33mTrying mirror: $mirror\033[0m"
-        cat > /etc/apt/sources.list << EOF
-deb http://$mirror/ubuntu/ $UBUNTU_CODENAME main restricted universe multiverse
-deb http://$mirror/ubuntu/ $UBUNTU_CODENAME-updates main restricted universe multiverse
-deb http://$mirror/ubuntu/ $UBUNTU_CODENAME-security main restricted universe multiverse
+        if [ "$fmt" = "deb822" ]; then
+            cat > "$target" << EOF
+Types: deb
+URIs: http://$mirror/$path/
+Suites: $OS_CODENAME $OS_CODENAME-updates $OS_CODENAME-backports $OS_CODENAME-security
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 EOF
+        else
+            cat > "$target" << EOF
+deb http://$mirror/$path/ $OS_CODENAME main restricted universe multiverse
+deb http://$mirror/$path/ $OS_CODENAME-updates main restricted universe multiverse
+deb http://$mirror/$path/ $OS_CODENAME-security main restricted universe multiverse
+EOF
+        fi
         if apt-get update --allow-releaseinfo-change 2>/dev/null; then
             echo -e "\e[32mSuccessfully updated using mirror: $mirror\033[0m"
+            rm -f "$target.mirzabackup"
+            [ -n "$parked" ] && rm -f "$parked.mirzabackup"
             return 0
         fi
     done
-    mv /etc/apt/sources.list.backup /etc/apt/sources.list
-    echo -e "\e[91mAll mirrors failed. Restored original sources.list\033[0m"
+    if [ -f "$target.mirzabackup" ]; then
+        mv "$target.mirzabackup" "$target"
+    else
+        rm -f "$target"
+    fi
+    [ -n "$parked" ] && [ -f "$parked.mirzabackup" ] && mv "$parked.mirzabackup" "$parked"
+    echo -e "\e[91mAll mirrors failed. Restored original apt sources\033[0m"
     return 1
 }
 
@@ -1215,6 +1421,31 @@ preflight() {
         _kv "Package mgr" "$(_dot bad) ${C_BAD}apt not found (Ubuntu/Debian required)${CR}"; ok=0
     fi
 
+    # Supported: Ubuntu 22.04 / 24.04 / 26.04 (newer releases pass with a note).
+    detect_os
+    local maj; maj=$(os_major)
+    if [ "$OS_ID" = "ubuntu" ]; then
+        case "$OS_VERSION_ID" in
+            22.04|24.04|26.04) _kv "OS" "$(_dot ok) ${C_OK}${OS_PRETTY}${CR}" ;;
+            *)
+                if [ "$maj" -ge 26 ]; then
+                    _kv "OS" "$(_dot ok) ${C_OK}${OS_PRETTY}${CR} ${C_DIM}(newer than tested)${CR}"
+                elif [ "$maj" -ge 20 ]; then
+                    _kv "OS" "$(_dot warn) ${C_WARN}${OS_PRETTY} (untested; 22.04/24.04/26.04 recommended)${CR}"
+                elif [ "$maj" -eq 0 ]; then
+                    # No usable VERSION_ID (dev snapshot, trimmed image): warn, don't block.
+                    _kv "OS" "$(_dot warn) ${C_WARN}${OS_PRETTY} (version unknown; 22.04/24.04/26.04 recommended)${CR}"
+                else
+                    _kv "OS" "$(_dot bad) ${C_BAD}${OS_PRETTY} (too old; use 22.04, 24.04 or 26.04)${CR}"; ok=0
+                fi
+                ;;
+        esac
+    elif [ "$OS_ID" = "debian" ]; then
+        _kv "OS" "$(_dot warn) ${C_WARN}${OS_PRETTY} (untested; Ubuntu 22.04/24.04/26.04 recommended)${CR}"
+    else
+        _kv "OS" "$(_dot warn) ${C_WARN}${OS_PRETTY:-unknown} (untested)${CR}"
+    fi
+
     local arch; arch=$(uname -m)
     case "$arch" in
         x86_64|amd64|aarch64|arm64) _kv "Arch" "$(_dot ok) ${C_OK}${arch}${CR}" ;;
@@ -1260,6 +1491,8 @@ preflight() {
 
 function install_bot() {
     BOT_DIR="/var/www/html/mirzaprobotconfig"
+    PHP_VER="$(state_get PHP_VER)"
+    [ -z "$PHP_VER" ] && PHP_VER="8.2"
 
     # ── Guard: only block when a PREVIOUS install fully COMPLETED ──
     if [ -f "$CONFIG_FILE_DEFAULT" ] && ! has_resumable_state; then
@@ -1348,8 +1581,8 @@ function install_bot() {
         run_step "Preparing package manager (clearing stale apt locks)" "apt_recover" \
             || { show_step_error; install_pause "Preparing package manager"; }
 
-        if ! run_step "Adding PHP repository (ondrej/php)" "add-apt-repository -y ppa:ondrej/php"; then
-            if ! run_step "Retrying PHP repository with locale override" "LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php"; then
+        if ! run_step "Adding PHP repository (ondrej/php)" "setup_php_repo"; then
+            if ! run_step "Retrying PHP repository with locale override" "LC_ALL=C.UTF-8 setup_php_repo"; then
                 show_step_error
                 install_pause "Adding PHP repository"
             fi
@@ -1371,13 +1604,17 @@ function install_bot() {
             "apt-get install -y software-properties-common git unzip curl wget jq" \
             || { show_step_error; install_pause "Installing base tools"; }
 
-        run_step "Installing PHP 8.2 (fpm + mysql)" \
-            "DEBIAN_FRONTEND=noninteractive apt install -y php8.2 php8.2-cli php8.2-fpm php8.2-mysql" \
-            || { show_step_error; install_pause "Installing PHP 8.2"; }
+        PHP_VER="$(resolve_php_ver)"; [ -z "$PHP_VER" ] && PHP_VER="8.2"
+        state_set PHP_VER "$PHP_VER"
+        echo -e "  ${C_DIM}Selected PHP version:${CR} ${C_KEY}${PHP_VER}${CR}"
+
+        run_step "Installing PHP ${PHP_VER} (fpm + mysql)" \
+            "DEBIAN_FRONTEND=noninteractive apt install -y php${PHP_VER} php${PHP_VER}-cli php${PHP_VER}-fpm php${PHP_VER}-mysql" \
+            || { show_step_error; install_pause "Installing PHP ${PHP_VER}"; }
 
         # Versioned packages only: unversioned (php-*, lamp-server^) would pull the
-        # PPA's newest PHP (e.g. 8.4) as default and break the bot's mysqli/curl.
-        WEBSTACK_CMD="DEBIAN_FRONTEND=noninteractive apt install -y mysql-server apache2 libapache2-mod-php8.2 php8.2-mbstring php8.2-zip php8.2-gd php8.2-curl php8.2-intl php8.2-xml php8.2-bcmath"
+        # newest PHP available as default and break the bot's mysqli/curl.
+        WEBSTACK_CMD="DEBIAN_FRONTEND=noninteractive apt install -y mysql-server apache2 libapache2-mod-php${PHP_VER} php${PHP_VER}-mbstring php${PHP_VER}-zip php${PHP_VER}-gd php${PHP_VER}-curl php${PHP_VER}-intl php${PHP_VER}-xml php${PHP_VER}-bcmath"
         if ! run_step "Installing web stack (Apache, MySQL, PHP modules)" "$WEBSTACK_CMD"; then
             # Most common cause: a broken/half-configured MySQL from an interrupted run.
             # Safe to repair here because the fresh-server check ran and no DB exists yet.
@@ -1387,9 +1624,13 @@ function install_bot() {
                 || { show_step_error; install_pause "Installing web stack"; }
         fi
 
-        run_step "Setting PHP 8.2 as the active version" \
-            "a2dismod php8.5 php8.4 php8.3 php8.1 php8.0 php7.4 mpm_event mpm_worker 2>/dev/null; a2enmod php8.2 mpm_prefork 2>/dev/null; update-alternatives --set php /usr/bin/php8.2 2>/dev/null; systemctl restart apache2" \
-            || { show_step_error; install_pause "Setting PHP 8.2 as default"; }
+        local _other_php="" _pv
+        for _pv in 8.5 8.4 8.3 8.2 8.1 8.0 7.4; do
+            [ "$_pv" = "$PHP_VER" ] || _other_php="$_other_php php$_pv"
+        done
+        run_step "Setting PHP ${PHP_VER} as the active version" \
+            "a2dismod${_other_php} mpm_event mpm_worker 2>/dev/null; a2enmod php${PHP_VER} mpm_prefork 2>/dev/null; update-alternatives --set php /usr/bin/php${PHP_VER} 2>/dev/null; systemctl restart apache2" \
+            || { show_step_error; install_pause "Setting PHP ${PHP_VER} as default"; }
 
         echo 'phpmyadmin phpmyadmin/dbconfig-install boolean true' | sudo debconf-set-selections
         echo 'phpmyadmin phpmyadmin/app-password-confirm password mirzahipass' | sudo debconf-set-selections
@@ -1409,7 +1650,7 @@ function install_bot() {
         }
 
         run_step "Installing extra modules (php-soap, php-ssh2, libssh2)" \
-            "DEBIAN_FRONTEND=noninteractive apt-get install -y php8.2-soap php8.2-ssh2 libssh2-1-dev libssh2-1" \
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y php${PHP_VER}-soap php${PHP_VER}-ssh2 libssh2-1-dev libssh2-1" \
             || { show_step_error; install_pause "Installing extra PHP modules"; }
 
         run_step "Enabling & starting services (MySQL, Apache)" \
@@ -1465,6 +1706,8 @@ function install_bot() {
         sudo chown -R www-data:www-data "$BOT_DIR"
         sudo chmod -R 755 "$BOT_DIR"
         wait
+        run_step "Installing PHP dependencies (composer)" "install_php_deps '$BOT_DIR'" \
+            || { show_step_error; install_pause "Installing PHP dependencies"; }
         mark_phase FILES
     else
         echo -e "  ${C_OK}●${CR} ${C_DIM}Bot files already downloaded - skipping.${CR}"
@@ -1789,7 +2032,7 @@ EOF
         run_step "Starting Apache" "systemctl start apache2" \
             || { show_step_error; install_pause "Starting Apache"; }
         sleep 5
-        run_step "Initializing database tables" "cd '$BOT_DIR' && php8.2 table.php" \
+        run_step "Initializing database tables" "cd '$BOT_DIR' && php${PHP_VER} table.php" \
             || { show_step_error; install_pause "Initializing database tables"; }
         mark_phase WEBHOOK
     fi
@@ -1867,6 +2110,13 @@ function update_bot() {
         echo -e "\e[91mError: Extracted update folder not found. Aborting before touching the current install.\033[0m"
         rm -rf "$TEMP_DIR"; sleep 2; show_menu; return 1
     fi
+    # Build vendor/ inside the extracted copy first. The live install is still
+    # untouched at this point, so a composer or network failure aborts the update
+    # instead of leaving the bot without its dependencies.
+    run_step "Installing PHP dependencies (composer)" "install_php_deps '$EXTRACTED_DIR'" \
+        || { show_step_error
+             echo -e "\e[91mError: Failed to install PHP dependencies. The update was aborted and your current installation was left untouched.\033[0m"
+             rm -rf "$TEMP_DIR"; sleep 2; show_menu; return 1; }
     CONFIG_PATH="$BOT_DIR/config.php"
     TEMP_CONFIG="/root/mirzapro_config_backup.php"
     if [ -f "$CONFIG_PATH" ]; then
@@ -2026,10 +2276,10 @@ function remove_bot() {
     sudo rm -rf /etc/mysql /var/lib/mysql /var/log/mysql /var/log/mysql.* /usr/lib/mysql /usr/include/mysql /usr/share/mysql
     sudo rm /lib/systemd/system/mysql.service
     sudo rm /etc/init.d/mysql
-    sudo dpkg --remove --force-remove-reinstreq mysql-server mysql-server-8.0
+    sudo dpkg --remove --force-remove-reinstreq mysql-server mysql-server-8.0 mysql-server-8.4
     sudo find /etc/systemd /lib/systemd /usr/lib/systemd -name "*mysql*" -exec rm -f {} \;
-    sudo apt-get purge -y mysql-server mysql-server-8.0 mysql-client mysql-client-8.0
-    sudo apt-get purge -y mysql-client-core-8.0 mysql-server-core-8.0 mysql-common php-mysql php8.2-mysql php8.3-mysql php-mariadb-mysql-kbs
+    sudo apt-get purge -y 'mysql-server*' 'mysql-client*'
+    sudo apt-get purge -y mysql-common php-mysql php8.2-mysql php8.3-mysql php8.4-mysql php-mariadb-mysql-kbs
     sudo apt-get autoremove --purge -y
     sudo apt-get clean
     sudo apt-get update --allow-releaseinfo-change
@@ -2221,6 +2471,8 @@ try { \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options); } catch (\P
 EOF
     chown -R www-data:www-data "$NEW_BOT_DIR"
     chmod -R 755 "$NEW_BOT_DIR"
+    run_step "Installing PHP dependencies (composer)" "install_php_deps '$NEW_BOT_DIR'" \
+        || { show_step_error; echo -e "\033[31mError: Failed to install PHP dependencies. Run 'composer install' in $NEW_BOT_DIR before using the bot.\033[0m"; exit 1; }
     echo -e "\033[33mReconfiguring Apache...\033[0m"
     a2dissite 000-default.conf 2>/dev/null || true
     a2dissite 000-default-le-ssl.conf 2>/dev/null || true

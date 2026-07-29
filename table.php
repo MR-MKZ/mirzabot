@@ -332,7 +332,7 @@ try {
         status varchar(500) NULL,
         url_panel varchar(2000) NULL,
         username_panel varchar(200) NULL,
-        password_panel varchar(200) NULL,
+        password_panel TEXT NULL,
         agent varchar(200) NULL,
         sublink varchar(500) NULL,
         config varchar(500) NULL,
@@ -1313,6 +1313,7 @@ $pdo->query("ALTER TABLE `invoice` CHANGE `name_product` `name_product` VARCHAR(
 $pdo->query("ALTER TABLE `invoice` CHANGE `username` `username` VARCHAR(200)");
 $pdo->query("ALTER TABLE `invoice` CHANGE `Service_location` `Service_location` VARCHAR(200)");
 $pdo->query("ALTER TABLE `invoice` CHANGE `time_sell` `time_sell` VARCHAR(200)");
+$pdo->query("ALTER TABLE marzban_panel MODIFY password_panel TEXT COLLATE utf8mb4_bin");
 $pdo->query("ALTER TABLE marzban_panel MODIFY name_panel VARCHAR(255) COLLATE utf8mb4_bin");
 $pdo->query("ALTER TABLE product MODIFY name_product VARCHAR(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin");
 $pdo->query("ALTER TABLE help MODIFY name_os VARCHAR(500) COLLATE utf8mb4_bin");

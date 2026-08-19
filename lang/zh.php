@@ -1804,7 +1804,7 @@ trojan://xyz',
                         'on' => '已开启',
                         'intro' => '📌 在下方列表中，您可以管理网关。
 
-⚠️ Mirza 团队不对网关提供任何保证，所有使用和责任由您承担',
+⚠️ Nova 团队不对网关提供任何保证，所有使用和责任由您承担',
                         'btnPerfectMoneyHelp' => '📚 设置 Perfect Money 教程',
                         'askPlisioApi' => '⚙️ 请发送您的 Plisio API 密钥。
 
@@ -2356,18 +2356,9 @@ f,n.n2',
 ➖➖➖➖➖➖➖➖➖➖➖
 🔹 | 如果您有<b>添加新功能</b>的建议或改进机器人性能的想法，我们很乐意听取。
 ➖➖➖➖➖➖➖➖➖➖➖
-🔹 | 此外，如果您需要<b>指导</b>或帮助，可以通过私信联系客服团队。
-
-📩 | 要发送报告、建议或请求指导，请在 <b>Mirza 群组</b>中留言：
-<a href="https://t.me/mirzapanelgroup" rel="nofollow" target="_blank">Mirza Group</a>',
+🔹 | 此外，如果您需要<b>指导</b>或帮助，可以通过私信联系客服团队。',
                         'aboutBot' => '💎 | Version Bot: %s
 📌 | Version Mini App: 0.1.1
-
-<blockquote>🔹 | 此机器人完全免费，由 Mirza 团队开发</blockquote>
-
-<blockquote>🔹 | 任何对此机器人的出售或收费均视为违规。</blockquote>
-
-<blockquote>🔹 | 如果您发现任何出售或收费行为，请追踪并追回您的款项。</blockquote>
 
 <blockquote>🐞 | 如果您在机器人运行中遇到错误或问题，请通过管理面板中的 **📬 机器人反馈** 按钮联系我们。</blockquote>',
                         'gatewayRow' => '
@@ -4130,7 +4121,7 @@ f,n.n2',
                 'zarinPalMerchant' => 'ZarinPal 商户',
                 'zeroBalance' => '0️⃣ 余额清零',
                 'panelSetting' => '🎛 面板设置',
-                'mirzaAgentPanel' => 'Mirza 代理',
+                'mirzaAgentPanel' => 'Nova 代理',
                 'setGroupName' => '🎛 设置群组名称',
                 'subLinkDomain' => '🔗 订阅链接域名',
                 'panelTypeSanaei' => 'Sanaei 单端口',
@@ -4218,10 +4209,10 @@ f,n.n2',
                 'jsSidebarCollapsed' => '已启用折叠菜单',
                 'jsSidebarExpanded' => '已启用展开菜单',
                 'jsThemeActivated' => '主题«{name}»已启用',
-                'keyboardManageTitle' => '米尔扎机器人管理面板',
+                'keyboardManageTitle' => 'Nova 机器人管理面板',
                 'keyboardSaveBtn' => '返回默认模式',
                 'keyboardSortHint' => '返回用户面板',
-                'layoutBrandName' => '米尔扎机器人管理面板',
+                'layoutBrandName' => 'Nova 机器人管理面板',
                 'layoutDefaultAdminName' => '管理员',
                 'layoutFooterCopyright' => '仪表盘',
                 'layoutFooterLinkDocs' => '设置',
@@ -4238,7 +4229,7 @@ f,n.n2',
                 'layoutNavLogout' => '管理',
                 'layoutNavOrders' => '是，继续',
                 'layoutNavPayments' => '· 面板',
-                'layoutNavProducts' => '米尔扎',
+                'layoutNavProducts' => 'Nova',
                 'layoutNavServices' => '取消',
                 'layoutNavSettings' => '仪表盘',
                 'layoutNavUsers' => '您确定吗？此操作不可逆。',
@@ -4251,7 +4242,7 @@ f,n.n2',
                 'layoutPageTitleProduct' => '产品',
                 'layoutPageTitleService' => '服务',
                 'layoutPageTitleSettings' => '设置',
-                'layoutPageTitleSuffix' => '米尔扎',
+                'layoutPageTitleSuffix' => 'Nova',
                 'layoutPageTitleUsers' => '用户',
                 'layoutProfileMenuLabel' => '设置',
                 'layoutSearchBoxPlaceholder' => '交易',
@@ -4261,11 +4252,11 @@ f,n.n2',
                 'loginEnterCredentials' => '请输入用户名和密码。',
                 'loginErrorTitle' => '密码',
                 'loginFooter' => '用户名',
-                'loginHeading' => '米尔扎管理面板',
+                'loginHeading' => 'Nova 管理面板',
                 'loginHidePassword' => '只有授权管理员才能访问此面板。',
-                'loginPanelTitle' => '登录 — 米尔扎管理面板',
-                'loginPasswordLabel' => '米尔扎管理面板',
-                'loginPasswordPlaceholder' => '· 版本 1.0 米尔扎',
+                'loginPanelTitle' => '登录 — Nova 管理面板',
+                'loginPasswordLabel' => 'Nova 管理面板',
+                'loginPasswordPlaceholder' => '· 版本 1.0 Nova',
                 'loginRememberMe' => '要管理机器人，请输入您的账户信息。',
                 'loginShowPassword' => '登录面板',
                 'loginSubtitle' => '为了支持，请前往 ',

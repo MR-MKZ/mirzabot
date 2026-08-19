@@ -1801,7 +1801,7 @@ trojan://xyz',
                         'on' => 'روشن گردید',
                         'intro' => '📌 از لیست زیر میتوانید درگاه ها را مدیریت کنید.
 
-⚠️ تیم میرزا هیچ تضمینی برای درگاه ها نخواهد داشت و استفاده  و تمامی مسئولیت ها به عهده شما می باشد',
+⚠️ تیم نوا هیچ تضمینی برای درگاه ها نخواهد داشت و استفاده  و تمامی مسئولیت ها به عهده شما می باشد',
                         'btnPerfectMoneyHelp' => '📚 تنظیم آموزش پرفکت مانی',
                         'askPlisioApi' => '⚙️ لطفاً API Key درگاه Plisio را ارسال نمایید.
 
@@ -2353,18 +2353,9 @@ f,n.n2',
 ➖➖➖➖➖➖➖➖➖➖➖
 🔹 | اگر پیشنهادی برای <b>افزودن قابلیت جدید</b> دارید یا ایده‌ای برای بهبود عملکرد ربات در نظر دارید، خوشحال می‌شویم بشنویم.
 ➖➖➖➖➖➖➖➖➖➖➖
-🔹 | همچنین اگر نیاز به <b>راهنمایی</b> یا کمک دارید، می‌توانید از طریق دایرکت با تیم پشتیبانی در ارتباط باشید.
-
-📩 | برای ارسال گزارش، پیشنهاد یا درخواست راهنمایی، در <b>گروه میرزا</b> پیام بگذارید:
-<a href="https://t.me/mirzapanelgroup" rel="nofollow" target="_blank">Mirza Group</a>',
+🔹 | همچنین اگر نیاز به <b>راهنمایی</b> یا کمک دارید، می‌توانید از طریق دایرکت با تیم پشتیبانی در ارتباط باشید.',
                         'aboutBot' => '💎 | Version Bot: %s
 📌 | Version Mini App: 0.1.1
-
-<blockquote>🔹 | این ربات کاملاً رایگان است و توسط تیم میرزا توسعه داده شده است</blockquote>
-
-<blockquote>🔹 | هرگونه فروش یا دریافت وجه بابت این ربات تخلف محسوب می‌شود.</blockquote>
-
-<blockquote>🔹 | در صورت مشاهدهٔ فروش یا دریافت وجه، لطفاً وجه خود را پیگیری کرده و بازپس‌گیری نمایید.</blockquote>
 
 <blockquote>🐞 | اگر در عملکرد ربات با باگ یا مشکلی مواجه شدید، از طریق دکمهٔ **📬 گزارش ربات** در پنل ادمین با ما در ارتباط باشید.</blockquote>',
                         'gatewayRow' => '
@@ -4114,7 +4105,7 @@ f,n.n2',
                 'zarinPalMerchant' => 'مرچنت زرین پال',
                 'zeroBalance' => '0️⃣ صفر کردن موجودی',
                 'panelSetting' => '🎛 تنظیم پنل',
-                'mirzaAgentPanel' => 'نمایندگی میرزا',
+                'mirzaAgentPanel' => 'نمایندگی نوا',
                 'setGroupName' => '🎛 تنظیم نام گروه',
                 'subLinkDomain' => '🔗 دامنه لینک ساب',
                 'panelTypeSanaei' => '3x-ui',
@@ -4202,10 +4193,10 @@ f,n.n2',
                 'jsSidebarCollapsed' => 'منو جمع‌شده فعال شد',
                 'jsSidebarExpanded' => 'منو باز فعال شد',
                 'jsThemeActivated' => 'تم «{name}» فعال شد',
-                'keyboardManageTitle' => 'پنل مدیریت ربات میرزا',
+                'keyboardManageTitle' => 'پنل مدیریت ربات نوا',
                 'keyboardSaveBtn' => 'بازگشت به حالت پیشفرض',
                 'keyboardSortHint' => 'بازگشت به پنل کاربری',
-                'layoutBrandName' => 'پنل مدیریت میرزا بات',
+                'layoutBrandName' => 'پنل مدیریت نوا بات',
                 'layoutDefaultAdminName' => 'ادمین',
                 'layoutFooterCopyright' => 'داشبورد',
                 'layoutFooterLinkDocs' => 'تنظیمات',
@@ -4222,7 +4213,7 @@ f,n.n2',
                 'layoutNavLogout' => 'مدیریت',
                 'layoutNavOrders' => 'بله، ادامه',
                 'layoutNavPayments' => '· پنل',
-                'layoutNavProducts' => 'میرزا',
+                'layoutNavProducts' => 'نوا',
                 'layoutNavServices' => 'انصراف',
                 'layoutNavSettings' => 'داشبورد',
                 'layoutNavUsers' => 'آیا اطمینان دارید؟ این عملیات قابل بازگشت نیست.',
@@ -4235,7 +4226,7 @@ f,n.n2',
                 'layoutPageTitleProduct' => 'محصولات',
                 'layoutPageTitleService' => 'سرویس‌ها',
                 'layoutPageTitleSettings' => 'تنظیمات',
-                'layoutPageTitleSuffix' => 'میرزا',
+                'layoutPageTitleSuffix' => 'نوا',
                 'layoutPageTitleUsers' => 'کاربران',
                 'layoutProfileMenuLabel' => 'تنظیمات',
                 'layoutSearchBoxPlaceholder' => 'تراکنش‌ها',
@@ -4245,11 +4236,11 @@ f,n.n2',
                 'loginEnterCredentials' => 'نام کاربری و رمز عبور را وارد کنید.',
                 'loginErrorTitle' => 'رمز عبور',
                 'loginFooter' => 'نام کاربری',
-                'loginHeading' => 'پنل مدیریت میرزا',
+                'loginHeading' => 'پنل مدیریت نوا',
                 'loginHidePassword' => 'دسترسی به این پنل فقط برای مدیران مجاز است.',
-                'loginPanelTitle' => 'ورود — پنل مدیریت میرزا',
-                'loginPasswordLabel' => 'پنل مدیریت میرزا',
-                'loginPasswordPlaceholder' => '· نسخه 1.0 میرزا',
+                'loginPanelTitle' => 'ورود — پنل مدیریت نوا',
+                'loginPasswordLabel' => 'پنل مدیریت نوا',
+                'loginPasswordPlaceholder' => '· نسخه 1.0 نوا',
                 'loginRememberMe' => 'برای مدیریت ربات، اطلاعات حساب خود را وارد کنید.',
                 'loginShowPassword' => 'ورود به پنل',
                 'loginSubtitle' => 'برای حمایت لطفا به',

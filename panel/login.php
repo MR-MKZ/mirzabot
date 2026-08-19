@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="auth">
     <aside class="auth-aside">
       <div class="auth-mark">
-        <div class="dot">M</div>
+        <div class="dot">N</div>
         <span><?= $textbotlang['panel']['loginHeading'] ?></span>
       </div>
       <div class="auth-quote">

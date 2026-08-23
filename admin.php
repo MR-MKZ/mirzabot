@@ -180,14 +180,21 @@ if (in_array($text, $textadmin) || $datain == "admin") {
     update("user", "Processing_value", $iduser, "id", $from_id);
     step('get_number_limit', $from_id);
 } elseif ($user['step'] == "get_number_limit") {
+    if (!ctype_digit($text)) {
+        sendmessage($from_id, $textbotlang['common']['invalidInput'], $backadmin, 'HTML');
+        return;
+    }
     sendmessage($from_id, $textbotlang['Admin']['getlimitusertest']['setLimit'], $keyboardadmin, 'HTML');
-    $id_user_set = $text;
     step('home', $from_id);
     update("user", "limit_usertest", $text, "id", $user['Processing_value']);
 } elseif ($text == $textbotlang['Admin']['getlimitusertest']['setLimitBtn'] && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['Admin']['getlimitusertest']['limitAll'], $backadmin, 'HTML');
     step('limit_usertest_allusers', $from_id);
 } elseif ($user['step'] == "limit_usertest_allusers") {
+    if (!ctype_digit($text)) {
+        sendmessage($from_id, $textbotlang['common']['invalidInput'], $backadmin, 'HTML');
+        return;
+    }
     sendmessage($from_id, $textbotlang['Admin']['getlimitusertest']['setLimitAll'], $keyboardadmin, 'HTML');
     step('home', $from_id);
     update("user", "limit_usertest", $text);

@@ -672,6 +672,7 @@ if (in_array($text, $textadmin) || $datain == "admin") {
     sendmessage($from_id, $textbotlang['Admin']['managepanel']['addPanelUrl'], $backadmin, 'HTML');
     step('add_link_panel', $from_id);
 } elseif ($user['step'] == "add_link_panel") {
+    $text = normalizePanelUrl($text);
     if (!filter_var($text, FILTER_VALIDATE_URL)) {
         sendmessage($from_id, $textbotlang['Admin']['managepanel']['invalidDomain'], $backadmin, 'HTML');
         return;
@@ -725,7 +726,7 @@ if (in_array($text, $textadmin) || $datain == "admin") {
     $MethodUsername = $textbotlang['keyboard']['numericIdRandom'];
     $status = "active";
     $ONTestAccount = "ONTestAccount";
-    $extendtextadd = $textbotlang['keyboard']['resetVolumeTime'];
+    $extendtextadd = "resetVolumeTime";
     $namecustoms = "none";
     $type = "marzban";
     $conecton = "offconecton";
@@ -3749,6 +3750,7 @@ elseif ($datain == "systemsms") {
     sendmessage($from_id, $textbotlang['Admin']['managepanel']['getUrlNew'], $backadmin, 'HTML');
     step('GeturlNew', $from_id);
 } elseif ($user['step'] == "GeturlNew") {
+    $text = normalizePanelUrl($text);
     if (!filter_var($text, FILTER_VALIDATE_URL)) {
         sendmessage($from_id, $textbotlang['Admin']['managepanel']['invalidDomain'], $backadmin, 'HTML');
         return;
@@ -6130,7 +6132,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         sendmessage($from_id, $textbotlang['Admin']['algorithmExtend']['invalidMethod'], null, 'HTML');
         return;
     }
-    update("marzban_panel", "Methodextend", $text, "name_panel", $user['Processing_value']);
+    update("marzban_panel", "Methodextend", extendMethodKey($text), "name_panel", $user['Processing_value']);
     $typepanel = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
     outtypepanel($typepanel['type'], $textbotlang['Admin']['algorithmExtend']['saveData']);
     step('home', $from_id);

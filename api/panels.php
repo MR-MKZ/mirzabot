@@ -155,7 +155,7 @@ function panel_panel_add(array $data, string $method): void
         $panelData = [
             'code_panel' => bin2hex(random_bytes(3)),
             'name_panel' => $data['name'],
-            'url_panel' => htmlspecialchars_decode((string) $data['url'], ENT_QUOTES),
+            'url_panel' => normalizePanelUrl(htmlspecialchars_decode((string) $data['url'], ENT_QUOTES)),
             'username_panel' => htmlspecialchars_decode((string) $data['username_panel'], ENT_QUOTES),
             'password_panel' => htmlspecialchars_decode((string) $data['password_panel'], ENT_QUOTES),
             'status' => empty($data['status']) ? "active" : $data['status'],
@@ -164,7 +164,7 @@ function panel_panel_add(array $data, string $method): void
             'config' => empty($data['config']) ? "offconfig" : $data['config'],
             'type' => empty($data['type']) ? "marzban" : $data['type'],
             'MethodUsername' => empty($data['MethodUsername']) ? null : $data['MethodUsername'],
-            'Methodextend' => empty($data['Methodextend']) ? null : $data['Methodextend'],
+            'Methodextend' => empty($data['Methodextend']) ? null : extendMethodKey($data['Methodextend']),
             'TestAccount' => empty($data['TestAccount']) ? "ONTestAccount" : $data['TestAccount'],
             'limit_panel' => empty($data['limit_panel']) ? "unlimted" : $data['limit_panel'],
             'namecustom' => empty($data['namecustom']) ? "vpn" : $data['namecustom'],
@@ -255,10 +255,18 @@ function panel_panel_edit(array $data, string $method): void
             sendJsonResponse(false, "nothing to update", [], 200);
         }
 
+        if (isset($panelData['Methodextend'])) {
+            $panelData['Methodextend'] = extendMethodKey($panelData['Methodextend']);
+        }
+
         foreach (['url_panel', 'username_panel', 'password_panel', 'linksubx'] as $rawColumn) {
             if (isset($panelData[$rawColumn]) && is_string($panelData[$rawColumn])) {
                 $panelData[$rawColumn] = htmlspecialchars_decode($panelData[$rawColumn], ENT_QUOTES);
             }
+        }
+
+        if (isset($panelData['url_panel']) && is_string($panelData['url_panel'])) {
+            $panelData['url_panel'] = normalizePanelUrl($panelData['url_panel']);
         }
 
         // Credential changes invalidate the cached panel session.

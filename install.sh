@@ -451,8 +451,9 @@ export -f resolve_php_ver
 # Configure MySQL root login (all output captured by run_step's log).
 setup_mysql_root() {
     sudo mkdir -p /root/confmirza || return 1
+    sudo chmod 700 /root/confmirza || return 1
     touch /root/confmirza/dbrootmirza.txt || return 1
-    sudo chmod -R 777 /root/confmirza/dbrootmirza.txt || return 1
+    sudo chmod 600 /root/confmirza/dbrootmirza.txt || return 1
     local randomdbpasstxt passs userrr RANDOM_NUMBER
     randomdbpasstxt=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
     RANDOM_NUMBER=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | cut -c1-12)
@@ -1516,6 +1517,20 @@ fetch_bot_username() {
 valid_db_ident() { [[ "$1" =~ ^[A-Za-z0-9_]{1,32}$ ]]; }
 valid_db_pass()  { [[ "$1" =~ ^[A-Za-z0-9_]{6,64}$ ]]; }
 
+purge_installer_dir() {
+    local target="$1"
+    [ -z "$target" ] && return 0
+    [ -e "$target/install" ] || return 0
+    rm -rf "$target/install" 2>/dev/null
+    [ -e "$target/install" ] && sudo rm -rf "$target/install" 2>/dev/null
+    if [ -e "$target/install" ]; then
+        printf "    ${C_BAD}●${CR} ${C_BAD}Could not remove the web installer at %s/install.${CR}\n" "$target"
+        printf "    ${C_BAD}●${CR} ${C_BAD}Delete it manually - the bot refuses to answer users while it exists.${CR}\n"
+        return 1
+    fi
+    return 0
+}
+
 # Whole-server pre-flight before installing
 preflight() {
     local ok=1
@@ -1735,9 +1750,11 @@ function install_bot() {
             || { show_step_error; install_pause "Setting PHP ${PHP_VER} as default"; }
 
         echo 'phpmyadmin phpmyadmin/dbconfig-install boolean true' | sudo debconf-set-selections
-        echo 'phpmyadmin phpmyadmin/app-password-confirm password mirzahipass' | sudo debconf-set-selections
-        echo 'phpmyadmin phpmyadmin/mysql/admin-pass password mirzahipass' | sudo debconf-set-selections
-        echo 'phpmyadmin phpmyadmin/mysql/app-pass password mirzahipass' | sudo debconf-set-selections
+        local pma_pass
+        pma_pass=$(openssl rand -base64 18 | tr -dc 'a-zA-Z0-9' | cut -c1-16)
+        echo "phpmyadmin phpmyadmin/app-password-confirm password ${pma_pass}" | sudo debconf-set-selections
+        echo "phpmyadmin phpmyadmin/mysql/admin-pass password ${pma_pass}" | sudo debconf-set-selections
+        echo "phpmyadmin phpmyadmin/mysql/app-pass password ${pma_pass}" | sudo debconf-set-selections
         echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | sudo debconf-set-selections
         run_step "Installing phpMyAdmin" \
             "DEBIAN_FRONTEND=noninteractive apt-get install -y phpmyadmin" \
@@ -1803,10 +1820,12 @@ function install_bot() {
             echo -e "\e[91mError: Extracted source folder not found (bad or empty download).\033[0m"
             install_pause "Locating extracted files"
         fi
+        purge_installer_dir "$EXTRACTED_DIR"
         mv "$EXTRACTED_DIR"/* "$BOT_DIR" || {
             echo -e "\e[91mError: Failed to move extracted files.\033[0m"
             install_pause "Moving bot files"
         }
+        purge_installer_dir "$BOT_DIR"
         rm -rf "$TEMP_DIR"
         sudo chown -R www-data:www-data "$BOT_DIR"
         sudo chmod -R 755 "$BOT_DIR"
@@ -2113,12 +2132,9 @@ EOF
 \$dbname = '$dbname';
 \$usernamedb = '$dbuser';
 \$passworddb = '$dbpass';
-\$connect = mysqli_connect(\$dbhost, \$usernamedb, \$passworddb, \$dbname);
-if (\$connect->connect_error) { die("error" . \$connect->connect_error); }
-mysqli_set_charset(\$connect, "utf8mb4");
-\$options = [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false, ];
+\$options = [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false, PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci", ];
 \$dsn = "mysql:host=\$dbhost;dbname=\$dbname;charset=utf8mb4";
-try { \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options); } catch (\PDOException \$e) { error_log("Database connection failed: " . \$e->getMessage()); }
+try { \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options); } catch (\PDOException \$e) { error_log("Database connection failed: " . \$e->getMessage()); die("error: database connection failed"); }
 \$APIKEY = '${YOUR_BOT_TOKEN}';
 \$adminnumber = '${YOUR_CHAT_ID}';
 \$domainhosts = '${YOUR_DOMAIN}';
@@ -2126,6 +2142,7 @@ try { \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options); } catch (\P
 ?>
 EOF
         sudo chown www-data:www-data /var/www/html/mirzaprobotconfig/config.php 2>/dev/null
+        sudo chmod 640 /var/www/html/mirzaprobotconfig/config.php 2>/dev/null
         mark_phase CONFIG
     else
         secrettoken="$(state_get SECRET)"
@@ -2248,10 +2265,13 @@ function update_bot() {
         exit 1
     }
     sudo mkdir -p "$BOT_DIR"
+    purge_installer_dir "$EXTRACTED_DIR"
+    purge_installer_dir "$BOT_DIR"
     sudo mv "$EXTRACTED_DIR"/* "$BOT_DIR/" || {
         echo -e "\e[91mFile transfer failed!\033[0m"
         exit 1
     }
+    purge_installer_dir "$BOT_DIR"
     if [ -f "$TEMP_CONFIG" ]; then
         sudo mv "$TEMP_CONFIG" "$CONFIG_PATH" || {
             echo -e "\e[91mConfig file restore failed!\033[0m"
@@ -2578,7 +2598,9 @@ function migrate_to_pro() {
         echo -e "\033[31mError: Extracted source folder not found. Aborting migration.\033[0m"
         rm -rf "$TEMP_DIR"; exit 1
     fi
+    purge_installer_dir "$EXTRACTED_DIR"
     mv "$EXTRACTED_DIR"/* "$NEW_BOT_DIR"
+    purge_installer_dir "$NEW_BOT_DIR"
     rm -rf "$TEMP_DIR"
     NEW_SECRET_TOKEN=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
     cat <<EOF > "$NEW_BOT_DIR/config.php"
@@ -2590,12 +2612,9 @@ function migrate_to_pro() {
 \$dbname = '$NEW_DB';
 \$usernamedb = '$NEW_DB_USER';
 \$passworddb = '$NEW_DB_PASS';
-\$connect = mysqli_connect(\$dbhost, \$usernamedb, \$passworddb, \$dbname);
-if (\$connect->connect_error) { die("error" . \$connect->connect_error); }
-mysqli_set_charset(\$connect, "utf8mb4");
-\$options = [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false, ];
+\$options = [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false, PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci", ];
 \$dsn = "mysql:host=\$dbhost;dbname=\$dbname;charset=utf8mb4";
-try { \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options); } catch (\PDOException \$e) { error_log("Database connection failed: " . \$e->getMessage()); }
+try { \$pdo = new PDO(\$dsn, \$usernamedb, \$passworddb, \$options); } catch (\PDOException \$e) { error_log("Database connection failed: " . \$e->getMessage()); die("error: database connection failed"); }
 \$APIKEY = '${OLD_API_KEY}';
 \$adminnumber = '${OLD_ADMIN_ID}';
 \$domainhosts = '${DOMAIN_NAME}';

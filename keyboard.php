@@ -102,7 +102,7 @@ if ($setting['inlinebtnmain'] == "oninline" && !empty($keyboardRows)) {
     }
     $keyboard = ['inline_keyboard' => []];
     $keyboardcustom = $trace_keyboard;
-    $keyboardcustom = json_decode(strtr(strval(json_encode($keyboardcustom)), $replacements), true);
+    $keyboardcustom = applyKeyboardLabels($keyboardcustom, $replacements);
     $keyboardcustom[] = $temp_addtional_key;
     $keyboard['inline_keyboard'] = $keyboardcustom;
     $keyboard = json_encode($keyboard);
@@ -118,7 +118,7 @@ if ($setting['inlinebtnmain'] == "oninline" && !empty($keyboardRows)) {
     }
     $keyboard = ['keyboard' => [], 'resize_keyboard' => true];
     $keyboardcustom = $keyboardRows;
-    $keyboardcustom = json_decode(strtr(strval(json_encode($keyboardcustom)), $replacements), true);
+    $keyboardcustom = applyKeyboardLabels($keyboardcustom, $replacements);
     $keyboardcustom[] = $temp_addtional_key;
     $keyboard['keyboard'] = $keyboardcustom;
     $keyboard = json_encode($keyboard);
@@ -1148,7 +1148,7 @@ $keyboardtypepanel = json_encode([
     ],
 ]);
 
-$panelechekc = select("marzban_panel", "*", "MethodUsername", $textbotlang['keyboard']['usernameMethodAgentCustom'], "count");
+$panelechekc = select("marzban_panel", "*", "MethodUsername", "agentCustomTextSequential", "count");
 if ($setting['inlinebtnmain'] == "oninline") {
     $keyboardagent = [
         'inline_keyboard' => [
@@ -1308,13 +1308,13 @@ $keyboardlinkapp = json_encode([
     ],
     'resize_keyboard' => true
 ]);
-function KeyboardProduct($location, $query, $pricediscount, $datakeyboard, $statuscustom = false, $backuser = "backuser", $valuetow = null, $customvolume = "customsellvolume")
+function KeyboardProduct($location, $query, $pricediscount, $datakeyboard, $statuscustom = false, $backuser = "backuser", $valuetow = null, $customvolume = "customsellvolume", $queryParams = [])
 {
     global $pdo, $textbotlang, $from_id;
     $product = ['inline_keyboard' => []];
     $statusshowprice = select("shopSetting", "*", "Namevalue", "statusshowprice", "select")['value'];
     $stmt = $pdo->prepare($query);
-    $stmt->execute();
+    $stmt->execute($queryParams);
     if ($valuetow != null) {
         $valuetow = "-$valuetow";
     } else {

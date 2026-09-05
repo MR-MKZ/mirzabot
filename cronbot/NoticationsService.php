@@ -1,11 +1,7 @@
 <?php
-ini_set('error_log', 'error_log');
-date_default_timezone_set('Asia/Tehran');
-
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../botapi.php';
-require_once __DIR__ . '/../panels.php';
-require_once __DIR__ . '/../function.php';
+ini_set('error_log', __DIR__ . '/error_log');
+require_once __DIR__ . '/bootstrap.php';
+if (!class_exists('ServiceMonitor', false)) {
 class ServiceMonitor
 {
     private $Panel;
@@ -280,7 +276,7 @@ class ServiceMonitor
         update("invoice", "notifctions", $data, "id_invoice", $invoice['id_invoice']);
     }
 }
+}
 
-// Execute the volume monitoring
 $volumeMonitor = new ServiceMonitor();
 $volumeMonitor->RunNotifactions();

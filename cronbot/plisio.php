@@ -1,15 +1,11 @@
 <?php
-ini_set('error_log', 'error_log');
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../botapi.php';
-require_once __DIR__ . '/../panels.php';
-require_once __DIR__ . '/../function.php';
-require_once __DIR__ . '/../jdf.php';
-require __DIR__ . '/../vendor/autoload.php';
+ini_set('error_log', __DIR__ . '/error_log');
+require_once __DIR__ . '/bootstrap.php';
 $ManagePanel = new ManagePanel();
 $setting = select("setting", "*");
 $paymentreports = select("topicid", "idreport", "report", "paymentreport", "select")['idreport'];
 
+if (!function_exists('statusplisio')) {
 function statusplisio($tx_id)
 {
     $api_key = getPaySettingValue('apinowpayment');
@@ -25,6 +21,8 @@ function statusplisio($tx_id)
     }
     return json_decode($response, true);
 }
+}
+
 $list_service = $pdo->prepare("SELECT * FROM Payment_report WHERE payment_Status = 'Unpaid' AND Payment_Method = 'plisio'");
 $list_service->execute();
 $textbotlang = languagechange();

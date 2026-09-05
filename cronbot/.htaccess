@@ -10,3 +10,6 @@
 <Files "*.zip">
     Require all denied
 </Files>
+<Files ".run.lock">
+    Require all denied
+</Files>

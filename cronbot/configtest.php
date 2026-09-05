@@ -1,9 +1,5 @@
 <?php
-date_default_timezone_set('Asia/Tehran');
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../botapi.php';
-require_once __DIR__ . '/../panels.php';
-require_once __DIR__ . '/../function.php';
+require_once __DIR__ . '/bootstrap.php';
 $ManagePanel = new ManagePanel();
 $textbotlang = languagechange();
         $stmt = $pdo->prepare("SELECT * FROM invoice WHERE status != 'disabled' AND name_product = :mp1 ORDER BY RAND() LIMIT 15");

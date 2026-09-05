@@ -1689,8 +1689,29 @@ function addCronIfNotExists($cronCommand)
         return true;
     }
 
-    $cronLines = array_values(array_unique($cronLines));
-    $cronContent = implode(PHP_EOL, $cronLines) . PHP_EOL;
+    return writeCrontabLines($cronLines, $logContext);
+}
+
+/**
+ * Persist crontab lines for the current crontab user.
+ */
+function writeCrontabLines(array $cronLines, string $logContext = ''): bool
+{
+    if (!isShellExecAvailable()) {
+        error_log('shell_exec is not available; unable to write cron job(s): ' . $logContext);
+        return false;
+    }
+
+    $crontabBinary = getCrontabBinary();
+    if ($crontabBinary === null) {
+        error_log('crontab executable not found; unable to write cron job(s): ' . $logContext);
+        return false;
+    }
+
+    $cronLines = array_values(array_unique(array_filter(array_map('trim', $cronLines), static function ($line) {
+        return $line !== '';
+    })));
+    $cronContent = $cronLines === [] ? '' : (implode(PHP_EOL, $cronLines) . PHP_EOL);
 
     $temporaryFile = tempnam(sys_get_temp_dir(), 'cron');
     if ($temporaryFile === false) {
@@ -1721,30 +1742,77 @@ function addCronIfNotExists($cronCommand)
     return true;
 }
 
+/**
+ * Read current crontab lines (non-comment).
+ */
+function readCrontabLines(): ?array
+{
+    if (!isShellExecAvailable()) {
+        return null;
+    }
+
+    $crontabBinary = getCrontabBinary();
+    if ($crontabBinary === null) {
+        return null;
+    }
+
+    $existingCronJobs = runShellCommand(sprintf('%s -l 2>/dev/null', escapeshellarg($crontabBinary)));
+    $existingCronJobs = trim((string) $existingCronJobs);
+    if ($existingCronJobs === '' || stripos($existingCronJobs, 'no crontab') !== false) {
+        return [];
+    }
+
+    $cronLines = preg_split('/\r?\n/', $existingCronJobs);
+    return array_values(array_filter(array_map('trim', $cronLines), static function ($line) {
+        return $line !== '' && strpos($line, '#') !== 0;
+    }));
+}
+
+function syncBotCronDispatcher(string $domainhosts): bool
+{
+    require_once __DIR__ . '/cronbot/jobs.php';
+
+    $dispatcherCommand = mirza_cron_dispatcher_command();
+    $dispatcherPath = mirza_cron_dispatcher_path();
+    $cronbotDir = dirname($dispatcherPath);
+    $domainNeedle = $domainhosts . '/cronbot/';
+
+    $cronLines = readCrontabLines();
+    if ($cronLines === null) {
+        return false;
+    }
+
+    $filtered = [];
+    foreach ($cronLines as $line) {
+        if (strpos($line, $domainNeedle) !== false) {
+            continue;
+        }
+        if (strpos($line, $dispatcherPath) !== false || strpos($line, $cronbotDir . '/') !== false) {
+            continue;
+        }
+        $filtered[] = $line;
+    }
+
+    if (!in_array($dispatcherCommand, $filtered, true)) {
+        $filtered[] = $dispatcherCommand;
+    }
+
+    if ($filtered === $cronLines) {
+        return true;
+    }
+
+    return writeCrontabLines($filtered, $dispatcherCommand);
+}
+
 function activecron()
 {
     global $domainhosts;
 
-    $cronCommands = [
-        "*/15 * * * * curl https://$domainhosts/cronbot/statusday.php",
-        "*/1 * * * * curl https://$domainhosts/cronbot/croncard.php",
-        "*/1 * * * * curl https://$domainhosts/cronbot/NoticationsService.php",
-        "*/5 * * * * curl https://$domainhosts/cronbot/payment_expire.php",
-        "*/1 * * * * curl https://$domainhosts/cronbot/sendmessage.php",
-        "*/3 * * * * curl https://$domainhosts/cronbot/plisio.php",
-        "*/1 * * * * curl https://$domainhosts/cronbot/activeconfig.php",
-        "*/1 * * * * curl https://$domainhosts/cronbot/disableconfig.php",
-        "*/1 * * * * curl https://$domainhosts/cronbot/iranpay1.php",
-        "0 */5 * * * curl https://$domainhosts/cronbot/backupbot.php",
-        "*/2 * * * * curl https://$domainhosts/cronbot/gift.php",
-        "*/30 * * * * curl https://$domainhosts/cronbot/expireagent.php",
-        "*/15 * * * * curl https://$domainhosts/cronbot/on_hold.php",
-        "*/2 * * * * curl https://$domainhosts/cronbot/configtest.php",
-        "*/15 * * * * curl https://$domainhosts/cronbot/uptime_node.php",
-        "*/15 * * * * curl https://$domainhosts/cronbot/uptime_panel.php",
-    ];
+    if (!is_string($domainhosts) || $domainhosts === '') {
+        return;
+    }
 
-    addCronIfNotExists($cronCommands);
+    syncBotCronDispatcher($domainhosts);
 }
 function createInvoice($amount)
 {

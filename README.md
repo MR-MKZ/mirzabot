@@ -129,7 +129,7 @@ Mirza Bot integrates with the most popular VPN and network management panels:
 - ✅ Full text/message customization from the bot
 - ✅ Configurable username-generation methods
 - ✅ Automatic backups
-- ✅ Notification & expiry-reminder services (cron)
+- ✅ Notification & expiry-reminder services (cron via PHP CLI)
 - ✅ On-hold configurations
 
 ---

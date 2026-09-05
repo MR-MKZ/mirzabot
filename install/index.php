@@ -1458,7 +1458,7 @@ $host = mirza_install_host();
 
             let cronPlan = null;
             const confirmedJobs = new Set();
-            let cronTab = 'curl';
+            let cronTab = 'php';
 
             async function renderCronStep() {
                 if (!cronPlan) {
@@ -1495,9 +1495,9 @@ $host = mirza_install_host();
                 const canContinue = probe.verified && missing.length === 0;
 
                 card.innerHTML = '<h2>ثبت دستی کرون‌ها</h2>'
-                    + '<p class="lead">روی هاست اشتراکی دسترسی shell_exec وجود ندارد، پس کرون‌ها باید از بخش Cron Jobs کنترل پنل هاست (cPanel / DirectAdmin / Plesk / DirectSlave) دستی ثبت شوند. بدون این کرون‌ها فعال‌سازی سرویس، ارسال پیام و پیگیری پرداخت‌ها کار نمی‌کند.</p>'
-                    + '<div class="tabs"><button class="' + (cronTab === 'curl' ? 'active' : '') + '" id="tabCurl">فراخوانی با curl</button>'
-                    + '<button class="' + (cronTab === 'php' ? 'active' : '') + '" id="tabPhp">اجرای مستقیم PHP</button></div>'
+                    + '<p class="lead">روی هاست اشتراکی دسترسی shell_exec وجود ندارد، پس کرون باید از بخش Cron Jobs کنترل پنل هاست (cPanel / DirectAdmin / Plesk / DirectSlave) دستی ثبت شود. فقط <b>یک خط</b> لازم است؛ همان خط همهٔ کارهای زمان‌بندی‌شده را اجرا می‌کند.</p>'
+                    + '<div class="tabs"><button class="' + (cronTab === 'php' ? 'active' : '') + '" id="tabPhp">اجرای مستقیم PHP (پیشنهادی)</button>'
+                    + '<button class="' + (cronTab === 'curl' ? 'active' : '') + '" id="tabCurl">فراخوانی با curl</button></div>'
                     + '<div class="group-title">۱. تست اجرای کرون روی هاست</div>'
                     + '<p class="lead">این یک خط <b>موقت</b> است و فقط برای اثبات فعال بودن کرون هاست استفاده می‌شود. بعد از پایان نصب آن را از کنترل پنل حذف کنید.</p>'
                     + '<pre class="cmd" id="probeBox">' + escapeHtml(cronTab === 'curl' ? probe.command_curl : probe.command_php) + '</pre>'
@@ -1510,10 +1510,10 @@ $host = mirza_install_host();
                     + '<div class="actions" style="margin:10px 0 0"><div class="left">'
                     + '<button id="copyProbe">کپی دستور تست</button><button id="resetProbe">شروع دوباره تست</button>'
                     + '</div><div class="right"></div></div>'
-                    + '<div class="group-title">۲. کرون‌های اصلی ربات</div>'
-                    + '<p class="lead">هر خط را در کنترل پنل ثبت کنید و بعد تیک کنارش را بزنید. تا وقتی همه کرون‌های اجباری تیک نخورند، ادامه ممکن نیست. این کرون‌ها تا پایان نصب و حذف شدن پوشه install پاسخی نمی‌گیرند و از همان لحظه به بعد شروع به کار می‌کنند.</p>'
+                    + '<div class="group-title">۲. کرون اصلی ربات (یک خط)</div>'
+                    + '<p class="lead">همین یک دستور را در کنترل پنل ثبت کنید و تیک بزنید. ترجیحاً تب PHP را استفاده کنید؛ curl فقط وقتی CLI در دسترس نیست.</p>'
                     + '<div class="actions" style="margin:0 0 12px"><div class="left">'
-                    + '<button id="copyAll">کپی همه دستورها</button><button id="checkAll">تیک همه</button>'
+                    + '<button id="copyAll">کپی دستور</button><button id="checkAll">تیک تأیید</button>'
                     + '</div><div class="right"></div></div>'
                     + jobs.map(jobRow).join('')
                     + '<pre class="cmd" id="allBox" style="display:none">' + escapeHtml(allCommands) + '</pre>'
@@ -1559,6 +1559,7 @@ $host = mirza_install_host();
                     + '<div class="body">'
                     + '<div class="line"><span class="label">' + escapeHtml(job.title) + '</span>'
                     + (job.optional ? '<span class="value">اختیاری</span>' : '') + '</div>'
+                    + (job.hint ? '<div class="hint">' + escapeHtml(job.hint) + '</div>' : '')
                     + '<div class="hint" style="direction:ltr;text-align:left;font-family:var(--mono);font-size:11.5px">'
                     + escapeHtml(commandOf(job)) + '</div></div>'
                     + '<button id="cpy_' + job.job + '" style="padding:5px 11px;font-size:11.5px">کپی</button></div>';

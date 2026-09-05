@@ -1,17 +1,11 @@
 <?php
-ini_set('error_log', 'error_log');
-date_default_timezone_set('Asia/Tehran');
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../botapi.php';
-require_once __DIR__ . '/../function.php';
-require __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../jdf.php';
-
+ini_set('error_log', __DIR__ . '/error_log');
+require_once __DIR__ . '/bootstrap.php';
 $setting = select("setting", "*");
 
 if (!$setting || !isset($setting['scorestatus'])) {
     error_log("Setting data is missing or incomplete.");
-    exit;
+    return;
 }
 
 $midnight_time = date("H:i");
@@ -25,7 +19,7 @@ if (intval($setting['scorestatus']) == 1) {
 
         if (!is_array($Lottery_prize)) {
             error_log("Lottery_prize is not a valid JSON array.");
-            exit;
+            return;
         }
 
         foreach ($Lottery_prize as $lottery) {
@@ -47,7 +41,7 @@ if (intval($setting['scorestatus']) == 1) {
         $textJson = languagechange();
         if (!is_array($textJson)) {
             error_log("Language file (lang/fa.php) could not be loaded.");
-            exit;
+            return;
         }
         $textlotterygroup = $textJson['Admin']['report']['lotteryTitle'];
 

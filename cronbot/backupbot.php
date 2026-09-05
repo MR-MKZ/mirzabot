@@ -1,15 +1,13 @@
 <?php
-require_once '../config.php';
-require_once '../function.php';
+require_once __DIR__ . '/bootstrap.php';
 $textbotlang = languagechange();
-require_once '../botapi.php';
 
 if (!isShellExecAvailable() || !isExecAvailable()) {
     return;
 }
 
 $reportbackup = select("topicid", "idreport", "report", "backupfile", "select")['idreport'];
-$destination = getcwd();
+$destination = __DIR__;
 $setting = select("setting", "*");
 $canSendReport = !isTelegramChatIdEmpty($setting['Channel_Report'] ?? '');
 $sourcefir = dirname($destination);
@@ -21,15 +19,15 @@ if ($botlist && $canSendReport) {
         telegram('sendDocument', [
             'chat_id' => $setting['Channel_Report'],
             'message_thread_id' => $reportbackup,
-            'document' => new CURLFile('file.zip'),
+            'document' => new CURLFile(__DIR__ . '/file.zip'),
             'caption' => "@{$bot['username']} | {$bot['id_user']}",
         ]);
-        unlink('file.zip');
+        unlink(__DIR__ . '/file.zip');
     }
 }
 
-$backup_file_name = 'backup_' . date("Y-m-d") . '.sql';
-$zip_file_name = 'backup_' . date("Y-m-d") . '.zip';
+$backup_file_name = __DIR__ . '/backup_' . date("Y-m-d") . '.sql';
+$zip_file_name = __DIR__ . '/backup_' . date("Y-m-d") . '.zip';
 $dbhost = empty($dbhost) ? "localhost" : $dbhost;
 $command = "mysqldump -h $dbhost -u $usernamedb -p'$passworddb' --no-tablespaces --ssl-mode=DISABLED $dbname > $backup_file_name";
 

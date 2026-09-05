@@ -1537,25 +1537,44 @@ purge_installer_dir() {
 # vpnbot instance dirs (not Default/update). update_bot wipes BOT_DIR.
 VPNBOT_BACKUP="/tmp/mirza_vpnbot_backup"
 
+vpnbot_instance_count() {
+    local dir="$1" n=0 d
+    [ -d "$dir" ] || { echo 0; return 0; }
+    for d in "$dir"/*; do
+        [ -d "$d" ] || continue
+        case "$(basename "$d")" in Default|update) continue ;; esac
+        n=$((n + 1))
+    done
+    echo "$n"
+}
+export -f vpnbot_instance_count
+
 backup_vpnbots() {
-    local bot_dir="$1" src="$bot_dir/vpnbot" d name
+    local bot_dir="$1"
+    local src="$bot_dir/vpnbot"
+    local d name count=0
     mkdir -p "$VPNBOT_BACKUP" || return 1
-    [ -d "$src" ] || return 0
+    [ -d "$src" ] || { echo "Backed up 0 vpnbot(s)"; return 0; }
     for d in "$src"/*; do
         [ -d "$d" ] || continue
         name=$(basename "$d")
         case "$name" in Default|update) continue ;; esac
         rm -rf "$VPNBOT_BACKUP/$name"
         cp -a "$d" "$VPNBOT_BACKUP/$name" || return 1
+        count=$((count + 1))
     done
+    echo "Backed up $count vpnbot(s)"
     return 0
 }
 export -f backup_vpnbots
 export VPNBOT_BACKUP
 
 restore_vpnbots() {
-    local bot_dir="$1" dest="$bot_dir/vpnbot" update_dir="$bot_dir/vpnbot/update" d name
-    [ -d "$VPNBOT_BACKUP" ] || return 0
+    local bot_dir="$1"
+    local dest="$bot_dir/vpnbot"
+    local update_dir="$bot_dir/vpnbot/update"
+    local d name count=0
+    [ -d "$VPNBOT_BACKUP" ] || { echo "No vpnbot backup to restore"; return 0; }
     mkdir -p "$dest" || return 1
     shopt -s nullglob
     for d in "$VPNBOT_BACKUP"/*; do
@@ -1569,9 +1588,10 @@ restore_vpnbots() {
                 ! -name config.php ! -name product.json ! -name product_name.json ! -name data \
                 -exec cp -a {} "$dest/$name/" \;
         fi
+        count=$((count + 1))
     done
     shopt -u nullglob
-    rm -rf "$VPNBOT_BACKUP"
+    echo "Restored $count vpnbot(s)"
     return 0
 }
 export -f restore_vpnbots
@@ -2334,6 +2354,12 @@ function update_bot() {
         || { show_step_error
              echo -e "\e[91mError: Failed to backup vpnbots.\033[0m"
              rm -rf "$TEMP_DIR"; sleep 2; show_menu; return 1; }
+    _vpnbot_live=$(vpnbot_instance_count "$BOT_DIR/vpnbot")
+    _vpnbot_bak=$(vpnbot_instance_count "$VPNBOT_BACKUP")
+    if [ "$_vpnbot_live" -gt 0 ] && [ "$_vpnbot_bak" -lt "$_vpnbot_live" ]; then
+        echo -e "\e[91mError: vpnbot backup incomplete ($_vpnbot_bak/$_vpnbot_live). Update aborted.\033[0m"
+        rm -rf "$TEMP_DIR"; sleep 2; show_menu; return 1
+    fi
     sudo rm -rf "$BOT_DIR" || {
         echo -e "\e[91mFailed to remove old bot files!\033[0m"
         echo -e "\e[93mvpnbot backup: ${VPNBOT_BACKUP}\033[0m"
@@ -2358,6 +2384,12 @@ function update_bot() {
     run_step "Restoring vpnbots" "restore_vpnbots '$BOT_DIR'" \
         || { show_step_error
              echo -e "\e[91mError: Failed to restore vpnbots. Backup: ${VPNBOT_BACKUP}\033[0m"; }
+    _vpnbot_restored=$(vpnbot_instance_count "$BOT_DIR/vpnbot")
+    if [ "$_vpnbot_bak" -gt 0 ] && [ "$_vpnbot_restored" -lt "$_vpnbot_bak" ]; then
+        echo -e "\e[91mError: vpnbot restore incomplete ($_vpnbot_restored/$_vpnbot_bak). Backup kept at ${VPNBOT_BACKUP}\033[0m"
+    else
+        rm -rf "$VPNBOT_BACKUP"
+    fi
     if [ -f "$BOT_DIR/install.sh" ]; then
         sed -i 's/\r$//' "$BOT_DIR/install.sh"
         if bash -n "$BOT_DIR/install.sh" 2>/dev/null; then

@@ -4681,7 +4681,7 @@ if ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $data
     step('get_step_payment', $from_id);
 } elseif ($user['step'] == "get_step_payment") {
     if ($datain == "cart_to_offline") {
-        $checkpay = $pdo->prepare("SELECT * FROM Payment_report WHERE id_user = :user_id AND payment_Status = 'Unpaid'");
+        $checkpay = $pdo->prepare("SELECT * FROM Payment_report WHERE id_user = :user_id AND payment_Status = 'waiting'");
         $checkpay->bindValue(':user_id', $from_id, PDO::PARAM_STR);
         $checkpay->execute();
         if (($checkpay)->rowCount() != 0) {

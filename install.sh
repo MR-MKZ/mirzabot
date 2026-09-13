@@ -1534,6 +1534,12 @@ purge_installer_dir() {
     return 0
 }
 
+move_extracted_files() {
+    local src="$1" dest="$2"
+    [ -d "$src" ] && [ -d "$dest" ] || return 1
+    find "$src" -mindepth 1 -maxdepth 1 -exec mv -f -t "$dest/" {} +
+}
+
 # vpnbot instance dirs (not Default/update). update_bot wipes BOT_DIR.
 VPNBOT_BACKUP="/tmp/mirza_vpnbot_backup"
 
@@ -1599,7 +1605,7 @@ export -f restore_vpnbots
 set_vpnbot_webhooks() {
     local config="$1"
     [ -f "$config" ] || return 0
-    local dbhost dbname dbuser dbpass domain rows id user token fail=0
+    local dbhost dbname dbuser dbpass domain rows id user token secret hook_url fail=0
     dbhost=$(grep '^\$dbhost' "$config" | cut -d"'" -f2)
     dbname=$(grep '^\$dbname' "$config" | cut -d"'" -f2)
     dbuser=$(grep '^\$usernamedb' "$config" | cut -d"'" -f2)
@@ -1609,12 +1615,23 @@ set_vpnbot_webhooks() {
     [ -n "$dbname" ] && [ -n "$dbuser" ] && [ -n "$domain" ] || return 0
     command -v mysql >/dev/null 2>&1 || return 0
     rows=$(mysql -h "$dbhost" -u "$dbuser" -p"$dbpass" -N -B \
-        -e "SELECT id_user, username, bot_token FROM botsaz;" "$dbname" 2>/dev/null) || return 0
+        -e "SELECT id_user, username, bot_token, IFNULL(webhook_secret, '') FROM botsaz;" "$dbname" 2>/dev/null) \
+        || rows=$(mysql -h "$dbhost" -u "$dbuser" -p"$dbpass" -N -B \
+            -e "SELECT id_user, username, bot_token, '' FROM botsaz;" "$dbname" 2>/dev/null) \
+        || return 0
     [ -n "$rows" ] || return 0
-    while IFS=$'\t' read -r id user token; do
+    while IFS=$'\t' read -r id user token secret; do
         [ -n "$id" ] && [ -n "$user" ] && [ -n "$token" ] || continue
+        if [ -z "$secret" ] || [ "$secret" = "NULL" ]; then
+            secret=$(openssl rand -hex 24)
+            mysql -h "$dbhost" -u "$dbuser" -p"$dbpass" \
+                -e "UPDATE botsaz SET webhook_secret = '$secret' WHERE bot_token = '$token';" "$dbname" >/dev/null 2>&1 \
+                || secret=""
+        fi
+        hook_url="https://${domain}/vpnbot/${id}${user}/index.php"
+        [ -n "$secret" ] && hook_url="${hook_url}?secret=${secret}"
         curl -s --max-time 15 -o /dev/null \
-            -F "url=https://${domain}/vpnbot/${id}${user}/index.php" \
+            -F "url=${hook_url}" \
             "https://api.telegram.org/bot${token}/setWebhook" || fail=$((fail + 1))
     done <<< "$rows"
     [ "$fail" -eq 0 ]
@@ -1911,7 +1928,7 @@ function install_bot() {
             install_pause "Locating extracted files"
         fi
         purge_installer_dir "$EXTRACTED_DIR"
-        mv "$EXTRACTED_DIR"/* "$BOT_DIR" || {
+        move_extracted_files "$EXTRACTED_DIR" "$BOT_DIR" || {
             echo -e "\e[91mError: Failed to move extracted files.\033[0m"
             install_pause "Moving bot files"
         }
@@ -2208,11 +2225,6 @@ EOF
             }
         fi
         sleep 1
-        secrettoken="$(state_get SECRET)"
-        if [ -z "$secrettoken" ]; then
-            secrettoken=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
-            state_set SECRET "$secrettoken"
-        fi
         cat <<EOF > /var/www/html/mirzaprobotconfig/config.php
 <?php
 // This variable added for high load panels which their response time is long and bot can't communicate with online panel!
@@ -2235,7 +2247,6 @@ EOF
         sudo chmod 640 /var/www/html/mirzaprobotconfig/config.php 2>/dev/null
         mark_phase CONFIG
     else
-        secrettoken="$(state_get SECRET)"
         echo -e "  ${C_OK}●${CR} ${C_DIM}config.php already written - skipping.${CR}"
     fi
     # ╰─────────────────────────────────────────────────────────────╯
@@ -2244,7 +2255,7 @@ EOF
     if ! phase_done WEBHOOK; then
         sleep 1
         run_step "Setting Telegram webhook" \
-            "curl -s -F \"url=https://${YOUR_DOMAIN}/index.php\" -F \"secret_token=${secrettoken}\" \"https://api.telegram.org/bot${YOUR_BOT_TOKEN}/setWebhook\"" \
+            "curl -s -F \"url=https://${YOUR_DOMAIN}/index.php\" \"https://api.telegram.org/bot${YOUR_BOT_TOKEN}/setWebhook\"" \
             || { show_step_error; install_pause "Setting Telegram webhook"; }
 
         MESSAGE="✅ The Mirza bot is installed! for start the bot send /start command."
@@ -2350,6 +2361,9 @@ function update_bot() {
     else
         echo -e "\e[93mWarning: config.php not found. Proceeding without backup.\033[0m"
     fi
+    LANG_OVERRIDE_BACKUP="/root/mirzapro_lang_override_backup"
+    rm -rf "$LANG_OVERRIDE_BACKUP"
+    [ -d "$BOT_DIR/lang/override" ] && cp -a "$BOT_DIR/lang/override" "$LANG_OVERRIDE_BACKUP"
     run_step "Backing up vpnbots" "backup_vpnbots '$BOT_DIR'" \
         || { show_step_error
              echo -e "\e[91mError: Failed to backup vpnbots.\033[0m"
@@ -2368,7 +2382,7 @@ function update_bot() {
     sudo mkdir -p "$BOT_DIR"
     purge_installer_dir "$EXTRACTED_DIR"
     purge_installer_dir "$BOT_DIR"
-    sudo mv "$EXTRACTED_DIR"/* "$BOT_DIR/" || {
+    move_extracted_files "$EXTRACTED_DIR" "$BOT_DIR" || {
         echo -e "\e[91mFile transfer failed!\033[0m"
         echo -e "\e[93mvpnbot backup: ${VPNBOT_BACKUP}\033[0m"
         exit 1
@@ -2380,6 +2394,10 @@ function update_bot() {
             echo -e "\e[93mvpnbot backup: ${VPNBOT_BACKUP}\033[0m"
             exit 1
         }
+    fi
+    if [ -d "$LANG_OVERRIDE_BACKUP" ]; then
+        sudo rm -rf "$BOT_DIR/lang/override"
+        sudo mv "$LANG_OVERRIDE_BACKUP" "$BOT_DIR/lang/override"
     fi
     run_step "Restoring vpnbots" "restore_vpnbots '$BOT_DIR'" \
         || { show_step_error
@@ -2713,10 +2731,9 @@ function migrate_to_pro() {
         rm -rf "$TEMP_DIR"; exit 1
     fi
     purge_installer_dir "$EXTRACTED_DIR"
-    mv "$EXTRACTED_DIR"/* "$NEW_BOT_DIR"
+    move_extracted_files "$EXTRACTED_DIR" "$NEW_BOT_DIR"
     purge_installer_dir "$NEW_BOT_DIR"
     rm -rf "$TEMP_DIR"
-    NEW_SECRET_TOKEN=$(openssl rand -base64 10 | tr -dc 'a-zA-Z0-9' | cut -c1-8)
     cat <<EOF > "$NEW_BOT_DIR/config.php"
 <?php
 // This variable added for high load panels which their response time is long and bot can't communicate with online panel!
@@ -2784,7 +2801,6 @@ EOF
     systemctl restart apache2
     echo -e "\033[33mUpdating Webhook and Tables...\033[0m"
     curl -F "url=https://${DOMAIN_NAME}/index.php" \
-         -F "secret_token=${NEW_SECRET_TOKEN}" \
          "https://api.telegram.org/bot${OLD_API_KEY}/setWebhook"
     sleep 2
     curl -k "https://${DOMAIN_NAME}/table.php" > /dev/null 2>&1

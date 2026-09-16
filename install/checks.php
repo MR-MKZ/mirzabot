@@ -969,20 +969,6 @@ function mirza_install_cron_jobs(): array
     return mirza_cron_jobs();
 }
 
-function mirza_install_cron_command(array $job): string
-{
-    require_once mirza_install_root() . '/cronbot/jobs.php';
-
-    return mirza_cron_dispatcher_curl_command(mirza_install_base_url());
-}
-
-function mirza_install_cron_command_php(array $job): string
-{
-    require_once mirza_install_root() . '/cronbot/jobs.php';
-
-    return mirza_cron_dispatcher_command(mirza_install_base_url());
-}
-
 function mirza_install_probe_command(): string
 {
     return '*/1 * * * * curl -s ' . mirza_install_base_url() . '/install/cron-check.php > /dev/null 2>&1';

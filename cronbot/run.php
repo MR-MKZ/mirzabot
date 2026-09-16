@@ -18,7 +18,7 @@ if (!flock($lockFh, LOCK_EX | LOCK_NB)) {
     exit(0);
 }
 
-$slot = mirza_cron_try_host_slot(3, 2);
+$slotFh = mirza_cron_try_host_slot(3, 2);
 $scorestatus = null;
 
 try {
@@ -51,15 +51,13 @@ try {
         }
     }
 } finally {
-    mirza_cron_release_host_slot($slot);
+    mirza_cron_release_host_slot($slotFh);
     flock($lockFh, LOCK_UN);
     fclose($lockFh);
 }
 
-/**
- * @return array{fh: resource, path: string}|null
- */
-function mirza_cron_try_host_slot(int $maxSlots, int $waitSeconds): ?array
+/** @return resource|null */
+function mirza_cron_try_host_slot(int $maxSlots, int $waitSeconds)
 {
     $dir = '/tmp/mirza-cron-slots';
     if ((!is_dir($dir) && !@mkdir($dir, 0777, true) && !is_dir($dir)) || !is_writable($dir)) {
@@ -75,7 +73,7 @@ function mirza_cron_try_host_slot(int $maxSlots, int $waitSeconds): ?array
                 continue;
             }
             if (flock($fh, LOCK_EX | LOCK_NB)) {
-                return ['fh' => $fh, 'path' => $path];
+                return $fh;
             }
             fclose($fh);
         }
@@ -85,16 +83,14 @@ function mirza_cron_try_host_slot(int $maxSlots, int $waitSeconds): ?array
     return null;
 }
 
-/**
- * @param array{fh: resource, path: string}|null $slot
- */
-function mirza_cron_release_host_slot(?array $slot): void
+/** @param resource|null $slotFh */
+function mirza_cron_release_host_slot($slotFh): void
 {
-    if ($slot === null || !isset($slot['fh']) || !is_resource($slot['fh'])) {
+    if ($slotFh === null || !is_resource($slotFh)) {
         return;
     }
-    flock($slot['fh'], LOCK_UN);
-    fclose($slot['fh']);
+    flock($slotFh, LOCK_UN);
+    fclose($slotFh);
 }
 
 function mirza_cron_is_due(string $expression, ?DateTimeInterface $now = null): bool
@@ -114,10 +110,10 @@ function mirza_cron_is_due(string $expression, ?DateTimeInterface $now = null): 
         (int) $now->format('w'),
     ];
     $fields = [$minute, $hour, $day, $month, $weekday];
-    $ranges = [[0, 59], [0, 23], [1, 31], [1, 12], [0, 6]];
+    $mins = [0, 0, 1, 1, 0];
 
     for ($i = 0; $i < 5; $i++) {
-        if (!mirza_cron_field_matches($fields[$i], $values[$i], $ranges[$i][0], $ranges[$i][1])) {
+        if (!mirza_cron_field_matches($fields[$i], $values[$i], $mins[$i])) {
             return false;
         }
     }
@@ -125,7 +121,7 @@ function mirza_cron_is_due(string $expression, ?DateTimeInterface $now = null): 
     return true;
 }
 
-function mirza_cron_field_matches(string $field, int $value, int $min, int $max): bool
+function mirza_cron_field_matches(string $field, int $value, int $min): bool
 {
     foreach (explode(',', $field) as $piece) {
         $piece = trim($piece);

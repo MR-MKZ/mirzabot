@@ -254,6 +254,8 @@ return [
                         'waiting' => 'در انتظار تایید پرداخت',
                         'zarinpal' => '❌ خطا 
     کمترین مبلغ برای  پرداخت در این درگاه 5000 تومان می باشد.',
+                        'variza' => '❌ خطا 
+    کمترین مبلغ برای  پرداخت در این درگاه 5000 تومان می باشد.',
                         'cardEnabledNotice' => '💳 کاربر عزیز شماره کارت برای شما فعال شد هم اکنون می توانید خرید خود را انجام دهید.',
                         'cardInstructionAlt' => 'جهت پرداخت مبلغ را به شماره کارت زیر واریز نمایید',
                         'giftDepositAlt' => '🎁 کاربر عزیز مبلغ %s تومان به عنوان هدیه واریز به حساب شما واریز گردید.',
@@ -414,6 +416,14 @@ return [
 ❌ پس از تراکنش 15 تا یک ساعت زمان میبرد تا تراکنش تایید شود
 
 ✅ در صورت مشکل میتوانید با پشتیبانی در ارتباط باشید',
+                        'cubepayCardDetails' => '💳 پرداخت کارت‌به‌کارت
+
+🔢 شماره کارت: <code>%s</code>
+👤 به نام: %s
+💰 مبلغ دقیق: <code>%s</code> تومان
+⏳ مهلت پرداخت: %s دقیقه
+
+⚠️ مبلغ را دقیقاً به همین عدد واریز کنید؛ رقم‌های آخر عمدی است و تایید خودکار با همان انجام می‌شود.',
                         'transactionCreated3' => '✅ تراکنش شما ایجاد شد
         
 🛒 کد پیگیری:  <code>%s</code> 
@@ -1514,7 +1524,6 @@ n2',
                         'statusCategoryTime' => '⏱ دسته بندی زمان',
                         'statusNotifNewUser' => '👤 اعلان کاربر جدید',
                         'statusRole' => '♨️ قوانین',
-                        'statusShowAgent' => '👨‍💻  درخواست نمایندگی',
                         'statusSubject' => 'وضعیت',
                         'statusTimeExtra' => '⏳  زمان اضافه',
                         'statusUsernameBtn' => '👤 دکمه نام کاربری',
@@ -1818,6 +1827,12 @@ nowpayments.io
                         'askZarinpalMerchant' => '💳 مرچنت کد خود را از زرین پال دریافت و در این قسمت وارد کنید
         
 مرچنت کد فعلی شما : %s',
+                        'askVarizaApiToken' => '💳 کلید API واریزا را از پنل واریزا (پروفایل ← کلید API) دریافت و وارد کنید
+
+کلید فعلی شما: <code>%s</code>',
+                        'askVarizaWebhookSecret' => '🔐 کلید امضای وب‌هوک واریزا را از پنل واریزا (پروفایل ← وب‌هوک) دریافت و وارد کنید
+
+کلید فعلی شما: <code>%s</code>',
                         'askMerchant' => '💳 مرچنت کد خود را دریافت و در این قسمت وارد کنید
         
 مرچنت کد فعلی شما : %s',
@@ -2394,7 +2409,9 @@ f,n.n2',
 ✅ %s سفارش پرداخت نشده حذف گردید
 ✅ %s عدد سفارش غیرفعال حذف گردید.
 ✅ %s عدد سفارش حذف شده ادمین حذف گردید
-✅ %s عدد سفارش تست حذف گردید.',
+✅ %s عدد سفارش تست حذف گردید.
+✅ %s عدد سفارش حذف شده توسط کاربر حذف گردید.
+✅ %s عدد سفارش پایان یافته (زمان یا حجم) حذف گردید.',
                         'backupCaption' => '📌 خروجی دیتابیس ربات اصلی ',
                         'dailyBot' => '📌 گزارش روزانه کارکرد ربات :
 
@@ -3622,7 +3639,7 @@ f,n.n2',
                 'help' => '📚 آموزش',
                 'iranPay1' => '💸 درگاه  پرداخت ریالی',
                 'iranPay2' => '💸 درگاه  پرداخت ریالی دوم',
-                'iranPay3' => '💸 cubpay',
+                'iranPay3' => '💸 CubePay',
                 'iranPay4' => '💳 آبان گیت وی (کارت به کارت)',
                 'manual' => '✅ سرویس با موفقیت ایجاد شد
 
@@ -3677,6 +3694,7 @@ f,n.n2',
 🧑‍🦯 شما میتوانید شیوه اتصال را  با فشردن دکمه زیر و انتخاب سیستم عامل خود را دریافت کنید',
                 'wheelLuck' => '🎲 گردونه شانس',
                 'zarinPal' => '🟡 زرین پال',
+                'variza' => '💳 واریزا (کارت‌به‌کارت خودکار)',
         ],
         'keyboard' => [
                 'acceptRules' => '✅ قوانین را می پذیرم',
@@ -3765,9 +3783,9 @@ f,n.n2',
                 'cashbackAqayePardakht' => '💰 کش بک آقای پرداخت',
                 'cashbackCartToCart' => '💰 کش بک کارت به کارت',
                 'cashbackIranPay1' => '💰 کش بک ارزی ریالی',
-                'cashbackIranPay2' => '💰 کش بک cubpay',
-                'feeStatusIranPay2' => '🧾 کارمزد cubpay (روشن/خاموش)',
-                'feeAmountIranPay2' => '💵 مقدار کارمزد cubpay',
+                'cashbackIranPay2' => '💰 کش بک CubePay',
+                'feeStatusIranPay2' => '🧾 کارمزد CubePay (روشن/خاموش)',
+                'feeAmountIranPay2' => '💵 مقدار کارمزد CubePay',
                 'cashbackIranPay3' => '💰 کش بک ارزی ریالی سوم',
                 'cashbackNowPayment' => '💰 کش بک nowpayment',
                 'cashbackPlisio' => '💰 کش بک plisio',
@@ -3903,7 +3921,7 @@ f,n.n2',
                 'infoRefreshed' => '♻️ اطلاعات بروز شد',
                 'infoUpdated' => 'اطلاعات بروزرسانی گردید',
                 'iranPay1Label' => '📌 ارزی ریالی اول',
-                'iranPay2Label' => '📌 cubpay',
+                'iranPay2Label' => '📌 CubePay',
                 'iranPay3Label' => '📌ارزی ریالی سوم',
                 'iranPay4Label' => '📌 آبان گیت وی',
                 'apiIranPay4' => '🔑 کلید اتصال آبان گیت وی',
@@ -3933,7 +3951,7 @@ f,n.n2',
                 'maxAmountCartToCart' => '⬆️ حداکثر مبلغ کارت به کارت',
                 'maxAmountCryptoOffline' => '⬆️ حداکثر مبلغ رمزارز آفلاین',
                 'maxAmountIranPay1' => '⬆️ حداکثر مبلغ ارزی ریالی',
-                'maxAmountIranPay2' => '⬆️ حداکثر مبلغ cubpay',
+                'maxAmountIranPay2' => '⬆️ حداکثر مبلغ CubePay',
                 'maxAmountIranPay3' => '⬆️ حداکثر مبلغ ارزی ریالی سوم',
                 'maxAmountNowPayment' => '⬆️ حداکثر مبلغ nowpayment',
                 'maxAmountPlisio' => '⬆️ حداکثر مبلغ plisio',
@@ -3948,7 +3966,7 @@ f,n.n2',
                 'minAmountCartToCart' => '⬇️ حداقل مبلغ کارت به کارت',
                 'minAmountCryptoOffline' => '⬇️ حداقل مبلغ رمزارز آفلاین',
                 'minAmountIranPay1' => '⬇️ حداقل مبلغ ارزی ریالی',
-                'minAmountIranPay2' => '⬇️ حداقل مبلغ cubpay',
+                'minAmountIranPay2' => '⬇️ حداقل مبلغ CubePay',
                 'minAmountIranPay3' => '⬇️ حداقل مبلغ ارزی ریالی سوم',
                 'minAmountNowPayment' => '⬇️ حداقل مبلغ nowpayment',
                 'minAmountPlisio' => '⬇️ حداقل مبلغ plisio',
@@ -3969,7 +3987,7 @@ f,n.n2',
                 'numericIdSequential' => 'آیدی عددی+عدد ترتیبی',
                 'offlineGatewayPv' => '💳 درگاه آفلاین در پیوی',
                 'operation' => 'عملیات',
-                'optimizeBot' => '🗑 بهینه سازی ربات ',
+                'optimizeBot' => '🗑 بهینه سازی ربات',
                 'paidSendReceipt' => '✅ پرداخت کردم | ارسال رسید.',
                 'panelFeatureStatus' => '⚙️ وضعیت قابلیت ها پنل',
                 'panelFeatures' => '🛠 قابلیت های پنل',
@@ -4040,7 +4058,7 @@ f,n.n2',
                 'setEducationCartToCart' => '📚 تنظیم آموزش کارت به کارت',
                 'setEducationCryptoOffline' => '📚 تنظیم آموزش  ارزی افلاین',
                 'setEducationIranPay1' => '📚 تنظیم آموزش ارزی ریالی اول',
-                'setEducationIranPay2' => '📚 تنظیم آموزش cubpay',
+                'setEducationIranPay2' => '📚 تنظیم آموزش CubePay',
                 'setEducationIranPay3' => '📚 تنظیم آموزش ارزی ریالی سوم',
                 'setEducationNowPayment' => '📚 تنظیم آموزش nowpayment',
                 'setEducationPlisio' => '📚 تنظیم آموزش plisio',
@@ -4116,7 +4134,14 @@ f,n.n2',
                 'yes' => 'بله',
                 'yesterday' => '☀️ دیروز',
                 'zarinPalGateway' => '🟡 زرین پال',
+                'varizaGateway' => '💳 واریزا',
                 'zarinPalMerchant' => 'مرچنت زرین پال',
+                'varizaApiToken' => 'کلید API واریزا',
+                'varizaWebhookSecret' => 'کلید وب‌هوک واریزا',
+                'cashbackVariza' => 'کش‌بک واریزا',
+                'minAmountVariza' => 'حداقل واریز واریزا',
+                'maxAmountVariza' => 'حداکثر واریز واریزا',
+                'setEducationVariza' => 'آموزش واریزا',
                 'zeroBalance' => '0️⃣ صفر کردن موجودی',
                 'panelSetting' => '🎛 تنظیم پنل',
                 'mirzaAgentPanel' => 'نمایندگی میرزا',
@@ -4341,6 +4366,7 @@ f,n.n2',
                 'paymentMethodRialGateway2' => 'درگاه ریالی ۲',
                 'paymentMethodRialGateway3' => 'درگاه ریالی ۳',
                 'paymentMethodTelegramStar' => 'استار تلگرام',
+                'paymentMethodVariza' => 'واریزا',
                 'paymentMethodZarinpal' => 'زرین‌پال',
                 'paymentSearchBtn' => 'تعداد کل',
                 'paymentSearchTransactionPlaceholder' => 'آیدی کاربر یا شماره تراکنش...',
@@ -4722,13 +4748,20 @@ f,n.n2',
 - 👤 نام کاربری کاربر : @%s
 - 🆔آیدی عددی کاربر : %s
 - 💸 مبلغ تراکنش %s
-- 💳 روش پرداخت : cubpay',
+- 💳 روش پرداخت : CubePay',
                 'reportNowpayment' => '💵 پرداخت جدید
 - 👤 نام کاربری کاربر : @%s
 - ‏🆔آیدی عددی کاربر : %s
 - 💸 مبلغ تراکنش %s
 - 📥 مبلغ واریز شده ترون. : %s
 - 💳 روش پرداخت :  nowpayment',
+                'reportVariza' => '💵 پرداخت جدید
+- 👤 نام کاربری کاربر : @%s
+- 🆔 آیدی عددی کاربر : %s
+- 💸 مبلغ تراکنش %s
+- 🧾 شماره سفارش : %s
+- 🔗 شناسه پرداخت واریزا : %s
+- 💳 روش پرداخت : واریزا',
                 'invoiceTitle' => 'فاکتور پرداخت',
                 'invoiceTransactionNo' => 'شماره تراکنش:',
                 'invoiceAmount' => 'مبلغ پرداختی:',

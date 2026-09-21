@@ -254,6 +254,8 @@ return [
                         'waiting' => '等待支付确认',
                         'zarinpal' => '❌ 错误 
     通过此网关支付的最低金额为 5000 托曼。',
+                        'variza' => '❌ 错误 
+    通过此网关支付的最低金额为 5000 托曼。',
                         'cardEnabledNotice' => '💳 尊敬的用户，卡号已为您激活；现在您可以进行购买。',
                         'cardInstructionAlt' => '如需付款，请将金额存入下方卡号',
                         'giftDepositAlt' => '🎁 尊敬的用户，%s 托曼已作为礼物存入您的账户。',
@@ -404,6 +406,14 @@ return [
 ❌ 交易后需要 15 分钟到一小时才能批准交易
 
 ✅ 如有问题，您可以联系客服',
+                        'cubepayCardDetails' => '💳 银行卡转账付款
+
+🔢 卡号：<code>%s</code>
+👤 持卡人：%s
+💰 准确金额：<code>%s</code> 托曼
+⏳ 付款期限：%s 分钟
+
+⚠️ 请务必转账这一准确金额；末尾数字是特意设置的，自动确认依赖于此。',
                         'transactionCreated3' => '✅ 您的交易已创建
         
 🛒 跟踪码：<code>%s</code> 
@@ -1517,7 +1527,6 @@ n2',
                         'statusCategoryTime' => '⏱ 时间分类',
                         'statusNotifNewUser' => '👤 新用户通知',
                         'statusRole' => '♨️ 规则',
-                        'statusShowAgent' => '👨‍💻 代理申请',
                         'statusSubject' => '状态',
                         'statusTimeExtra' => '⏳ 额外时间',
                         'statusUsernameBtn' => '👤 用户名按钮',
@@ -1818,6 +1827,12 @@ nowpayments.io
                         'askAqayePardakhtMerchant' => '💳 从 Aghaye Pardakht 获取您的商户代码并在此部分输入
         
 您当前的商户代码：%s',
+'askVarizaApiToken' => '💳 请从 Variza 控制面板（个人资料 → API 密钥）输入您的 Variza API 令牌
+
+当前密钥：<code>%s</code>',
+'askVarizaWebhookSecret' => '🔐 请从 Variza 控制面板（个人资料 → Webhook）输入您的 Variza Webhook 密钥
+
+当前密钥：<code>%s</code>',
                         'askZarinpalMerchant' => '💳 从 ZarinPal 获取您的商户代码并在此部分输入
         
 您当前的商户代码：%s',
@@ -2397,7 +2412,9 @@ f,n.n2',
 ✅ 已删除 %s 个未付款订单
 ✅ 已删除 %s 个未激活订单。
 ✅ 已删除 %s 个管理员删除的订单
-✅ 已删除 %s 个测试订单。',
+✅ 已删除 %s 个测试订单。
+✅ 已删除 %s 个用户删除的订单。
+✅ 已删除 %s 个已到期（时间或流量）的订单。',
                         'backupCaption' => '📌 主机器人数据库导出 ',
                         'dailyBot' => '📌 机器人每日运行报告：
 
@@ -3637,7 +3654,7 @@ f,n.n2',
                 'help' => '📚 教程',
                 'iranPay1' => '💸 里亚尔支付网关',
                 'iranPay2' => '💸 第二里亚尔支付网关',
-                'iranPay3' => '💸 cubpay',
+                'iranPay3' => '💸 CubePay',
                 'iranPay4' => '💳 AbanGateway（卡对卡）',
                 'manual' => '✅ 服务创建成功
 
@@ -3693,6 +3710,7 @@ f,n.n2',
 🧑‍🦯 您可以通过按下方按钮并选择您的操作系统来获取连接方法',
                 'wheelLuck' => '🎲 幸运转盘',
                 'zarinPal' => '🟡 ZarinPal',
+                'variza' => '💳 Variza（自动点对点转账',
         ],
         'keyboard' => [
                 'acceptRules' => '✅ 我接受规则',
@@ -3781,9 +3799,9 @@ f,n.n2',
                 'cashbackAqayePardakht' => '💰 Aghaye Pardakht 返现',
                 'cashbackCartToCart' => '💰 卡对卡返现',
                 'cashbackIranPay1' => '💰 里亚尔货币返现',
-                'cashbackIranPay2' => '💰 cubpay 返现',
-                'feeStatusIranPay2' => '🧾 cubpay 手续费（开/关）',
-                'feeAmountIranPay2' => '💵 cubpay 手续费数值',
+                'cashbackIranPay2' => '💰 CubePay 返现',
+                'feeStatusIranPay2' => '🧾 CubePay 手续费（开/关）',
+                'feeAmountIranPay2' => '💵 CubePay 手续费数值',
                 'cashbackIranPay3' => '💰 第三里亚尔货币返现',
                 'cashbackNowPayment' => '💰 nowpayment 返现',
                 'cashbackPlisio' => '💰 plisio 返现',
@@ -3919,7 +3937,7 @@ f,n.n2',
                 'infoRefreshed' => '♻️ 信息已更新',
                 'infoUpdated' => '信息已更新',
                 'iranPay1Label' => '📌 第一里亚尔货币',
-                'iranPay2Label' => '📌 cubpay',
+                'iranPay2Label' => '📌 CubePay',
                 'iranPay3Label' => '📌第三里亚尔货币',
                 'iranPay4Label' => '📌 AbanGateway',
                 'apiIranPay4' => '🔑 AbanGateway 密钥',
@@ -3949,7 +3967,7 @@ f,n.n2',
                 'maxAmountCartToCart' => '⬆️ 卡对卡最高金额',
                 'maxAmountCryptoOffline' => '⬆️ 离线加密货币最高金额',
                 'maxAmountIranPay1' => '⬆️ 里亚尔货币最高金额',
-                'maxAmountIranPay2' => '⬆️ cubpay 最高金额',
+                'maxAmountIranPay2' => '⬆️ CubePay 最高金额',
                 'maxAmountIranPay3' => '⬆️ 第三里亚尔货币最高金额',
                 'maxAmountNowPayment' => '⬆️ nowpayment 最高金额',
                 'maxAmountPlisio' => '⬆️ plisio 最高金额',
@@ -3964,7 +3982,7 @@ f,n.n2',
                 'minAmountCartToCart' => '⬇️ 卡对卡最低金额',
                 'minAmountCryptoOffline' => '⬇️ 离线加密货币最低金额',
                 'minAmountIranPay1' => '⬇️ 里亚尔货币最低金额',
-                'minAmountIranPay2' => '⬇️ cubpay 最低金额',
+                'minAmountIranPay2' => '⬇️ CubePay 最低金额',
                 'minAmountIranPay3' => '⬇️ 第三里亚尔货币最低金额',
                 'minAmountNowPayment' => '⬇️ nowpayment 最低金额',
                 'minAmountPlisio' => '⬇️ plisio 最低金额',
@@ -3985,7 +4003,7 @@ f,n.n2',
                 'numericIdSequential' => '数字 ID+顺序编号',
                 'offlineGatewayPv' => '💳 私聊中的离线网关',
                 'operation' => '操作',
-                'optimizeBot' => '🗑 优化机器人 ',
+                'optimizeBot' => '🗑 优化机器人',
                 'paidSendReceipt' => '✅ 我已付款 | 发送收据。',
                 'panelFeatureStatus' => '⚙️ 面板功能状态',
                 'panelFeatures' => '🛠 面板功能',
@@ -4056,7 +4074,7 @@ f,n.n2',
                 'setEducationCartToCart' => '📚 设置卡对卡教程',
                 'setEducationCryptoOffline' => '📚 设置离线货币教程 ',
                 'setEducationIranPay1' => '📚 设置第一里亚尔货币教程',
-                'setEducationIranPay2' => '📚 设置 cubpay 教程',
+                'setEducationIranPay2' => '📚 设置 CubePay 教程',
                 'setEducationIranPay3' => '📚 设置第三里亚尔货币教程',
                 'setEducationNowPayment' => '📚 设置 nowpayment 教程',
                 'setEducationPlisio' => '📚 设置 plisio 教程',
@@ -4132,6 +4150,13 @@ f,n.n2',
                 'yes' => '是',
                 'yesterday' => '☀️ 昨天',
                 'zarinPalGateway' => '🟡 ZarinPal',
+                'varizaGateway' => '💳 Variza',
+'varizaApiToken' => 'Variza API 令牌',
+'varizaWebhookSecret' => 'Variza Webhook 密钥',
+'cashbackVariza' => 'Variza 返现',
+'minAmountVariza' => 'Variza 最低金额',
+'maxAmountVariza' => 'Variza 最高金额',
+'setEducationVariza' => 'Variza 教程',
                 'zarinPalMerchant' => 'ZarinPal 商户',
                 'zeroBalance' => '0️⃣ 余额清零',
                 'panelSetting' => '🎛 面板设置',
@@ -4357,6 +4382,7 @@ f,n.n2',
                 'paymentMethodRialGateway2' => '里亚尔网关 2',
                 'paymentMethodRialGateway3' => '里亚尔网关 3',
                 'paymentMethodTelegramStar' => 'Telegram Stars',
+                'paymentMethodVariza' => 'Variza',
                 'paymentMethodZarinpal' => 'ZarinPal',
                 'paymentSearchBtn' => '总数',
                 'paymentSearchTransactionPlaceholder' => '用户 ID 或交易编号...',
@@ -4738,13 +4764,20 @@ f,n.n2',
 - 👤 用户用户名：@%s
 - 🆔用户数字 ID：%s
 - 💸 交易金额 %s
-- 💳 支付方式：cubpay',
+- 💳 支付方式：CubePay',
                 'reportNowpayment' => '💵 新付款
 - 👤 用户用户名：@%s
 - 🆔用户数字 ID：%s
 - 💸 交易金额 %s
 - 📥 已存入的 Tron 金额：%s
 - 💳 支付方式：nowpayment',
+                'reportVariza' => '💵 新付款
+- 👤 用户用户名：@%s
+- 🆔 用户数字 ID：%s
+- 💸 交易金额 %s
+- 🧾 订单 ID：%s
+- 🔗 Variza 支付标识：%s
+- 💳 支付方式：Variza',
                 'invoiceTitle' => '付款发票',
                 'invoiceTransactionNo' => '交易编号：',
                 'invoiceAmount' => '支付金额：',

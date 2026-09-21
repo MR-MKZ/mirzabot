@@ -48,7 +48,7 @@ $setting = select("setting", "*");
 $ManagePanel = new ManagePanel();
 $keyboard_check = json_decode($setting['keyboardmain'], true);
 if (is_array($keyboard_check) && preg_match('/[\x{600}-\x{6FF}\x{FB50}-\x{FDFF}]/u', $keyboard_check['keyboard'][0][0]['text'])) {
-    $keyboardmain = '{"keyboard":[[{"text":"text_sell"},{"text":"text_extend"}],[{"text":"text_usertest"},{"text":"text_wheel_luck"}],[{"text":"text_Purchased_services"},{"text":"accountwallet"}],[{"text":"text_affiliates"},{"text":"text_Tariff_list"}],[{"text":"text_support"},{"text":"text_help"}]]}';
+    $keyboardmain = '{"keyboard":[[{"text":"text_sell"},{"text":"text_extend"}],[{"text":"text_usertest"},{"text":"text_wheel_luck"}],[{"text":"text_Purchased_services"},{"text":"accountwallet"}],[{"text":"text_affiliates"},{"text":"text_Tariff_list"}],[{"text":"text_support"},{"text":"text_help"}],[{"text":"text_agentpanel"},{"text":"text_requestagent"}]]}';
     update("setting", "keyboardmain", $keyboardmain, null, null);
 }
 
@@ -4869,6 +4869,66 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         }
         $message_id = sendmessage($from_id, $textnowpayments, $paymentkeyboard, 'HTML');
         updatePaymentMessageId($message_id, $randomString);
+    } elseif ($datain == "variza") {
+        if ($user['Processing_value'] < 5000) {
+            sendmessage($from_id, $textbotlang['users']['Balance']['variza'], null, 'HTML');
+            return;
+        }
+        $mainbalance = select("PaySetting", "ValuePay", "NamePay", "minbalancevariza", "select")['ValuePay'];
+        $maxbalance = select("PaySetting", "ValuePay", "NamePay", "maxbalancevariza", "select")['ValuePay'];
+        if ($user['Processing_value'] < $mainbalance || $user['Processing_value'] > $maxbalance) {
+            $mainbalance = number_format($mainbalance);
+            $maxbalance = number_format($maxbalance);
+            sendmessage($from_id, strtr($textbotlang['users']['Balance']['depositRange'], ['{mainbalance}' => $mainbalance, '{maxbalance}' => $maxbalance]), null, 'HTML');
+            return;
+        }
+        deletemessage($from_id, $message_id);
+        sendmessage($from_id, $textbotlang['users']['Balance']['linkpayments'], $keyboard, 'HTML');
+        $randomString = bin2hex(random_bytes(5));
+        $pay = createPayVariza($user['Processing_value'], $randomString);
+        if (!isset($pay['pay_url']) || empty($pay['pay_url'])) {
+            $text_error = isset($pay['error']) ? $pay['error'] : json_encode($pay);
+            sendmessage($from_id, $textbotlang['users']['Balance']['errorLinkPayment'], $keyboard, 'HTML');
+            step('home', $from_id);
+            $ErrorsLinkPayment = sprintf($textbotlang['Admin']['reportgroup']['errorZarinpalLink'] ?? 'Variza link error: %s user %s', $text_error, $from_id);
+            if (strlen($setting['Channel_Report']) > 0) {
+                telegram('sendmessage', [
+                    'chat_id' => $setting['Channel_Report'],
+                    'message_thread_id' => $errorreport,
+                    'text' => $ErrorsLinkPayment,
+                    'parse_mode' => "HTML"
+                ]);
+            }
+            return;
+        }
+        $invoice = "{$user['Processing_value_tow']}|{$user['Processing_value_one']}";
+        $dateacc = date('Y/m/d H:i:s');
+        $stmt = $pdo->prepare("INSERT INTO Payment_report (id_user,id_order,time,price,payment_Status,Payment_Method,id_invoice,dec_not_confirmed) VALUES (?,?,?,?,?,?,?,?)");
+        $payment_Status = "Unpaid";
+        $Payment_Method = "variza";
+        $stmt->execute([$from_id, $randomString, $dateacc, $user['Processing_value'], $payment_Status, $Payment_Method, $invoice, $pay['slug'] ?? $randomString]);
+        $paymentkeyboard = json_encode([
+            'inline_keyboard' => [
+                [
+                    ['text' => $textbotlang['users']['Balance']['payments'], 'url' => $pay['pay_url']],
+                ]
+            ]
+        ]);
+        $price_format = number_format($user['Processing_value'], 0);
+        $textnowpayments = sprintf($textbotlang['users']['Balance']['invoiceCreated2'], $randomString, $price_format);
+        $gethelp = select("PaySetting", "ValuePay", "NamePay", "helpvariza", "select")['ValuePay'];
+        if ($gethelp != 2) {
+            $data = json_decode($gethelp, true);
+            if ($data['type'] == "text") {
+                sendmessage($from_id, $data['text'], null, 'HTML');
+            } elseif ($data['type'] == "photo") {
+                sendphoto($from_id, $data['photoid'], null);
+            } elseif ($data['type'] == "video") {
+                sendvideo($from_id, $data['videoid'], null);
+            }
+        }
+        $message_id = sendmessage($from_id, $textnowpayments, $paymentkeyboard, 'HTML');
+        updatePaymentMessageId($message_id, $randomString);
     } elseif ($datain == "plisio") {
         $rates = rate_arze();
         if ($rates === null) {
@@ -5130,6 +5190,10 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         }
         $message_id = sendmessage($from_id, $textnowpayments, $paymentkeyboard, 'HTML');
         updatePaymentMessageId($message_id, $randomString);
+        $cubepayCardText = cubepayCardDetailsText($payment);
+        if ($cubepayCardText !== null) {
+            sendmessage($from_id, $cubepayCardText, null, 'HTML');
+        }
     } elseif ($datain == "iranpay4") {
         $mainbalance = getPaySettingValue('minbalanceiranpay4', '0');
         $maxbalance = getPaySettingValue('maxbalanceiranpay4', '0');
@@ -6038,6 +6102,10 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     update("user", "namecustom", $text, "id", $from_id);
     step("home", $from_id);
 } elseif ($text == $textbotlang['textbot']['requestAgent'] || $datain == "requestagent") {
+    if (!check_active_btn($setting['keyboardmain'], "text_requestagent")) {
+        sendmessage($from_id, $textbotlang['users']['buttonDisabled'], null, 'HTML');
+        return;
+    }
     if ($user['Balance'] < $setting['agentreqprice']) {
         $priceagent = number_format($setting['agentreqprice']);
         sendmessage($from_id, sprintf($textbotlang['users']['agent']['insufficientbalanceagent'], $priceagent), $backuser, 'HTML');

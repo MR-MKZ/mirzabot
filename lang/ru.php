@@ -254,6 +254,8 @@ return [
                         'waiting' => 'Ожидание подтверждения платежа',
                         'zarinpal' => '❌ Ошибка 
     Минимальная сумма оплаты через этот шлюз — 5000 туман.',
+                        'variza' => '❌ Ошибка 
+    Минимальная сумма оплаты через этот шлюз — 5000 туман.',
                         'cardEnabledNotice' => '💳 Уважаемый пользователь, номер карты активирован для вас; теперь вы можете совершить покупку.',
                         'cardInstructionAlt' => 'Для оплаты внесите сумму на номер карты ниже',
                         'giftDepositAlt' => '🎁 Уважаемый пользователь, сумма %s туман зачислена на ваш счёт в качестве подарка.',
@@ -404,6 +406,14 @@ return [
 ❌ После транзакции требуется от 15 минут до часа для её подтверждения
 
 ✅ Если у вас проблема, вы можете связаться с поддержкой',
+                        'cubepayCardDetails' => '💳 Оплата с карты на карту
+
+🔢 Номер карты: <code>%s</code>
+👤 Владелец карты: %s
+💰 Точная сумма: <code>%s</code> туманов
+⏳ Срок оплаты: %s минут
+
+⚠️ Переведите ровно эту сумму; последние цифры заданы намеренно, автоматическое подтверждение опирается на них.',
                         'transactionCreated3' => '✅ Ваша транзакция создана
         
 🛒 Код отслеживания:  <code>%s</code> 
@@ -1517,7 +1527,6 @@ n2',
                         'statusCategoryTime' => '⏱ Категория по времени',
                         'statusNotifNewUser' => '👤 Уведомление о новом пользователе',
                         'statusRole' => '♨️ Правила',
-                        'statusShowAgent' => '👨‍💻 Запрос на агентство',
                         'statusSubject' => 'Статус',
                         'statusTimeExtra' => '⏳ Дополнительное время',
                         'statusUsernameBtn' => '👤 Кнопка имени пользователя',
@@ -1819,6 +1828,12 @@ nowpayments.io
                         'askAqayePardakhtMerchant' => '💳 Получите ваш код продавца от Aghaye Pardakht и введите его в этом разделе
         
 Ваш текущий код продавца: %s',
+                        'askVarizaApiToken' => '💳 Введите API-токен Variza из панели Variza (Профиль → API-ключ)
+
+Текущий ключ: <code>%s</code>',
+                        'askVarizaWebhookSecret' => '🔐 Введите секретный ключ вебхука Variza из панели Variza (Профиль → Вебхук)
+
+Текущий ключ: <code>%s</code>',
                         'askZarinpalMerchant' => '💳 Получите ваш код продавца от ZarinPal и введите его в этом разделе
         
 Ваш текущий код продавца: %s',
@@ -2389,7 +2404,9 @@ f,n.n2',
 ✅ Удалено %s неоплаченных заказов
 ✅ Удалено %s неактивных заказов.
 ✅ Удалено %s заказов, удалённых администратором
-✅ Удалено %s тестовых заказов.',
+✅ Удалено %s тестовых заказов.
+✅ Удалено %s заказов, удалённых пользователем.
+✅ Удалено %s истёкших заказов (по времени или объёму).',
                         'backupCaption' => '📌 Экспорт базы данных основного бота ',
                         'dailyBot' => '📌 Ежедневный отчёт о работе бота :
 
@@ -3629,7 +3646,7 @@ ID пользователя : %s
                 'help' => '📚 Инструкция',
                 'iranPay1' => '💸 Риаловый платёжный шлюз',
                 'iranPay2' => '💸 Второй риаловый платёжный шлюз',
-                'iranPay3' => '💸 cubpay',
+                'iranPay3' => '💸 CubePay',
                 'iranPay4' => '💳 AbanGateway (карта — карта)',
                 'manual' => '✅ Сервис успешно создан
 
@@ -3685,6 +3702,7 @@ ID пользователя : %s
 🧑‍🦯 Вы можете получить способ подключения, нажав кнопку ниже и выбрав вашу операционную систему',
                 'wheelLuck' => '🎲 Колесо фортуны',
                 'zarinPal' => '🟡 ZarinPal',
+                'variza' => '💳 Variza (автоматический перевод с карты на карту)',
         ],
         'keyboard' => [
                 'acceptRules' => '✅ Я принимаю правила',
@@ -3773,9 +3791,9 @@ ID пользователя : %s
                 'cashbackAqayePardakht' => '💰 Кэшбэк Aghaye Pardakht',
                 'cashbackCartToCart' => '💰 Кэшбэк карта на карту',
                 'cashbackIranPay1' => '💰 Кэшбэк риаловой валюты',
-                'cashbackIranPay2' => '💰 Кэшбэк cubpay',
-                'feeStatusIranPay2' => '🧾 Комиссия cubpay (вкл/выкл)',
-                'feeAmountIranPay2' => '💵 Значение комиссии cubpay',
+                'cashbackIranPay2' => '💰 Кэшбэк CubePay',
+                'feeStatusIranPay2' => '🧾 Комиссия CubePay (вкл/выкл)',
+                'feeAmountIranPay2' => '💵 Значение комиссии CubePay',
                 'cashbackIranPay3' => '💰 Кэшбэк третьей риаловой валюты',
                 'cashbackNowPayment' => '💰 Кэшбэк nowpayment',
                 'cashbackPlisio' => '💰 Кэшбэк plisio',
@@ -3911,7 +3929,7 @@ ID пользователя : %s
                 'infoRefreshed' => '♻️ Информация обновлена',
                 'infoUpdated' => 'Информация обновлена',
                 'iranPay1Label' => '📌 Первая риаловая валюта',
-                'iranPay2Label' => '📌 cubpay',
+                'iranPay2Label' => '📌 CubePay',
                 'iranPay3Label' => '📌Третья риаловая валюта',
                 'iranPay4Label' => '📌 AbanGateway',
                 'apiIranPay4' => '🔑 Ключ AbanGateway',
@@ -3941,7 +3959,7 @@ ID пользователя : %s
                 'maxAmountCartToCart' => '⬆️ Максимальная сумма карта на карту',
                 'maxAmountCryptoOffline' => '⬆️ Максимальная сумма офлайн-крипто',
                 'maxAmountIranPay1' => '⬆️ Максимальная сумма риаловой валюты',
-                'maxAmountIranPay2' => '⬆️ Максимальная сумма cubpay',
+                'maxAmountIranPay2' => '⬆️ Максимальная сумма CubePay',
                 'maxAmountIranPay3' => '⬆️ Максимальная сумма третьей риаловой валюты',
                 'maxAmountNowPayment' => '⬆️ Максимальная сумма nowpayment',
                 'maxAmountPlisio' => '⬆️ Максимальная сумма plisio',
@@ -3956,7 +3974,7 @@ ID пользователя : %s
                 'minAmountCartToCart' => '⬇️ Минимальная сумма карта на карту',
                 'minAmountCryptoOffline' => '⬇️ Минимальная сумма офлайн-крипто',
                 'minAmountIranPay1' => '⬇️ Минимальная сумма риаловой валюты',
-                'minAmountIranPay2' => '⬇️ Минимальная сумма cubpay',
+                'minAmountIranPay2' => '⬇️ Минимальная сумма CubePay',
                 'minAmountIranPay3' => '⬇️ Минимальная сумма третьей риаловой валюты',
                 'minAmountNowPayment' => '⬇️ Минимальная сумма nowpayment',
                 'minAmountPlisio' => '⬇️ Минимальная сумма plisio',
@@ -3977,7 +3995,7 @@ ID пользователя : %s
                 'numericIdSequential' => 'Числовой ID+порядковый номер',
                 'offlineGatewayPv' => '💳 Офлайн-шлюз в личке',
                 'operation' => 'Операция',
-                'optimizeBot' => '🗑 Оптимизировать бота ',
+                'optimizeBot' => '🗑 Оптимизация бота',
                 'paidSendReceipt' => '✅ Я оплатил | Отправить квитанцию.',
                 'panelFeatureStatus' => '⚙️ Статус функций панели',
                 'panelFeatures' => '🛠 Функции панели',
@@ -4048,7 +4066,7 @@ ID пользователя : %s
                 'setEducationCartToCart' => '📚 Установить инструкцию карта на карту',
                 'setEducationCryptoOffline' => '📚 Установить инструкцию офлайн-валюты ',
                 'setEducationIranPay1' => '📚 Установить инструкцию первой риаловой валюты',
-                'setEducationIranPay2' => '📚 Установить инструкцию cubpay',
+                'setEducationIranPay2' => '📚 Установить инструкцию CubePay',
                 'setEducationIranPay3' => '📚 Установить инструкцию третьей риаловой валюты',
                 'setEducationNowPayment' => '📚 Установить инструкцию nowpayment',
                 'setEducationPlisio' => '📚 Установить инструкцию plisio',
@@ -4124,6 +4142,13 @@ ID пользователя : %s
                 'yes' => 'Да',
                 'yesterday' => '☀️ Вчера',
                 'zarinPalGateway' => '🟡 ZarinPal',
+                'varizaGateway' => '💳 Variza',
+                'varizaApiToken' => 'API-токен Variza',
+                'varizaWebhookSecret' => 'Webhook-секрет Variza',
+                'cashbackVariza' => 'Кэшбэк Variza',
+                'minAmountVariza' => 'Минимальная сумма Variza',
+                'maxAmountVariza' => 'Максимальная сумма Variza',
+                'setEducationVariza' => 'Инструкция Variza',
                 'zarinPalMerchant' => 'Продавец ZarinPal',
                 'zeroBalance' => '0️⃣ Обнулить баланс',
                 'panelSetting' => '🎛 Настройка панели',
@@ -4349,6 +4374,7 @@ ID пользователя : %s
                 'paymentMethodRialGateway2' => 'Риаловый шлюз 2',
                 'paymentMethodRialGateway3' => 'Риаловый шлюз 3',
                 'paymentMethodTelegramStar' => 'Telegram Stars',
+                'paymentMethodVariza' => 'Variza',
                 'paymentMethodZarinpal' => 'ZarinPal',
                 'paymentSearchBtn' => 'Общее количество',
                 'paymentSearchTransactionPlaceholder' => 'ID пользователя или номер транзакции...',
@@ -4730,13 +4756,20 @@ ID пользователя : %s
 - 👤 Имя пользователя : @%s
 - 🆔Числовой ID пользователя : %s
 - 💸 Сумма транзакции %s
-- 💳 Способ оплаты : cubpay',
+- 💳 Способ оплаты : CubePay',
                 'reportNowpayment' => '💵 Новый платёж
 - 👤 Имя пользователя : @%s
 - 🆔Числовой ID пользователя : %s
 - 💸 Сумма транзакции %s
 - 📥 Внесённая сумма Tron. : %s
 - 💳 Способ оплаты :  nowpayment',
+                'reportVariza' => '💵 Новый платёж
+- 👤 Имя пользователя : @%s
+- 🆔 Числовой ID пользователя : %s
+- 💸 Сумма транзакции %s
+- 🧾 Номер заказа : %s
+- 🔗 Slug платежа Variza : %s
+- 💳 Способ оплаты : Variza',
                 'invoiceTitle' => 'Счёт на оплату',
                 'invoiceTransactionNo' => 'Номер транзакции:',
                 'invoiceAmount' => 'Оплаченная сумма:',

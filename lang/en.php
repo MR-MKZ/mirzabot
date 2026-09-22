@@ -254,6 +254,8 @@ To enable it, the bot owner needs a Telegram Premium subscription, or the bot mu
                         'waiting' => 'Awaiting payment confirmation',
                         'zarinpal' => '❌ Error 
     The minimum amount for payment via this gateway is 5000 Toman.',
+                        'variza' => '❌ Error 
+    The minimum amount for payment via this gateway is 5000 Toman.',
                         'cardEnabledNotice' => '💳 Dear user, the card number has been activated for you; you can now make your purchase.',
                         'cardInstructionAlt' => 'To pay, deposit the amount to the card number below',
                         'giftDepositAlt' => '🎁 Dear user, the amount of %s Toman has been deposited into your account as a gift.',
@@ -404,6 +406,14 @@ Use the button below to pay👇🏻',
 ❌ After the transaction it takes 15 minutes to one hour for the transaction to be approved
 
 ✅ If you have a problem, you can contact support',
+                        'cubepayCardDetails' => '💳 Card-to-card payment
+
+🔢 Card number: <code>%s</code>
+👤 Card holder: %s
+💰 Exact amount: <code>%s</code> Toman
+⏳ Payment deadline: %s minutes
+
+⚠️ Transfer exactly this amount; the last digits are intentional and automatic confirmation relies on them.',
                         'transactionCreated3' => '✅ Your transaction was created
         
 🛒 Tracking code:  <code>%s</code> 
@@ -1517,7 +1527,6 @@ Number of products sold: %s
                         'statusCategoryTime' => '⏱ Time category',
                         'statusNotifNewUser' => '👤 New user notification',
                         'statusRole' => '♨️ Rules',
-                        'statusShowAgent' => '👨‍💻 Agent request',
                         'statusSubject' => 'Status',
                         'statusTimeExtra' => '⏳ Extra time',
                         'statusUsernameBtn' => '👤 Username button',
@@ -1819,8 +1828,14 @@ nowpayments.io
         
 Your current merchant code: %s',
                         'askZarinpalMerchant' => '💳 Obtain your merchant code from ZarinPal and enter it in this section
-        
+         
 Your current merchant code: %s',
+                        'askVarizaApiToken' => '💳 Enter your Variza API token from Variza panel (Profile → API key)
+
+Current key: <code>%s</code>',
+                        'askVarizaWebhookSecret' => '🔐 Enter your Variza webhook secret from Variza panel (Profile → Webhook)
+
+Current key: <code>%s</code>',
                         'askMerchant' => '💳 Obtain your merchant code and enter it in this section
         
 Your current merchant code: %s',
@@ -2388,7 +2403,9 @@ Current amount: %s',
 ✅ %s unpaid orders were deleted
 ✅ %s inactive orders were deleted.
 ✅ %s admin-deleted orders were deleted
-✅ %s test orders were deleted.',
+✅ %s test orders were deleted.
+✅ %s user-deleted orders were deleted.
+✅ %s expired orders (time or volume) were deleted.',
                         'backupCaption' => '📌 Main bot database export ',
                         'dailyBot' => '📌 Daily bot performance report :
 
@@ -3628,7 +3645,7 @@ After joining, click the check membership button',
                 'help' => '📚 Tutorial',
                 'iranPay1' => '💸 Rial payment gateway',
                 'iranPay2' => '💸 Second Rial payment gateway',
-                'iranPay3' => '💸 cubpay',
+                'iranPay3' => '💸 CubePay',
                 'iranPay4' => '💳 AbanGateway (card to card)',
                 'manual' => '✅ Service was created successfully
 
@@ -3684,6 +3701,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
 🧑‍🦯 You can get the connection method by pressing the button below and selecting your operating system',
                 'wheelLuck' => '🎲 Wheel of fortune',
                 'zarinPal' => '🟡 ZarinPal',
+                'variza' => '💳 Variza (auto card-to-card)',
         ],
         'keyboard' => [
                 'acceptRules' => '✅ I accept the rules',
@@ -3772,9 +3790,9 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'cashbackAqayePardakht' => '💰 Aghaye Pardakht cashback',
                 'cashbackCartToCart' => '💰 Card-to-card cashback',
                 'cashbackIranPay1' => '💰 Rial currency cashback',
-                'cashbackIranPay2' => '💰 cubpay cashback',
-                'feeStatusIranPay2' => '🧾 cubpay fee (on/off)',
-                'feeAmountIranPay2' => '💵 cubpay fee value',
+                'cashbackIranPay2' => '💰 CubePay cashback',
+                'feeStatusIranPay2' => '🧾 CubePay fee (on/off)',
+                'feeAmountIranPay2' => '💵 CubePay fee value',
                 'cashbackIranPay3' => '💰 Third Rial currency cashback',
                 'cashbackNowPayment' => '💰 nowpayment cashback',
                 'cashbackPlisio' => '💰 plisio cashback',
@@ -3910,7 +3928,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'infoRefreshed' => '♻️ Information updated',
                 'infoUpdated' => 'Information was updated',
                 'iranPay1Label' => '📌 First Rial currency',
-                'iranPay2Label' => '📌 cubpay',
+                'iranPay2Label' => '📌 CubePay',
                 'iranPay3Label' => '📌Third Rial currency',
                 'iranPay4Label' => '📌 AbanGateway',
                 'apiIranPay4' => '🔑 AbanGateway API key',
@@ -3940,7 +3958,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'maxAmountCartToCart' => '⬆️ Maximum card-to-card amount',
                 'maxAmountCryptoOffline' => '⬆️ Maximum offline crypto amount',
                 'maxAmountIranPay1' => '⬆️ Maximum Rial currency amount',
-                'maxAmountIranPay2' => '⬆️ Maximum cubpay amount',
+                'maxAmountIranPay2' => '⬆️ Maximum CubePay amount',
                 'maxAmountIranPay3' => '⬆️ Maximum third Rial currency amount',
                 'maxAmountNowPayment' => '⬆️ Maximum nowpayment amount',
                 'maxAmountPlisio' => '⬆️ Maximum plisio amount',
@@ -3955,7 +3973,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'minAmountCartToCart' => '⬇️ Minimum card-to-card amount',
                 'minAmountCryptoOffline' => '⬇️ Minimum offline crypto amount',
                 'minAmountIranPay1' => '⬇️ Minimum Rial currency amount',
-                'minAmountIranPay2' => '⬇️ Minimum cubpay amount',
+                'minAmountIranPay2' => '⬇️ Minimum CubePay amount',
                 'minAmountIranPay3' => '⬇️ Minimum third Rial currency amount',
                 'minAmountNowPayment' => '⬇️ Minimum nowpayment amount',
                 'minAmountPlisio' => '⬇️ Minimum plisio amount',
@@ -3976,7 +3994,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'numericIdSequential' => 'Numeric ID+sequential number',
                 'offlineGatewayPv' => '💳 Offline gateway in PV',
                 'operation' => 'Operation',
-                'optimizeBot' => '🗑 Optimize bot ',
+                'optimizeBot' => '🗑 Optimize bot',
                 'paidSendReceipt' => '✅ I have paid | Send receipt.',
                 'panelFeatureStatus' => '⚙️ Panel feature status',
                 'panelFeatures' => '🛠 Panel features',
@@ -4047,7 +4065,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'setEducationCartToCart' => '📚 Set card-to-card tutorial',
                 'setEducationCryptoOffline' => '📚 Set offline currency tutorial ',
                 'setEducationIranPay1' => '📚 Set first Rial currency tutorial',
-                'setEducationIranPay2' => '📚 Set cubpay tutorial',
+                'setEducationIranPay2' => '📚 Set CubePay tutorial',
                 'setEducationIranPay3' => '📚 Set third Rial currency tutorial',
                 'setEducationNowPayment' => '📚 Set nowpayment tutorial',
                 'setEducationPlisio' => '📚 Set plisio tutorial',
@@ -4123,7 +4141,14 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'yes' => 'Yes',
                 'yesterday' => '☀️ Yesterday',
                 'zarinPalGateway' => '🟡 ZarinPal',
+                'varizaGateway' => '💳 Variza',
                 'zarinPalMerchant' => 'ZarinPal merchant',
+                'varizaApiToken' => 'Variza API token',
+                'varizaWebhookSecret' => 'Variza webhook secret',
+                'cashbackVariza' => 'Variza cashback',
+                'minAmountVariza' => 'Variza min amount',
+                'maxAmountVariza' => 'Variza max amount',
+                'setEducationVariza' => 'Variza tutorial',
                 'zeroBalance' => '0️⃣ Reset balance to zero',
                 'panelSetting' => '🎛 Panel Settings',
                 'mirzaAgentPanel' => 'Nova Agent',
@@ -4348,6 +4373,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'paymentMethodRialGateway2' => 'Rial gateway 2',
                 'paymentMethodRialGateway3' => 'Rial gateway 3',
                 'paymentMethodTelegramStar' => 'Telegram Stars',
+                'paymentMethodVariza' => 'Variza',
                 'paymentMethodZarinpal' => 'ZarinPal',
                 'paymentSearchBtn' => 'Total count',
                 'paymentSearchTransactionPlaceholder' => 'User ID or transaction number...',
@@ -4729,13 +4755,20 @@ Payment method : First Rial currency',
 - 👤 User username : @%s
 - 🆔User numeric ID : %s
 - 💸 Transaction amount %s
-- 💳 Payment method : cubpay',
+- 💳 Payment method : CubePay',
                 'reportNowpayment' => '💵 New payment
 - 👤 User username : @%s
 - 🆔User numeric ID : %s
 - 💸 Transaction amount %s
 - 📥 Deposited Tron amount. : %s
 - 💳 Payment method :  nowpayment',
+                'reportVariza' => '💵 New payment
+- 👤 User username : @%s
+- 🆔 User numeric ID : %s
+- 💸 Transaction amount %s
+- 🧾 Order ID : %s
+- 🔗 Variza payment slug : %s
+- 💳 Payment method : Variza',
                 'invoiceTitle' => 'Payment invoice',
                 'invoiceTransactionNo' => 'Transaction number:',
                 'invoiceAmount' => 'Paid amount:',

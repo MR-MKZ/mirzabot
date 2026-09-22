@@ -19,6 +19,10 @@
 #   ./scripts/sync-upstream.sh --release --latest-only
 #   ./scripts/sync-upstream.sh --release-only
 #
+# One custom version (latest upstream source + draft changes):
+#   ./scripts/sync-upstream.sh --custom-release
+#   ./scripts/sync-upstream.sh --custom-release 0.5.6.1-custom.1
+#
 # Env overrides:
 #   UPSTREAM_REMOTE=upstream  ORIGIN_REMOTE=origin
 #   CUSTOM_BRANCH=draft       MAIN_BRANCH=main
@@ -43,6 +47,8 @@ DO_RELEASE=0
 RELEASE_ONLY=0
 LATEST_ONLY=0
 RETARGET=0
+CUSTOM_RELEASE=0
+CUSTOM_VERSION=""
 CHECK_WATCH_ONLY=0
 SKIP_WATCH=0
 
@@ -73,6 +79,10 @@ Release sync (creates missing GitHub releases on YOUR fork):
   ./scripts/sync-upstream.sh --release --latest-only
   ./scripts/sync-upstream.sh --release-only
 
+Custom version (one release; tree = latest upstream source + draft changes):
+  ./scripts/sync-upstream.sh --custom-release
+  ./scripts/sync-upstream.sh --custom-release 0.5.6.1-custom.1
+
 Notes:
   - Keep fork changes committed on draft before syncing
   - Releases/tags always target draft (or --branch), never plain upstream
@@ -85,6 +95,13 @@ How release sync works:
   - GitHub tag is created at your draft HEAD (includes customizations)
   - Notes = upstream notes + custom-changes section
   - Existing fork releases are left alone (unless --retarget)
+
+How --custom-release works:
+  - Merges latest upstream source into draft first (unless --release-only)
+  - Publishes one fork release whose tree is that merge
+  - Tag defaults to <version file>-custom.N (or the version you pass)
+  - Notes list the draft-only changes versus upstream/main
+  - Does not copy historical upstream tags
 
 Options:
   -b, --branch NAME       Custom branch (default: draft)
@@ -99,6 +116,9 @@ Options:
       --release           After code sync, mirror missing upstream releases
       --release-only      Only mirror releases (skip code merge)
       --latest-only       With --release: only sync the newest upstream release
+      --custom-release [VER]  Publish one custom version from latest upstream
+                          source merged with draft changes. VER optional;
+                          default is <upstream version>-custom.N
       --retarget          Recreate existing fork releases onto current custom HEAD
       --prepare-release   Write RELEASE_NOTES_DRAFT.md (no publish)
       --dry-run           Show actions without changing git/GitHub
@@ -120,6 +140,14 @@ while [[ $# -gt 0 ]]; do
         --release) DO_RELEASE=1; shift ;;
         --release-only) DO_RELEASE=1; RELEASE_ONLY=1; shift ;;
         --latest-only) LATEST_ONLY=1; shift ;;
+        --custom-release)
+            CUSTOM_RELEASE=1
+            shift
+            if [[ $# -gt 0 && "$1" != -* ]]; then
+                CUSTOM_VERSION="$1"
+                shift
+            fi
+            ;;
         --retarget) RETARGET=1; shift ;;
         --prepare-release) PREPARE_RELEASE=1; shift ;;
         --dry-run) DRY_RUN=1; shift ;;
@@ -129,7 +157,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Release sync needs the custom branch on origin so --target resolves.
-if [[ "$DO_RELEASE" -eq 1 ]]; then
+if [[ "$DO_RELEASE" -eq 1 || "$CUSTOM_RELEASE" -eq 1 ]]; then
     DO_PUSH=1
 fi
 
@@ -547,6 +575,147 @@ create_or_sync_release() {
     ok "Published fork release ${tag} → ${custom_sha:0:7} (customized)"
 }
 
+upstream_version_string() {
+    local ver
+    ver="$(git show "${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH}:version" 2>/dev/null | tr -d '[:space:]' || true)"
+    if [[ -z "$ver" ]]; then
+        ver="$(latest_upstream_tag)"
+    fi
+    printf '%s' "$ver"
+}
+
+validate_custom_tag() {
+    local tag="$1"
+    [[ -n "$tag" ]] || die "Custom release version is empty."
+    [[ "$tag" != *" "* && "$tag" != *".." && "$tag" != -* && "$tag" != */* ]] \
+        || die "Invalid custom release version: ${tag}"
+}
+
+# Next free <upstream-version>-custom.N, or the version passed by the user.
+resolve_custom_tag() {
+    local origin_slug="$1"
+    local base n candidate
+    if [[ -n "$CUSTOM_VERSION" ]]; then
+        validate_custom_tag "$CUSTOM_VERSION"
+        printf '%s' "$CUSTOM_VERSION"
+        return 0
+    fi
+
+    base="$(upstream_version_string)"
+    [[ -n "$base" ]] || die "Could not read a version from upstream source (version file or tag)."
+    n=1
+    while true; do
+        candidate="${base}-custom.${n}"
+        if fork_has_release "$candidate" "$origin_slug"; then
+            n=$((n + 1))
+            continue
+        fi
+        if [[ "$DRY_RUN" -eq 0 ]] && git ls-remote --tags "$ORIGIN_REMOTE" "refs/tags/${candidate}" | grep -q .; then
+            n=$((n + 1))
+            continue
+        fi
+        printf '%s' "$candidate"
+        return 0
+    done
+}
+
+draft_changes_summary() {
+    local upstream_ref="$1"
+    local stat log
+    stat="$(git diff --stat "${upstream_ref}..${CUSTOM_BRANCH}" 2>/dev/null | head -n 80 || true)"
+    log="$(git log --oneline --no-merges "${upstream_ref}..${CUSTOM_BRANCH}" 2>/dev/null | head -n 40 || true)"
+    if [[ -z "$stat" && -z "$log" ]]; then
+        printf '(draft has no extra changes versus %s)\n' "$upstream_ref"
+        return 0
+    fi
+    if [[ -n "$log" ]]; then
+        printf 'Commits:\n%s\n' "$log"
+    fi
+    if [[ -n "$stat" ]]; then
+        printf '\nDiff stat:\n%s\n' "$stat"
+    fi
+}
+
+build_custom_release_notes() {
+    local tag="$1"
+    local upstream_sha="$2"
+    local upstream_ver="$3"
+    local custom_sha="$4"
+    local origin_slug="$5"
+    local upstream_ref="${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH}"
+
+    cat <<EOF
+## Custom release \`${tag}\`
+
+This package is the latest source of \`${UPSTREAM_REPO}\` (\`${upstream_ver}\`, \`${upstream_sha}\`) with the changed items from \`${CUSTOM_BRANCH}\` merged in.
+
+- Upstream tree: https://github.com/${UPSTREAM_REPO}/commit/${upstream_sha}
+- Fork commit: https://github.com/${origin_slug}/commit/${custom_sha}
+- Custom branch: \`${CUSTOM_BRANCH}\`
+
+### Draft changes versus \`${upstream_ref}\`
+\`\`\`
+$(draft_changes_summary "$upstream_ref")
+\`\`\`
+EOF
+}
+
+publish_custom_release() {
+    local origin_slug custom_sha upstream_sha upstream_ref upstream_ver tag notes_file
+    local create_args=()
+
+    require_gh
+    origin_slug="$(origin_repo_slug)"
+    upstream_ref="${UPSTREAM_REMOTE}/${UPSTREAM_BRANCH}"
+    custom_sha="$(git rev-parse "${CUSTOM_BRANCH}")"
+    upstream_sha="$(git rev-parse "$upstream_ref")"
+    upstream_ver="$(upstream_version_string)"
+
+    echo
+    info "Custom release: latest ${upstream_ref} @ ${upstream_sha:0:7} (version ${upstream_ver:-unknown})"
+    info "Plus draft changes on ${CUSTOM_BRANCH} @ ${custom_sha:0:7}"
+
+    if ! git merge-base --is-ancestor "$upstream_ref" "${CUSTOM_BRANCH}"; then
+        if [[ "$DRY_RUN" -eq 1 ]]; then
+            warn "Draft does not contain ${upstream_ref} yet. A real run merges it before publishing."
+        else
+            die "${CUSTOM_BRANCH} does not contain ${upstream_ref}. Sync code first so the release matches latest upstream source."
+        fi
+    fi
+
+    tag="$(resolve_custom_tag "$origin_slug")"
+    info "Custom version: ${tag}"
+
+    if fork_has_release "$tag" "$origin_slug"; then
+        if [[ "$RETARGET" -eq 0 ]]; then
+            die "Fork already has release ${tag}. Pass a new version, or --retarget to recreate it on current ${CUSTOM_BRANCH}."
+        fi
+        delete_fork_release_and_tag "$tag" "$origin_slug"
+    fi
+
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+        info "Would create GitHub release ${tag} on ${origin_slug}"
+        info "  target=${custom_sha:0:7} (${CUSTOM_BRANCH}) base=${upstream_sha:0:7} (${upstream_ver})"
+        info "  tree = latest upstream source + merged draft changes"
+        return 0
+    fi
+
+    notes_file="$(mktemp)"
+    build_custom_release_notes "$tag" "$upstream_sha" "$upstream_ver" "$custom_sha" "$origin_slug" >"$notes_file"
+
+    create_args=(
+        release create "$tag"
+        -R "$origin_slug"
+        --title "$tag"
+        --notes-file "$notes_file"
+        --target "$custom_sha"
+        --latest
+    )
+    gh "${create_args[@]}"
+    rm -f "$notes_file"
+    ok "Published custom release ${tag} → ${custom_sha:0:7} (latest upstream source + draft changes)"
+}
+
 sync_releases() {
     local origin_slug custom_sha tag count=0 created=0 skipped=0
 
@@ -748,11 +917,19 @@ fi
 
 if [[ "$DO_RELEASE" -eq 1 ]]; then
     sync_releases
-else
+fi
+
+if [[ "$CUSTOM_RELEASE" -eq 1 ]]; then
+    publish_custom_release
+fi
+
+if [[ "$DO_RELEASE" -eq 0 && "$CUSTOM_RELEASE" -eq 0 ]]; then
     echo
     info "No releases published. To mirror upstream releases onto your customized fork:"
     echo "  ./scripts/sync-upstream.sh --release"
     echo "  ./scripts/sync-upstream.sh --release --latest-only"
+    echo "Or publish one custom version from latest upstream source + draft changes:"
+    echo "  ./scripts/sync-upstream.sh --custom-release"
 fi
 
 if [[ "$DRY_RUN" -eq 0 ]]; then
@@ -760,7 +937,11 @@ if [[ "$DRY_RUN" -eq 0 ]]; then
 fi
 
 echo
-if [[ "$DO_RELEASE" -eq 1 ]]; then
+if [[ "$DO_RELEASE" -eq 1 && "$CUSTOM_RELEASE" -eq 1 ]]; then
+    ok "Finished on '${CUSTOM_BRANCH}' (code + release sync + custom version)."
+elif [[ "$CUSTOM_RELEASE" -eq 1 ]]; then
+    ok "Finished on '${CUSTOM_BRANCH}' (code sync + custom version)."
+elif [[ "$DO_RELEASE" -eq 1 ]]; then
     ok "Finished on '${CUSTOM_BRANCH}' (code + release sync)."
 else
     ok "Finished on '${CUSTOM_BRANCH}' (code sync only — no releases)."

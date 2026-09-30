@@ -37,6 +37,10 @@ try {
             continue;
         }
 
+        if (date('YmdHi', (int) ($cronStatus['jobs'][$job['job']]['time'] ?? 0)) === date('YmdHi')) {
+            continue;
+        }
+
         if ($job['job'] === 'lottery') {
             if ($scorestatus === null) {
                 require_once dirname($cronbotDir) . '/config.php';
@@ -50,13 +54,14 @@ try {
         }
 
         $jobError = null;
+        $jobStart = time();
         try {
             include $script;
         } catch (Throwable $e) {
             $jobError = $e->getMessage();
             error_log('mirza cron: ' . $job['job'] . ': ' . $jobError);
         }
-        $cronStatus['jobs'][$job['job']] = ['time' => time(), 'error' => $jobError];
+        $cronStatus['jobs'][$job['job']] = ['time' => $jobStart, 'error' => $jobError];
     }
 } finally {
     @mkdir(dirname($cronStatusFile), 0775, true);

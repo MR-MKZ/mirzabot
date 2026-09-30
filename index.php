@@ -1231,7 +1231,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     } else {
         $id_invoice = $dataget[1];
         $nameloc = select("invoice", "*", "id_invoice", $id_invoice, "select");
-        if ($nameloc && $nameloc['id_user'] != $from_id) {
+        if ($nameloc && $nameloc['id_user'] != $from_id && !in_array($from_id, $admin_ids)) {
             $nameloc = false;
         }
     }
@@ -1252,7 +1252,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
 } elseif (preg_match('/configget_(.*)_(.*)/', $datain, $dataget)) {
     $id_invoice = $dataget[1];
     $nameloc = select("invoice", "*", "id_invoice", $id_invoice, "select");
-    if ($nameloc && $nameloc['id_user'] != $from_id) {
+    if ($nameloc && $nameloc['id_user'] != $from_id && !in_array($from_id, $admin_ids)) {
         $nameloc = false;
     }
     if ($nameloc == false) {

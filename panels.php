@@ -343,7 +343,7 @@ class ManagePanel
             $password = bin2hex(random_bytes(6));
             $name_group = $Get_Data_Panel['proxies'];
             if ($Get_Data_Product['inbounds'] != null) {
-                $name_group = $Get_Data_Panel['inbounds'];
+                $name_group = $Get_Data_Product['inbounds'];
             } elseif ($code_product == "usertest") {
                 $name_group = "usertest";
             }

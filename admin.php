@@ -210,9 +210,6 @@ if ($datain == "paygwback") {
     $remark = isset($userdata['remark']) ? (string) $userdata['remark'] : '';
     $link = isset($userdata['link']) ? (string) $userdata['link'] : '';
 
-    sendmessage($from_id, $textbotlang['Admin']['channel']['joinChannelSaved'], $channelkeyboard, 'HTML');
-    step('home', $from_id);
-
     $insertChannel = function ($remarkValue) use ($pdo, $link, $text) {
         $stmt = $pdo->prepare("INSERT INTO channels (link, remark, linkjoin) VALUES (:link, :remark, :linkjoin)");
         $stmt->bindValue(':remark', $remarkValue, PDO::PARAM_STR);
@@ -243,6 +240,8 @@ if ($datain == "paygwback") {
             throw $e;
         }
     }
+    sendmessage($from_id, $textbotlang['Admin']['channel']['joinChannelSaved'], $channelkeyboard, 'HTML');
+    step('home', $from_id);
 } elseif ($text == $textbotlang['Admin']['channel']['removeChannelBtn'] && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['Admin']['channel']['removeChannel'], $list_channels_joins, 'HTML');
     step('removechannel', $from_id);
@@ -2968,9 +2967,9 @@ elseif ($datain == "systemsms") {
             sendmessage($from_id, $textbotlang['Admin']['managepanel']['subLinkInactive'], null, 'HTML');
             return;
         }
-        $response = $response['body'];
+        $response = trim((string) $response['body']);
         if (isBase64($response)) {
-            $response = base64_decode($response);
+            $response = trim(base64_decode($response));
         }
         $protocol = ['vmess', 'vless', 'trojan', 'ss', 'hysteria', 'hysteria2'];
         $sub_check = explode('://', $response)[0];
@@ -7688,30 +7687,35 @@ elseif ($text == $textbotlang['keyboard']['hidePanelForUser'] && $adminrulecheck
             return;
         }
         $DataUserOut = json_decode($DataUserOut['body'], true);
-        if ((isset($DataUserOut['msg']) && $DataUserOut['msg'] == "User not found") or !isset($DataUserOut['proxies'])) {
+        $proxyKey = $marzban_list_get['version_panel'] == "1" ? 'proxy_settings' : 'proxies';
+        if ((isset($DataUserOut['msg']) && $DataUserOut['msg'] == "User not found") or !isset($DataUserOut[$proxyKey])) {
             sendmessage($from_id, $textbotlang['users']['status']['userNotFound'], null, 'html');
             return;
         }
-        foreach ($DataUserOut['proxies'] as $key => &$value) {
-            if ($key == "shadowsocks") {
-                unset($DataUserOut['proxies'][$key]['password']);
-            } elseif ($key == "trojan") {
-                unset($DataUserOut['proxies'][$key]['password']);
+        foreach ($DataUserOut[$proxyKey] as $key => &$value) {
+            if ($key == "shadowsocks" || $key == "trojan") {
+                unset($DataUserOut[$proxyKey][$key]['password']);
+            } elseif ($key == "wireguard") {
+                unset($DataUserOut[$proxyKey][$key]['private_key']);
+                unset($DataUserOut[$proxyKey][$key]['public_key']);
+                unset($DataUserOut[$proxyKey][$key]['peer_ips']);
+            } elseif ($key == "hysteria") {
+                unset($DataUserOut[$proxyKey][$key]['auth']);
             } else {
-                unset($DataUserOut['proxies'][$key]['id']);
+                unset($DataUserOut[$proxyKey][$key]['id']);
             }
-            if (count($DataUserOut['proxies'][$key]) == 0) {
-                $DataUserOut['proxies'][$key] = new stdClass();
+            if (count($DataUserOut[$proxyKey][$key]) == 0) {
+                $DataUserOut[$proxyKey][$key] = new stdClass();
             }
         }
         $stmt = $pdo->prepare("UPDATE product SET proxies = :proxies WHERE id = :name_product AND (Location = :Location OR Location = '/all') AND agent = :agent");
-        $proxies_json = json_encode($DataUserOut['proxies']);
+        $proxies_json = json_encode($DataUserOut[$proxyKey]);
         $stmt->bindParam(':proxies', $proxies_json);
         $stmt->bindParam(':name_product', $user['Processing_value']);
         $stmt->bindParam(':Location', $marzban_list_get['name_panel']);
         $stmt->bindParam(':agent', $user['Processing_value_tow']);
         $stmt->execute();
-        $datainbound = json_encode($DataUserOut['inbounds']);
+        $datainbound = json_encode($marzban_list_get['version_panel'] == "1" ? $DataUserOut['group_ids'] : $DataUserOut['inbounds']);
     } elseif ($marzban_list_get['type'] == "marzneshin") {
         $userdata = json_decode(getuserm($text, $marzban_list_get['name_panel'])['body'], true);
         if (isset($userdata['detail']) and $userdata['detail'] == "User not found") {
@@ -7719,8 +7723,8 @@ elseif ($text == $textbotlang['keyboard']['hidePanelForUser'] && $adminrulecheck
             return;
         }
         $datainbound = json_encode($userdata['service_ids'], true);
-    }elseif ($panel['type'] == "x-ui_single") {
-        $data = get_clinets($text, $panel);
+    } elseif ($marzban_list_get['type'] == "x-ui_single") {
+        $data = get_clinets($text, $marzban_list_get);
         if (!empty($data['error'])) {
             sendmessage($from_id, panelErrorText($data['error']), null, 'HTML');
             return;

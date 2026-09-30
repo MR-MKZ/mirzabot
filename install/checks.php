@@ -500,6 +500,7 @@ function mirza_install_required_files(): array
         'mikrotik.php' => 'پنل میکروتیک',
         'mirza_agent.php' => 'ایجنت میرزا',
         'Rebecca.php' => 'پنل ربکا',
+        'nexora.php' => 'پنل Nexora',
         'WGDashboard.php' => 'پنل WGDashboard',
         'ibsng.php' => 'پنل IBSng',
     ];

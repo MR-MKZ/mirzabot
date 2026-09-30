@@ -1376,7 +1376,8 @@ $keyboardtypepanel = json_encode([
             ['text' => $textbotlang['keyboard']['mikrotik'], 'callback_data' => 'typepanel#mikrotik']
         ],
         [
-            ['text' => $textbotlang['keyboard']['rebecca'], 'callback_data' => 'typepanel#rebecca']
+            ['text' => $textbotlang['keyboard']['rebecca'], 'callback_data' => 'typepanel#rebecca'],
+            ['text' => "Nexora", 'callback_data' => 'typepanel#nexora']
         ],
         [
             ['text' => $textbotlang['Admin']['backAdminBtn'], 'callback_data' => 'admin']

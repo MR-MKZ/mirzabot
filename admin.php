@@ -2972,7 +2972,7 @@ elseif ($datain == "systemsms") {
         if (isBase64($response)) {
             $response = base64_decode($response);
         }
-        $protocol = ['vmess', 'vless', 'trojan', 'ss'];
+        $protocol = ['vmess', 'vless', 'trojan', 'ss', 'hysteria', 'hysteria2'];
         $sub_check = explode('://', $response)[0];
         if (!in_array($sub_check, $protocol)) {
             sendmessage($from_id, $textbotlang['Admin']['managepanel']['subLinkInvalid'], null, 'HTML');
@@ -7301,6 +7301,8 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
                     unset($DataUserOut['proxy_settings'][$key]['private_key']);
                     unset($DataUserOut['proxy_settings'][$key]['public_key']);
                     unset($DataUserOut['proxy_settings'][$key]['peer_ips']);
+                } elseif ($key == "hysteria") {
+                    unset($DataUserOut['proxy_settings'][$key]['auth']);
                 }  else {
                     unset($DataUserOut['proxy_settings'][$key]['id']);
                 }

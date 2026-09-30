@@ -935,6 +935,26 @@ function outputlink($text)
     }
 }
 
+function deductBalance($user, $amount)
+{
+    global $pdo;
+    if ($amount <= 0) {
+        return true;
+    }
+    $minBalance = $user['agent'] == "n2" ? (intval($user['maxbuyagent']) != 0 ? -intval($user['maxbuyagent']) : null) : 0;
+    $stmt = $pdo->prepare("UPDATE user SET Balance = Balance - ? WHERE id = ? AND (? IS NULL OR Balance - ? >= ?)");
+    $stmt->execute([$amount, $user['id'], $minBalance, $amount, $minBalance]);
+    return $stmt->rowCount() === 1;
+}
+function addBalance($userId, $amount)
+{
+    global $pdo;
+    if ($amount <= 0) {
+        return;
+    }
+    $stmt = $pdo->prepare("UPDATE user SET Balance = Balance + ? WHERE id = ?");
+    $stmt->execute([$amount, $userId]);
+}
 function claimPaymentPaid($order_id)
 {
     global $pdo;
@@ -1568,7 +1588,7 @@ function outtypepanel($typepanel, $message)
         sendmessage($from_id, $message, $option_mikrotik, 'HTML');
     } elseif ($typepanel == "mirza_agent") {
         sendmessage($from_id, $message, $option_mirza, 'HTML');
-    } elseif ($typepanel == "rebecca") {
+    } elseif (in_array($typepanel, ["rebecca", "nexora", "wg_mate"])) {
         sendmessage($from_id, $message, $optionrebecca, 'HTML');
     }
 }

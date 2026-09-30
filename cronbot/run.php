@@ -20,15 +20,24 @@ if (!flock($lockFh, LOCK_EX | LOCK_NB)) {
 
 $slotFh = mirza_cron_try_host_slot(3, 2);
 $scorestatus = null;
+$cronStatusFile = dirname($cronbotDir) . '/storage/cron_status.json';
+$cronStatus = json_decode((string) @file_get_contents($cronStatusFile), true) ?: [];
+$cronStatus['dispatcher'] = time();
+$cronStatus['php_cli'] = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+$cronStatus['pdo_mysql'] = extension_loaded('pdo_mysql');
 
 try {
-    foreach (mirza_cron_jobs() as $job) {
+    foreach ($cronStatus['pdo_mysql'] ? mirza_cron_jobs() : [] as $job) {
         $script = $cronbotDir . '/' . $job['job'] . '.php';
         if (!is_file($script)) {
             continue;
         }
 
         if (!mirza_cron_is_due($job['schedule'])) {
+            continue;
+        }
+
+        if (date('YmdHi', (int) ($cronStatus['jobs'][$job['job']]['time'] ?? 0)) === date('YmdHi')) {
             continue;
         }
 
@@ -44,13 +53,19 @@ try {
             }
         }
 
+        $jobError = null;
+        $jobStart = time();
         try {
             include $script;
         } catch (Throwable $e) {
-            error_log('mirza cron: ' . $job['job'] . ': ' . $e->getMessage());
+            $jobError = $e->getMessage();
+            error_log('mirza cron: ' . $job['job'] . ': ' . $jobError);
         }
+        $cronStatus['jobs'][$job['job']] = ['time' => $jobStart, 'error' => $jobError];
     }
 } finally {
+    @mkdir(dirname($cronStatusFile), 0775, true);
+    @file_put_contents($cronStatusFile, json_encode($cronStatus));
     mirza_cron_release_host_slot($slotFh);
     flock($lockFh, LOCK_UN);
     fclose($lockFh);

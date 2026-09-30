@@ -221,7 +221,9 @@ function adduser($location, $data_limit, $username_ac, $timestamp, $note = '', $
     $url = $marzban_list_get['url_panel'] . "/api/user";
     if ($marzban_list_get['inbounds'] != null and $marzban_list_get['inbounds'] != "null") {
         if ($name_product != false and $name_product != "usertest") {
-            $product = select("product", "*", "name_product", $name_product, "select");
+            $stmt = $GLOBALS['pdo']->prepare("SELECT * FROM product WHERE name_product = ? AND (Location = ? OR Location = '/all') ORDER BY Location = '/all' LIMIT 1");
+            $stmt->execute([$name_product, $location]);
+            $product = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($product == false || $product['inbounds'] == false) {
                 $inbounds = json_decode($marzban_list_get['inbounds'], true);
             } else {
@@ -421,6 +423,10 @@ function Modifyuser_node($location, $id_node, array $data)
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
     $Check_token = token_panel($marzban_list_get['code_panel']);
     $url = $marzban_list_get['url_panel'] . '/api/node/' . $id_node;
+    $currentNode = json_decode(Get_Node($location, $id_node)['body'] ?? '', true);
+    if (isset($currentNode['api_port'])) {
+        $data += ['api_port' => $currentNode['api_port']];
+    }
     $payload = json_encode($data);
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);

@@ -795,7 +795,7 @@ if ($datain == "paygwback") {
         savedata("save", "username", "null");
         savedata("save", "password", "null");
         return;
-    } elseif ($userdata['type'] == "s_ui" || $userdata['type'] == "WGDashboard" || $userdata['type'] == "x-ui_single" || $userdata['type'] == "mirza_agent" || $userdata['type'] == "rebecca" || $userdata['type'] == "nexora") {
+    } elseif ($userdata['type'] == "s_ui" || $userdata['type'] == "WGDashboard" || $userdata['type'] == "x-ui_single" || $userdata['type'] == "mirza_agent" || $userdata['type'] == "rebecca" || $userdata['type'] == "nexora" || $userdata['type'] == "wg_mate") {
         sendmessage($from_id, $textbotlang['Admin']['agentbot']['askToken'], $backadmin, 'HTML');
         step('add_password_panel', $from_id);
         savedata("save", "username", "null");
@@ -2881,8 +2881,8 @@ elseif ($datain == "systemsms") {
             $total_memory = round($result['total-memory'] / pow(1024, 3), 2);
             sendmessage($from_id, sprintf($textbotlang['Admin']['stats']['mikrotik'], $result['platform'], $result['version'], $result['uptime'], $result['architecture-name'], $result['board-name'], $result['build-time'], $result['cpu'], $result['cpu-count'], $result['cpu-frequency'], $result['cpu-load'], $total_hdd_space, $free_hdd_space, $total_memory, $free_memory, $result['write-sect-since-reboot'], $result['write-sect-total']), $option_mikrotik, 'HTML');
         }
-    } elseif ($marzban_list_get['type'] == "rebecca" || $marzban_list_get['type'] == "nexora") {
-        $Check_connection = $marzban_list_get['type'] == "nexora" ? request_nexora($marzban_list_get['name_panel'], "GET", '/me') : Get_System_Stats_rebecca($marzban_list_get['name_panel']);
+    } elseif (in_array($marzban_list_get['type'], ["rebecca", "nexora", "wg_mate"])) {
+        $Check_connection = $marzban_list_get['type'] == "nexora" ? request_nexora($marzban_list_get['name_panel'], "GET", '/me') : ($marzban_list_get['type'] == "wg_mate" ? request_wgmate($marzban_list_get['name_panel'], "GET", '/auth/me') : Get_System_Stats_rebecca($marzban_list_get['name_panel']));
         if (empty($Check_connection['error']) && (empty($Check_connection['status']) || $Check_connection['status'] < 400)) {
             $ListSell = $pdo->prepare("SELECT COUNT(*) FROM invoice WHERE (status = 'active' OR status = 'end_of_time'  OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold') AND Service_location = ? AND name_product != ?");
             $ListSell->bindValue(1, $marzban_list_get['name_panel'], PDO::PARAM_STR);
@@ -7375,6 +7375,14 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         }
         sendmessage($from_id, $textbotlang['Admin']['managepanel']['protocolSaved'], $optionX_ui_single, 'HTML');
         update("marzban_panel", "inbounds", json_encode($data['obj']['inboundIds']), "name_panel", $user['Processing_value']);
+    } elseif ($panel['type'] == "wg_mate") {
+        $userdata = getuser_wgmate($text, $user['Processing_value'])['user'];
+        if ($userdata === null) {
+            sendmessage($from_id, $textbotlang['users']['status']['userNotFound'], null, 'html');
+            return;
+        }
+        update("marzban_panel", "proxies", json_encode(array('protocols' => $userdata['protocols'], 'serverId' => $userdata['serverId'])), "name_panel", $user['Processing_value']);
+        sendmessage($from_id, $textbotlang['Admin']['managepanel']['protocolSaved'], $optionrebecca, 'HTML');
     } elseif ($panel['type'] == "nexora") {
         $userdata = getuser_nexora($text, $user['Processing_value'])['user'];
         if ($userdata === null) {

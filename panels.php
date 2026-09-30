@@ -13,6 +13,7 @@ require_once __DIR__ . '/mikrotik.php';
 require_once __DIR__ . '/mirza_agent.php';
 require_once __DIR__ . '/Rebecca.php';
 require_once __DIR__ . '/nexora.php';
+require_once __DIR__ . '/wg_mate.php';
 
 class ManagePanel
 {
@@ -456,6 +457,26 @@ class ManagePanel
                 $Output['username'] = $data_Output['name'];
                 $Output['subscription_url'] = $invoice != false ? "https://$domainhosts/sub/" . $invoice['id_invoice'] : $data_Output['subUrl'];
                 $Output['configs'] = links_nexora($data_Output['subUrl']);
+            }
+        } elseif ($Get_Data_Panel['type'] == "wg_mate") {
+            $order_get = select("invoice", "*", "username", $usernameC, "select");
+            $ConnectToPanel = adduser_wgmate($Get_Data_Panel['name_panel'], $data_limit, $usernameC, $expire, $Get_Data_Product['name_product'], $note, $order_get['limit_user'] ?? null);
+            if (!empty($ConnectToPanel['error'])) {
+                return array(
+                    'status' => 'Unsuccessful',
+                    'msg' => $ConnectToPanel['error']
+                );
+            }
+            $data_Output = json_decode($ConnectToPanel['body'], true);
+            if ($ConnectToPanel['status'] >= 400 || !isset($data_Output['data']['id'])) {
+                $Output['status'] = 'Unsuccessful';
+                $Output['msg'] = $data_Output['error'] ?? ('error code : ' . $ConnectToPanel['status']);
+            } else {
+                $data_Output = $data_Output['data'];
+                $Output['status'] = 'successful';
+                $Output['username'] = $data_Output['username'];
+                $Output['subscription_url'] = $invoice != false ? "https://$domainhosts/sub/" . $invoice['id_invoice'] : rtrim($Get_Data_Panel['url_panel'], '/') . '/sub/' . $data_Output['subToken'];
+                $Output['configs'] = links_wgmate($Get_Data_Panel['name_panel'], $data_Output['id']);
             }
         } else {
             $Output['status'] = 'Unsuccessful';
@@ -1097,7 +1118,7 @@ class ManagePanel
                     'username' => $UsernameData['name'],
                     'data_limit' => $UsernameData['volume'],
                     'expire' => $UsernameData['duration'] > 0 && $UsernameData['activatedAt'] == 0 ? 0 : $UsernameData['expiry'],
-                    'online_at' => $UsernameData['onlineAt'] ? (new DateTime('@' . $UsernameData['onlineAt']))->setTimezone(new DateTimeZone('Asia/Tehran'))->format('Y/m/d H:i:s') : null,
+                    'online_at' => $UsernameData['onlineAt'] > time() - 90 ? "online" : ($UsernameData['onlineAt'] ? gmdate('Y-m-d H:i:s', $UsernameData['onlineAt']) : null),
                     'used_traffic' => $UsernameData['up'] + $UsernameData['down'],
                     'links' => [],
                     'subscription_url' => $invoice != false ? "https://$domainhosts/sub/" . $invoice['id_invoice'] : $UsernameData['subUrl'],
@@ -1105,6 +1126,35 @@ class ManagePanel
                     'sub_last_user_agent' => $UsernameData['subClient'] ?: null,
                     'uuid' => null,
                     'data_limit_reset' => $UsernameData['autoReset'] ? 'month' : 'no_reset'
+                );
+            }
+        } elseif ($Get_Data_Panel['type'] == "wg_mate") {
+            $UsernameData = getuser_wgmate($username, $Get_Data_Panel['name_panel']);
+            if (!empty($UsernameData['error'])) {
+                $Output = array(
+                    'status' => 'Unsuccessful',
+                    'msg' => $UsernameData['error']
+                );
+            } elseif ($UsernameData['status'] >= 400 || $UsernameData['user'] === null) {
+                $Output = array(
+                    'status' => 'Unsuccessful',
+                    'msg' => json_decode($UsernameData['body'], true)['error'] ?? ('error code : ' . $UsernameData['status'])
+                );
+            } else {
+                $UsernameData = $UsernameData['user'];
+                $Output = array(
+                    'status' => status_wgmate($UsernameData),
+                    'username' => $UsernameData['username'],
+                    'data_limit' => $UsernameData['quotaBytes'] ?? 0,
+                    'expire' => $UsernameData['expiresAt'] == "" ? 0 : strtotime($UsernameData['expiresAt']),
+                    'online_at' => $UsernameData['connection'] == "online" ? "online" : $UsernameData['lastHandshakeAt'],
+                    'used_traffic' => $UsernameData['usedBytes'],
+                    'links' => [],
+                    'subscription_url' => $invoice != false ? "https://$domainhosts/sub/" . $invoice['id_invoice'] : rtrim($Get_Data_Panel['url_panel'], '/') . '/sub/' . $UsernameData['subToken'],
+                    'sub_updated_at' => null,
+                    'sub_last_user_agent' => null,
+                    'uuid' => null,
+                    'data_limit_reset' => 'no_reset'
                 );
             }
         } else {
@@ -1313,6 +1363,26 @@ class ManagePanel
                 $Output = array(
                     'status' => 'successful',
                     'configs' => $Data_User['links'],
+                    'subscription_url' => $Data_User['subscription_url']
+                );
+            }
+        } elseif ($Get_Data_Panel['type'] == "wg_mate") {
+            $revoke_sub = action_wgmate($name_panel, $username, "POST", '/revoke');
+            if (!empty($revoke_sub['error'])) {
+                $Output = array(
+                    'status' => 'Unsuccessful',
+                    'msg' => $revoke_sub['error']
+                );
+            } elseif ($revoke_sub['status'] >= 400) {
+                $Output = array(
+                    'status' => 'Unsuccessful',
+                    'msg' => json_decode($revoke_sub['body'], true)['error'] ?? ('error code : ' . $revoke_sub['status'])
+                );
+            } else {
+                $Data_User = $this->DataUser($name_panel, $username);
+                $Output = array(
+                    'status' => 'successful',
+                    'configs' => links_wgmate($name_panel, json_decode($revoke_sub['body'], true)['data']['id'] ?? ''),
                     'subscription_url' => $Data_User['subscription_url']
                 );
             }
@@ -1540,6 +1610,24 @@ class ManagePanel
                         'msg' => $UsernameData['msg']
                     );
                 }
+                $Output = array(
+                    'status' => 'successful',
+                    'username' => $username,
+                );
+            }
+        } elseif ($Get_Data_Panel['type'] == "wg_mate") {
+            $UsernameData = action_wgmate($Get_Data_Panel['name_panel'], $username, "DELETE");
+            if (!empty($UsernameData['error'])) {
+                $Output = array(
+                    'status' => 'Unsuccessful',
+                    'msg' => $UsernameData['error']
+                );
+            } elseif ($UsernameData['status'] >= 400) {
+                $Output = array(
+                    'status' => 'Unsuccessful',
+                    'msg' => json_decode($UsernameData['body'], true)['error'] ?? ('error code : ' . $UsernameData['status'])
+                );
+            } else {
                 $Output = array(
                     'status' => 'successful',
                     'username' => $username,
@@ -1781,6 +1869,23 @@ class ManagePanel
                 'status' => true,
                 'data' => $modify
             );
+        } elseif ($Get_Data_Panel['type'] == "wg_mate") {
+            $modify = Modifyuser_wgmate($name_panel, $username, $config);
+            if (!empty($modify['error'])) {
+                return array(
+                    'status' => false,
+                    'msg' => $modify['error']
+                );
+            } elseif ($modify['status'] >= 400) {
+                return array(
+                    'status' => false,
+                    'msg' => json_decode($modify['body'], true)['error'] ?? ('error code : ' . $modify['status'])
+                );
+            }
+            return array(
+                'status' => true,
+                'data' => json_decode($modify['body'], true)
+            );
         } elseif ($Get_Data_Panel['type'] == "nexora") {
             $modify = Modifyuser_nexora($name_panel, $username, $config);
             if (!empty($modify['error'])) {
@@ -1959,6 +2064,12 @@ class ManagePanel
                 'status' => 'successful',
                 'msg' => null
             );
+        } elseif ($Get_Data_Panel['type'] == "wg_mate") {
+            action_wgmate($name_panel, $username, "POST", $DataUserOut['status'] == "active" ? '/disable' : '/enable');
+            $Output = array(
+                'status' => 'successful',
+                'msg' => null
+            );
         }
 
         return $Output;
@@ -2098,6 +2209,23 @@ class ManagePanel
                 'status' => true
             );
         } elseif ($panel['type'] == "mirza_agent") {
+            return array(
+                'status' => true,
+                'msg' => 'successful'
+            );
+        } elseif ($panel['type'] == "wg_mate") {
+            $reset = action_wgmate($panel['name_panel'], $username, "POST", '/reset');
+            if (!empty($reset['error'])) {
+                return array(
+                    'status' => false,
+                    'msg' => 'error  : ' . $reset['error']
+                );
+            } elseif ($reset['status'] >= 400) {
+                return array(
+                    'status' => false,
+                    'msg' => json_decode($reset['body'], true)['error'] ?? ('error code : ' . $reset['status'])
+                );
+            }
             return array(
                 'status' => true,
                 'msg' => 'successful'
@@ -2357,6 +2485,11 @@ class ManagePanel
                 'expiry' => $time_new,
                 'duration' => 0,
             );
+        } elseif ($panel['type'] == "wg_mate") {
+            $data = array(
+                'quotaBytes' => $data_limit_new,
+                'expiresAt' => $time_new == 0 ? "" : gmdate('Y-m-d\TH:i:s\Z', $time_new),
+            );
         }
         $extend = $this->Modifyuser($username, $panel['name_panel'], $data);
         if ($extend['status'] == false) {
@@ -2492,6 +2625,10 @@ class ManagePanel
         } elseif ($panel['type'] == "nexora") {
             $data = array(
                 'volume' => $new_limit,
+            );
+        } elseif ($panel['type'] == "wg_mate") {
+            $data = array(
+                'quotaBytes' => $new_limit,
             );
         }
         $extra_volume = $this->Modifyuser($username_account, $panel['name_panel'], $data);
@@ -2635,6 +2772,10 @@ class ManagePanel
             $data = array(
                 'expiry' => $new_limit,
                 'duration' => 0,
+            );
+        } elseif ($panel['type'] == "wg_mate") {
+            $data = array(
+                'expiresAt' => $new_limit == 0 ? "" : gmdate('Y-m-d\TH:i:s\Z', $new_limit),
             );
         }
         $extra_time = $this->Modifyuser($username_account, $panel['name_panel'], $data);

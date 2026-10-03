@@ -190,7 +190,7 @@ $CartManage = json_encode([
         [['text' => $textbotlang['keyboard']['disableShowCard'], 'callback_data' => "paygwopt-disableShowCard"], ['text' => $textbotlang['keyboard']['enableShowCard'], 'callback_data' => "paygwopt-enableShowCard"]],
         [['text' => $textbotlang['keyboard']['groupShowCard'], 'callback_data' => "paygwopt-groupShowCard"]],
         [['text' => $textbotlang['keyboard']['exportActiveCardUsers'], 'callback_data' => "paygwopt-exportActiveCardUsers"]],
-        [['text' => $textbotlang['keyboard']['cashbackCartToCart'], 'callback_data' => "paygwopt-cashbackCartToCart"]],
+        [['text' => $textbotlang['keyboard']['autoConfirmReceipt'], 'callback_data' => "paygwopt-autoConfirmReceipt"], ['text' => $textbotlang['keyboard']['cashbackCartToCart'], 'callback_data' => "paygwopt-cashbackCartToCart"]],
         [['text' => $textbotlang['keyboard']['showCartAfterFirstPay'], 'callback_data' => "paygwopt-showCartAfterFirstPay"]],
         [['text' => $textbotlang['keyboard']['minAmountCartToCart'], 'callback_data' => "paygwopt-minAmountCartToCart"], ['text' => $textbotlang['keyboard']['maxAmountCartToCart'], 'callback_data' => "paygwopt-maxAmountCartToCart"]],
         [['text' => $textbotlang['keyboard']['setEducationCartToCart'], 'callback_data' => "paygwopt-setEducationCartToCart"]],

@@ -1382,6 +1382,8 @@ Received error:  %s',
                         'reviewedPayment' => '❌ This payment has already been reviewed by another admin',
                         'reviewReceiptsFirst' => '⚠️ To approve user requests, first review and approve the purchase or subscription renewal receipts. Then approve the wallet top-up receipt. ',
                         'autoConfirmDesc' => '📌 By activating this feature, during the times when you are not online, the bot automatically approves all card-to-card transactions; then after you come online, you review the receipts, and if a fake receipt was sent, you cancel the transaction',
+                        'errConfirmSmsWhileNoCheck' => '❌ First turn off automatic approval without review.',
+                        'errConfirmNoCheckWhileSms' => '❌ First turn off automatic approval.',
                         'noPending' => '❌ You have no unapproved payments.',
                         'pendingIntro' => '📌 Unapproved card-to-card payments 
 In this section you can view unapproved payments and approve or reject them.
@@ -1507,6 +1509,9 @@ Number of products sold: %s
                         'activePanel' => '⭕️ In this section you can turn the panel off or on for sales',
                         'activePanelOff' => '❌ The panel was turned off',
                         'activePanelOn' => '✅ The panel was turned on',
+                        'autoConfirmCard' => 'Auto-confirmation status for card-to-card receipts',
+                        'autoConfirmOff' => 'Auto-confirmation status was turned off',
+                        'autoConfirmOn' => 'Auto-confirmation status was turned on',
                         'wheelSettings' => "🎲 <b>Wheel of luck settings</b>\n\n💰 Prize amount: <b>%s</b> Toman\n\n📌 Tap an item to turn it on or off.",
                         'lotterySettings' => "🎁 <b>Lottery settings</b>\n\n🥇 First prize: <b>%s</b> Toman\n🥈 Second prize: <b>%s</b> Toman\n🥉 Third prize: <b>%s</b> Toman\n\n📌 Tap an item to turn it on or off.",
                         'categoryTitle' => "<b>%s</b>\n\n📌 Tap a feature to turn it on or off.",
@@ -3750,6 +3755,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'authenticateUser' => 'User identity verification',
                 'autoConfirmNoCheck' => '🤖 Approve receipt without review',
                 'autoConfirmNoCheckTime' => '⏳ Automatic approval time without review',
+                'autoConfirmReceipt' => '♻️ Automatic receipt approval',
                 'back' => 'Back',
                 'backToAdminMenu' => '🏠 Back to management menu',
                 'backToCardSettings' => '▶️ Back to card settings menu',
@@ -4751,6 +4757,14 @@ Payment method : First Rial currency',
 - 🆔 User ID : %s
 - 💸 Amount %s
 - 💳 Method : AbanGateway',
+                'reportCard' => 'A receipt was approved by the bot
+
+Information :
+💰 Payment amount : %s
+👤  User numeric ID : %s 
+👤 User username : @%s 
+User balance : %s Toman
+Payment tracking code : %s',
                 'reportTronado' => '💵 New payment
 - 👤 User username : @%s
 - 🆔User numeric ID : %s

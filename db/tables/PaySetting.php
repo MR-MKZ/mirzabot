@@ -40,6 +40,7 @@ $values = [
     'statusiranpay3' => 'oniranpay3',
     'apiiranpay' => '0',
     'autoconfirmcart' => 'offauto',
+    'statuscardautoconfirm' => 'offautoconfirm',
     'statusstar' => '0',
     'statusnowpayment' => '0',
     'Exception_auto_cart' => '{}',

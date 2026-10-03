@@ -1382,6 +1382,8 @@ n2',
                         'reviewedPayment' => '❌ 该支付已被其他管理员审核过',
                         'reviewReceiptsFirst' => '⚠️ 如需批准用户请求，请先审核并批准购买或续费收据。然后批准钱包充值收据。 ',
                         'autoConfirmDesc' => '📌 激活此功能后，在您不在线的时段，机器人会自动批准所有卡对卡交易；待您上线后，您再审核收据，如果发送的是虚假收据，则取消该交易',
+                        'errConfirmSmsWhileNoCheck' => '❌ 请先关闭无需审核的自动批准。',
+                        'errConfirmNoCheckWhileSms' => '❌ 请先关闭自动批准。',
                         'noPending' => '❌ 您没有未批准的付款。',
                         'pendingIntro' => '📌 未批准的卡对卡付款 
 在此部分，您可以查看未批准的付款并批准或拒绝它们。
@@ -1507,6 +1509,9 @@ n2',
                         'activePanel' => '⭕️ 在此部分，您可以开启或关闭面板的销售功能',
                         'activePanelOff' => '❌ 面板已关闭',
                         'activePanelOn' => '✅ 面板已开启',
+                        'autoConfirmCard' => '卡对卡收据自动确认状态',
+                        'autoConfirmOff' => '自动确认已关闭',
+                        'autoConfirmOn' => '自动确认已开启',
                         'wheelSettings' => "🎲 <b>幸运转盘设置</b>\n\n💰 奖金金额：<b>%s</b> 托曼\n\n📌 点击项目即可开启或关闭。",
                         'lotterySettings' => "🎁 <b>抽奖设置</b>\n\n🥇 一等奖：<b>%s</b> 托曼\n🥈 二等奖：<b>%s</b> 托曼\n🥉 三等奖：<b>%s</b> 托曼\n\n📌 点击项目即可开启或关闭。",
                         'categoryTitle' => "<b>%s</b>\n\n📌 点击功能即可开启或关闭。",
@@ -3751,6 +3756,7 @@ f,n.n2',
                 'authenticateUser' => '用户身份认证',
                 'autoConfirmNoCheck' => '🤖 无需审核批准收据',
                 'autoConfirmNoCheckTime' => '⏳ 无需审核的自动批准时间',
+                'autoConfirmReceipt' => '♻️ 自动批准收据',
                 'back' => '返回',
                 'backToAdminMenu' => '🏠 返回管理菜单',
                 'backToCardSettings' => '▶️ 返回卡设置菜单',
@@ -4752,6 +4758,14 @@ f,n.n2',
 - 🆔 用户 ID : %s
 - 💸 金额 %s
 - 💳 支付方式 : AbanGateway',
+                'reportCard' => '机器人已批准一张收据
+
+信息：
+💰 支付金额：%s
+👤 用户数字 ID：%s 
+👤 用户用户名：@%s 
+用户余额：%s 托曼
+支付跟踪码：%s',
                 'reportTronado' => '💵 新付款
 - 👤 用户用户名：@%s
 - 🆔用户数字 ID：%s

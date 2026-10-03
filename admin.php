@@ -7197,12 +7197,74 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     sendmessage($from_id, $textbotlang['Admin']['cronjob']['changedData'], $setting_panel, 'HTML');
     step("home", $from_id);
     update("setting", "agentreqprice", $text, null, null);
+} elseif ($text == $textbotlang['keyboard']['autoConfirmReceipt'] && $adminrulecheck['rule'] == "administrator") {
+    $paymentverify = getPaySettingValue('autoconfirmcart', 'offauto');
+    if ($paymentverify == "onauto") {
+        sendmessage($from_id, $textbotlang['Admin']['Payment']['errConfirmSmsWhileNoCheck'], null, 'HTML');
+        return;
+    }
+    $PaySetting = getPaySettingValue('statuscardautoconfirm', 'offautoconfirm');
+    $PaySettingStatus = [
+        'onautoconfirm' => $textbotlang['Admin']['Status']['statuson'],
+        'offautoconfirm' => $textbotlang['Admin']['Status']['statusoff']
+    ][$PaySetting] ?? $textbotlang['Admin']['Status']['statusoff'];
+    $card_Status_auto = json_encode([
+        'inline_keyboard' => [
+            [
+                ['text' => $PaySettingStatus, 'callback_data' => $PaySetting],
+            ],
+        ]
+    ]);
+    sendmessage($from_id, $textbotlang['Admin']['Status']['autoConfirmCard'], $card_Status_auto, 'HTML');
+} elseif ($datain == "onautoconfirm" && $adminrulecheck['rule'] == "administrator") {
+    if (!rowExists("PaySetting", "NamePay", "statuscardautoconfirm")) {
+        $stmt = $pdo->prepare("INSERT INTO PaySetting (NamePay, ValuePay) VALUES ('statuscardautoconfirm', 'offautoconfirm')");
+        $stmt->execute();
+        clearSelectCache('PaySetting');
+    } else {
+        update("PaySetting", "ValuePay", "offautoconfirm", "NamePay", "statuscardautoconfirm");
+    }
+    $PaySetting = 'offautoconfirm';
+    $card_Status_auto = json_encode([
+        'inline_keyboard' => [
+            [
+                ['text' => $textbotlang['Admin']['Status']['statusoff'], 'callback_data' => $PaySetting],
+            ],
+        ]
+    ]);
+    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['autoConfirmOff'], $card_Status_auto);
+} elseif ($datain == "offautoconfirm" && $adminrulecheck['rule'] == "administrator") {
+    if (!rowExists("PaySetting", "NamePay", "statuscardautoconfirm")) {
+        $stmt = $pdo->prepare("INSERT INTO PaySetting (NamePay, ValuePay) VALUES ('statuscardautoconfirm', 'onautoconfirm')");
+        $stmt->execute();
+        clearSelectCache('PaySetting');
+    } else {
+        update("PaySetting", "ValuePay", "onautoconfirm", "NamePay", "statuscardautoconfirm");
+    }
+    $PaySetting = 'onautoconfirm';
+    $card_Status_auto = json_encode([
+        'inline_keyboard' => [
+            [
+                ['text' => $textbotlang['Admin']['Status']['statuson'], 'callback_data' => $PaySetting],
+            ],
+        ]
+    ]);
+    Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['autoConfirmOn'], $card_Status_auto);
 } elseif ($text == $textbotlang['keyboard']['autoConfirmNoCheck'] && $adminrulecheck['rule'] == "administrator") {
+    $paymentverify = getPaySettingValue('statuscardautoconfirm', 'offautoconfirm');
+    if ($paymentverify == "onautoconfirm") {
+        sendmessage($from_id, $textbotlang['Admin']['Payment']['errConfirmNoCheckWhileSms'], null, 'HTML');
+        return;
+    }
     $paymentverify = select("PaySetting", "ValuePay", "NamePay", "autoconfirmcart", "select")['ValuePay'];
+    $paymentverifyStatus = [
+        'onauto' => $textbotlang['Admin']['Status']['statuson'],
+        'offauto' => $textbotlang['Admin']['Status']['statusoff']
+    ][$paymentverify] ?? $textbotlang['Admin']['Status']['statusoff'];
     $keyboardverify = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $paymentverify, 'callback_data' => $paymentverify],
+                ['text' => $paymentverifyStatus, 'callback_data' => $paymentverify],
             ],
         ]
     ]);
@@ -7213,7 +7275,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     $keyboardverify = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $paymentverify, 'callback_data' => $paymentverify],
+                ['text' => $textbotlang['Admin']['Status']['statusoff'], 'callback_data' => $paymentverify],
             ],
         ]
     ]);
@@ -7224,7 +7286,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     $keyboardverify = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $paymentverify, 'callback_data' => $paymentverify],
+                ['text' => $textbotlang['Admin']['Status']['statuson'], 'callback_data' => $paymentverify],
             ],
         ]
     ]);

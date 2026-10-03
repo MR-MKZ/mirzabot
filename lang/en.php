@@ -3590,6 +3590,17 @@ Connection link:
 ‼️Responsibility for incorrect deposits is yours.
 🔝After payment, press the I have paid button, then send the receipt image
 💵After your payment is approved by the admin, your wallet will be charged, and if you have an order, it will be processed',
+                'cartAuto' => 'For immediate approval, please deposit exactly the amount below. Otherwise, the approval of your payment may be delayed.⚠️
+            To increase your balance, deposit the amount of <code>{price}</code>  Rials  to the account number below 👇🏻
+
+        ==================== 
+        <code>{card_number}</code>
+        {name_card}
+        ====================
+        
+💰Deposit exactly the amount mentioned above so it is approved instantly.
+‼️Withdrawing money from the wallet is not possible.
+🔝There is no need to send a receipt, but if your deposit is not approved after some time, send your receipt image.',
                 'cartToCart' => '💳 Card to card',
                 'channel' => '   
         ⚠️ Dear user; you are not a member of our channel

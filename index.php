@@ -4673,14 +4673,44 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         /* freed */
         $cardQuery = null;
         $price_copy = $user['Processing_value'];
-        $valueprice = number_format($user['Processing_value']);
-        $replacements = [
-            '{price}' => $valueprice,
-            '{card_number}' => $card_number,
-            '{name_card}' => $PaySettingname,
-        ];
-        $price_copy = intval($user['Processing_value'] . "0");
-        $textcart = strtr($textbotlang['textbot']['cart'], $replacements);
+        $statusCardAutoConfirm = getPaySettingValue('statuscardautoconfirm', 'offautoconfirm');
+        if ($statusCardAutoConfirm === 'onautoconfirm') {
+            // Unique toman amount so bank SMS can match this order and fake round amounts are ignored.
+            $basePrice = intval($user['Processing_value']);
+            $pendingPricesStmt = $pdo->query("SELECT price FROM Payment_report WHERE payment_Status IN ('Unpaid', 'waiting')");
+            $pendingPrices = $pendingPricesStmt ? array_map('intval', $pendingPricesStmt->fetchAll(PDO::FETCH_COLUMN)) : [];
+            $uniquePrice = $basePrice;
+            for ($attempt = 0; $attempt < 50; $attempt++) {
+                $candidate = $basePrice + rand(1, 1999);
+                if (substr((string) $candidate, -3) === '000') {
+                    continue;
+                }
+                if (in_array($candidate, $pendingPrices, true)) {
+                    continue;
+                }
+                $uniquePrice = $candidate;
+                break;
+            }
+            $user['Processing_value'] = $uniquePrice;
+            update("user", "Processing_value", $uniquePrice, "id", $from_id);
+            $valueshow = "{$uniquePrice}0";
+            $replacements = [
+                '{price}' => $valueshow,
+                '{card_number}' => $card_number,
+                '{name_card}' => $PaySettingname,
+            ];
+            $price_copy = $valueshow;
+            $textcart = strtr($textbotlang['textbot']['cartAuto'], $replacements);
+        } else {
+            $valueprice = number_format($user['Processing_value']);
+            $replacements = [
+                '{price}' => $valueprice,
+                '{card_number}' => $card_number,
+                '{name_card}' => $PaySettingname,
+            ];
+            $price_copy = intval($user['Processing_value'] . "0");
+            $textcart = strtr($textbotlang['textbot']['cart'], $replacements);
+        }
         $invoice = "{$user['Processing_value_tow']}|{$user['Processing_value_one']}";
         $dateacc = date('Y/m/d H:i:s');
         $randomString = bin2hex(random_bytes(5));

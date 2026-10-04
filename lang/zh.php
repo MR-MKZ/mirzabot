@@ -2084,8 +2084,28 @@ support 权限级别可访问用户服务和客服消息回复部分',
                         'userGroupChanged' => '📌 用户组修改成功',
                         'btnSubLinkDomain' => '🔗 订阅链接域名',
                         'askSubLinkSample' => '📌 如果您使用的是 Sanaei 面板，请从面板复制一个用户的订阅链接，然后在此部分发送。其他面板需按其结构发送。',
-                        'subLinkInactive' => '订阅链接未激活',
-                        'subLinkInvalid' => '订阅链接无效',
+                        'subLinkInactive' => '❌ 无法连接到订阅链接
+
+🔗 链接：<code>%s</code>
+⚠️ 错误：<code>%s</code>
+
+常见原因：
+• Sanaei 面板中的订阅服务未启用（面板设置 → 订阅 → 启用）
+• 链接中的订阅端口或路径错误
+• 服务器防火墙阻止了订阅端口
+
+解决问题后请重新发送订阅链接。',
+                        'subLinkInvalid' => '❌ 订阅链接有响应，但未找到有效配置
+
+🔗 链接：<code>%s</code>
+📄 收到的响应：<code>%s</code>
+
+常见原因：
+• 发送的是面板登录地址而不是订阅链接
+• 您发送的链接所属用户已被禁用或没有配置
+• 链接中的订阅路径错误
+
+请复制一个有效用户的订阅链接并重新发送。',
                         'askAdminUuid' => '📌 请发送管理员 UUID',
                         'adminUuidSaved' => '✅ 管理员 UUID 已保存',
                         'askInboundId' => '📌 请发送您希望用于生成配置的入站 ID。入站 ID 是一个多位数字，写在面板入站页面的 id 列中。

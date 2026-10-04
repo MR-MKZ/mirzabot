@@ -2849,11 +2849,9 @@ elseif ($datain == "systemsms") {
     if ($typepanel['type'] == "x-ui_single") {
         $req = new CurlRequest($text);
         $response = $req->get();
-        if ($response['status'] != 200) {
-            sendmessage($from_id, $textbotlang['Admin']['managepanel']['subLinkInactive'], null, 'HTML');
-            return;
-        } elseif (!empty($response['error'])) {
-            sendmessage($from_id, $textbotlang['Admin']['managepanel']['subLinkInactive'], null, 'HTML');
+        if (!empty($response['error']) || $response['status'] != 200) {
+            $subError = !empty($response['error']) ? $response['error'] : "HTTP {$response['status']}";
+            sendmessage($from_id, sprintf($textbotlang['Admin']['managepanel']['subLinkInactive'], htmlspecialchars($text), htmlspecialchars($subError)), $backadmin, 'HTML');
             return;
         }
         $response = trim((string) $response['body']);
@@ -2863,7 +2861,8 @@ elseif ($datain == "systemsms") {
         $protocol = ['vmess', 'vless', 'trojan', 'ss', 'hysteria', 'hysteria2'];
         $sub_check = explode('://', $response)[0];
         if (!in_array($sub_check, $protocol)) {
-            sendmessage($from_id, $textbotlang['Admin']['managepanel']['subLinkInvalid'], null, 'HTML');
+            $subPreview = $response === '' ? '-' : mb_substr($response, 0, 150);
+            sendmessage($from_id, sprintf($textbotlang['Admin']['managepanel']['subLinkInvalid'], htmlspecialchars($text), htmlspecialchars($subPreview)), $backadmin, 'HTML');
             return;
         }
         $text = dirname($text);

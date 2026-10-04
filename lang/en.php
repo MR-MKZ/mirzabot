@@ -2084,8 +2084,28 @@ User groups: f,n,n2
                         'userGroupChanged' => '📌 User group changed successfully',
                         'btnSubLinkDomain' => '🔗 Subscription link domain',
                         'askSubLinkSample' => '📌 If you use a Sanaei panel, copy a user\'s subscription link from the panel and send it in this section. For other panels, you must send it according to their structure.',
-                        'subLinkInactive' => 'The subscription link is not active',
-                        'subLinkInvalid' => 'The subscription link is invalid',
+                        'subLinkInactive' => '❌ Could not connect to the subscription link
+
+🔗 Link: <code>%s</code>
+⚠️ Error: <code>%s</code>
+
+Common causes:
+• The subscription service is disabled in the Sanaei panel (Panel settings → Subscription → Enable)
+• The sub port or path in the link is wrong
+• The server firewall blocks the sub port
+
+Fix the issue and send the subscription link again.',
+                        'subLinkInvalid' => '❌ The subscription link responded but no valid config was found
+
+🔗 Link: <code>%s</code>
+📄 Received response: <code>%s</code>
+
+Common causes:
+• The panel login URL was sent instead of a subscription link
+• The user whose link you sent is disabled or has no configs
+• The sub path in the link is wrong
+
+Copy a subscription link of an active user and send it again.',
                         'askAdminUuid' => '📌 Send the admin UUID',
                         'adminUuidSaved' => '✅ Admin UUID saved',
                         'askInboundId' => '📌 Send the inbound ID from which you want the config to be created. The inbound ID is a multi-digit number written in the id column on the inbounds page of the panel.

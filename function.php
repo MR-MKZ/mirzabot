@@ -446,7 +446,7 @@ function update($table, $field, $newValue, $whereField = null, $whereValue = nul
     if ($field != "message_count" && $field != "last_message_time") {
         $logDir = __DIR__ . '/storage';
         if (is_dir($logDir) || @mkdir($logDir, 0775, true)) {
-            @file_put_contents($logDir . '/log.txt', "\n" . $logss, FILE_APPEND);
+            @file_put_contents($logDir . '/log.txt', "\n" . $logss, @filesize($logDir . '/log.txt') > 5 * 1024 * 1024 ? 0 : FILE_APPEND);
         }
     }
 

@@ -5369,7 +5369,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     Editmessagetext($from_id, $message_id, $optimizebot, null);
     $time = time();
     $logss = "optimize_{$countunpiadorder}_{$countdisableorder}_{$countremoveadminorder}_{$countdisableordtester}_{$countremoveuserorder}_{$countexpiredorder}_{$countexpiredpayment}_{$countapilogs}_$time";
-    @file_put_contents(__DIR__ . '/storage/log.txt', "\n" . $logss, FILE_APPEND);
+    @file_put_contents(__DIR__ . '/storage/log.txt', "\n" . $logss, @filesize(__DIR__ . '/storage/log.txt') > 5 * 1024 * 1024 ? 0 : FILE_APPEND);
 } elseif ($datain == "settimecornvolume") {
     sendmessage($from_id, $textbotlang['Admin']['cronjob']['askVolumeAlert'], $backadmin, 'HTML');
     step("getvolumewarn", $from_id);

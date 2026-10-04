@@ -4,6 +4,7 @@ $setting = select("setting", "*", null, null, "select");
 $textbotlang = languagechange();
 //-----------------------------[  text panel  ]-------------------------------
 $adminrulecheck = select("admin", "*", "id_admin", $from_id, "select");
+$admin_idss = $adminrulecheck ? 1 : 0;
 if (!$adminrulecheck) {
     $adminrulecheck = array(
         'rule' => '',
@@ -35,7 +36,6 @@ $replacements = [
     'text_agentpanel' => $textbotlang['textbot']['agentPanel'],
     'text_requestagent' => $textbotlang['textbot']['requestAgent']
 ];
-$admin_idss = select("admin", "*", "id_admin", $from_id, "count");
 $temp_addtional_key = [];
 $keyboardLayout = json_decode($setting['keyboardmain'], true);
 $keyboardRows = [];
@@ -862,10 +862,7 @@ $helpappremove['keyboard'][] = [
 ];
 $json_list_remove_helpـlink = json_encode($helpappremove);
 //------------------  [ listpanelusers ]----------------//
-$stmt = $pdo->prepare("SELECT * FROM marzban_panel WHERE status = 'active' AND (agent = :agent OR agent = 'all')");
-$stmt->bindParam(':agent', $users['agent']);
-$stmt->execute();
-$activePanelRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$activePanelRows = array_filter($allPanelRows, fn($panel) => $panel['status'] == "active" && in_array($panel['agent'], [$users['agent'], "all"]));
 $manualsellCounts = [];
 if (in_array('Manualsale', array_column($activePanelRows, 'type'))) {
     foreach ($pdo->query("SELECT codepanel, COUNT(*) AS c FROM manualsell WHERE status = 'active' GROUP BY codepanel")->fetchAll(PDO::FETCH_ASSOC) as $msRow) {
@@ -873,7 +870,7 @@ if (in_array('Manualsale', array_column($activePanelRows, 'type'))) {
     }
 }
 $list_marzban_panel_users = ['inline_keyboard' => []];
-$panelcount = select("marzban_panel", "*", "status", "active", "count");
+$panelcount = count(array_filter($allPanelRows, fn($panel) => $panel['status'] == "active"));
 if ($panelcount > 10) {
     $temp_row = [];
     foreach ($activePanelRows as $result) {
@@ -979,11 +976,10 @@ $list_marzban_panel_userschange = json_encode($list_marzban_panel_users_change);
 
 
 //------------------  [ listpanelusers test ]----------------//
-$stmt = $pdo->prepare("SELECT * FROM marzban_panel WHERE TestAccount = 'ONTestAccount' AND (agent = :agent OR agent = 'all')");
-$stmt->bindValue(':agent', $users['agent'], PDO::PARAM_STR);
-$stmt->execute();
 $list_marzban_panel_usertest = ['inline_keyboard' => []];
-while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+foreach ($allPanelRows as $result) {
+    if ($result['TestAccount'] != "ONTestAccount" || !in_array($result['agent'], [$users['agent'], "all"]))
+        continue;
     if ($result['hide_user'] != null and in_array($from_id, json_decode($result['hide_user'], true)))
         continue;
     $list_marzban_panel_usertest['inline_keyboard'][] = [
@@ -1389,7 +1385,7 @@ $keyboardtypepanel = json_encode([
     ],
 ]);
 
-$panelechekc = select("marzban_panel", "*", "MethodUsername", "agentCustomTextSequential", "count");
+$panelechekc = count(array_filter($allPanelRows, fn($panel) => $panel['MethodUsername'] == "agentCustomTextSequential"));
 if ($setting['inlinebtnmain'] == "oninline") {
     $keyboardagent = [
         'inline_keyboard' => [

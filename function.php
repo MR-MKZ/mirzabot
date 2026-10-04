@@ -1658,25 +1658,9 @@ function addFieldToTable($tableName, $fieldName, $defaultValue = null, $datatype
 }
 function outtypepanel($typepanel, $message)
 {
-    global $from_id, $optionMarzban, $optionX_ui_single, $optionhiddfy, $option_mirza, $optionmarzneshin, $option_mikrotik, $optionwg, $optionibsng, $optionrebecca;
-    if ($typepanel == "marzban") {
-        sendmessage($from_id, $message, $optionMarzban, 'HTML');
-    } elseif ($typepanel == "x-ui_single") {
-        sendmessage($from_id, $message, $optionX_ui_single, 'HTML');
-    } elseif ($typepanel == "hiddify") {
-        sendmessage($from_id, $message, $optionhiddfy, 'HTML');
-    } elseif ($typepanel == "marzneshin") {
-        sendmessage($from_id, $message, $optionmarzneshin, 'HTML');
-    } elseif ($typepanel == "WGDashboard") {
-        sendmessage($from_id, $message, $optionwg, 'HTML');
-    } elseif ($typepanel == "ibsng") {
-        sendmessage($from_id, $message, $optionibsng, 'HTML');
-    } elseif ($typepanel == "mikrotik") {
-        sendmessage($from_id, $message, $option_mikrotik, 'HTML');
-    } elseif ($typepanel == "mirza_agent") {
-        sendmessage($from_id, $message, $option_mirza, 'HTML');
-    } elseif (in_array($typepanel, ["rebecca", "nexora", "wg_mate"])) {
-        sendmessage($from_id, $message, $optionrebecca, 'HTML');
+    global $from_id, $panelOptions;
+    if (isset($panelOptions[$typepanel])) {
+        sendmessage($from_id, $message, $panelOptions[$typepanel], 'HTML');
     }
 }
 

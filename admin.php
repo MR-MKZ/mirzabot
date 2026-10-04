@@ -5427,16 +5427,16 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         ]
     ]);
     sendmessage($from_id, $textoptimize, $Response, 'HTML');
-} elseif ($datain == "optimizebot") {
+} elseif ($datain == "optimizebot" && $adminrulecheck['rule'] == "administrator") {
     #remove data
     $testServiceName = $textbotlang['common']['labels']['testServiceName'];
-    $stmt = $pdo->prepare("DELETE FROM invoice WHERE Status = 'unpaid' AND name_product != :mp11");
-    $stmt->execute([':mp11' => $testServiceName]);
+    $stmt = $pdo->prepare("DELETE FROM invoice WHERE Status IN ('unpaid', 'Unsuccessful') AND name_product != :mp11 AND CAST(time_sell AS UNSIGNED) < :olderThan");
+    $stmt->execute([':mp11' => $testServiceName, ':olderThan' => time() - 86400]);
     $countunpiadorder = $stmt->rowCount();
     $stmt = $pdo->prepare("DELETE FROM invoice WHERE Status IN ('disabled', 'disabledn', 'disablebyadmin') AND name_product != :mp12");
     $stmt->execute([':mp12' => $testServiceName]);
     $countdisableorder = $stmt->rowCount();
-    $stmt = $pdo->prepare("DELETE FROM invoice WHERE Status IN ('removebyadmin', 'removedbyadmin')");
+    $stmt = $pdo->prepare("DELETE FROM invoice WHERE Status = 'removebyadmin'");
     $stmt->execute();
     $countremoveadminorder = $stmt->rowCount();
     $stmt = $pdo->prepare("DELETE FROM invoice WHERE Status IN ('disabled', 'disabledn', 'disablebyadmin') AND name_product = :mp13");
@@ -5448,10 +5448,17 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     $stmt = $pdo->prepare("DELETE FROM invoice WHERE Status IN ('removeTime', 'removevolume')");
     $stmt->execute();
     $countexpiredorder = $stmt->rowCount();
-    $optimizebot = sprintf($textbotlang['Admin']['report']['optimizeResult'], $countunpiadorder, $countdisableorder, $countremoveadminorder, $countdisableordtester, $countremoveuserorder, $countexpiredorder);
+    $stmt = $pdo->prepare("DELETE FROM Payment_report WHERE payment_Status = 'expire'");
+    $stmt->execute();
+    $countexpiredpayment = $stmt->rowCount();
+    $stmt = $pdo->prepare("DELETE FROM logs_api WHERE time < :olderThan");
+    $stmt->execute([':olderThan' => date('Y/m/d H:i:s', time() - 7 * 86400)]);
+    $countapilogs = $stmt->rowCount();
+    $pdo->query("OPTIMIZE TABLE invoice, Payment_report, logs_api")->fetchAll();
+    $optimizebot = sprintf($textbotlang['Admin']['report']['optimizeResult'], $countunpiadorder, $countdisableorder, $countremoveadminorder, $countdisableordtester, $countremoveuserorder, $countexpiredorder, $countexpiredpayment, $countapilogs);
     Editmessagetext($from_id, $message_id, $optimizebot, null);
     $time = time();
-    $logss = "optimize_{$countunpiadorder}_{$countdisableorder}_{$countremoveadminorder}_{$countdisableordtester}_{$countremoveuserorder}_{$countexpiredorder}_$time";
+    $logss = "optimize_{$countunpiadorder}_{$countdisableorder}_{$countremoveadminorder}_{$countdisableordtester}_{$countremoveuserorder}_{$countexpiredorder}_{$countexpiredpayment}_{$countapilogs}_$time";
     @file_put_contents(__DIR__ . '/storage/log.txt', "\n" . $logss, FILE_APPEND);
 } elseif ($datain == "settimecornvolume") {
     sendmessage($from_id, $textbotlang['Admin']['cronjob']['askVolumeAlert'], $backadmin, 'HTML');

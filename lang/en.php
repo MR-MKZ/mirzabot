@@ -2380,11 +2380,14 @@ Current amount: %s',
 📌 By confirming the option below, the following operations will be performed and they are irreversible
 
 1 - Inactive orders will be deleted
-2 - Unpaid orders will be deleted.
+2 - Unpaid or failed orders older than 24 hours will be deleted.
 3 - Orders deleted by the admin 
 4- Deletion of inactive test services
 5 - Orders deleted by the user 
-6 - Orders whose time or volume has expired',
+6 - Orders whose time or volume has expired
+7 - Expired payments will be deleted
+8 - API logs older than 7 days will be deleted
+9 - Database tables will be optimized',
                         'botReportIntro' => '💬 | Bot report
 
 🔹 | If you encounter a <b>bug or problem</b> in the bot\'s operation, please report it to us for review.
@@ -2418,7 +2421,10 @@ Current amount: %s',
 ✅ %s admin-deleted orders were deleted
 ✅ %s test orders were deleted.
 ✅ %s user-deleted orders were deleted.
-✅ %s expired orders (time or volume) were deleted.',
+✅ %s expired orders (time or volume) were deleted.
+✅ %s expired payments were deleted.
+✅ %s API logs were deleted.
+✅ Database tables were optimized.',
                         'backupCaption' => '📌 Main bot database export ',
                         'dailyBot' => '📌 Daily bot performance report :
 

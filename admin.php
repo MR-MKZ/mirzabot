@@ -1666,6 +1666,19 @@ elseif ($datain == "systemsms") {
     ];
     $keyboardadmin = json_encode($keyboardadmin);
     sendmessage($from_id, $textbotlang['Admin']['manageadmin']['listAndDelete'], $keyboardadmin, 'HTML');
+} elseif ($text == $textbotlang['keyboard']['setBotCommands'] && $adminrulecheck['rule'] == "administrator") {
+    $response = telegram('setMyCommands', [
+        'commands' => json_encode([
+            ['command' => 'start', 'description' => $textbotlang['keyboard']['start']],
+            ['command' => 'buy', 'description' => $textbotlang['textbot']['sell']],
+            ['command' => 'services', 'description' => $textbotlang['textbot']['purchasedServices']],
+            ['command' => 'free', 'description' => $textbotlang['textbot']['userTest']],
+            ['command' => 'wallet', 'description' => $textbotlang['textbot']['accountWallet']],
+            ['command' => 'help', 'description' => $textbotlang['textbot']['help']],
+            ['command' => 'support', 'description' => $textbotlang['textbot']['support']],
+        ], JSON_UNESCAPED_UNICODE),
+    ]);
+    sendmessage($from_id, !empty($response['ok']) ? $textbotlang['Admin']['botCommandsSet'] : ($response['description'] ?? $textbotlang['Admin']['invalidValue']), $setting_panel, 'HTML');
 } elseif ($text == $textbotlang['keyboard']['generalSettings'] && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['users']['selectoption'], $setting_panel, 'HTML');
 } elseif ($text == $textbotlang['keyboard']['supportSection'] && $adminrulecheck['rule'] == "administrator") {

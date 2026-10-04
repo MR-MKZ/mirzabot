@@ -2899,7 +2899,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $type = "transfertouser";
     $price = "0";
     $stmt->execute([$from_id, $nameloc['username'], $value, $type, $dateacc, $price]);
-} elseif ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $datain, $dataget) || $text == $textbotlang['textbot']['userTest'] || $datain == "usertestbtn" || $text == "usertest") {
+} elseif ($user['step'] == "createusertest" || preg_match('/locationtest_(.*)/', $datain, $dataget) || $text == $textbotlang['textbot']['userTest'] || $datain == "usertestbtn" || $text == "usertest" || $text == "/free") {
     if (!check_active_btn($setting['keyboardmain'], "text_usertest")) {
         sendmessage($from_id, $textbotlang['users']['usertest']['unavailable'], null, 'HTML');
         return;

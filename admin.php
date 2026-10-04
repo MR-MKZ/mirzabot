@@ -1592,148 +1592,37 @@ elseif ($datain == "systemsms") {
     $categoryText = sprintf($textbotlang['Admin']['Status']['categoryTitle'], $featureCategories[$categoryKey]['label']);
     Editmessagetext($from_id, $message_id, $categoryText, featureCategoryKeyboard($categoryKey));
 } elseif ($text == $textbotlang['keyboard']['botReports'] && $adminrulecheck['rule'] == "administrator") {
-    $textreports = sprintf($textbotlang['Admin']['Channel']['askReportGroupId'], $setting['Channel_Report']);
-    sendmessage($from_id, $textreports, $backadmin, 'HTML');
+    $topicRights = ['can_manage_topics' => true, 'can_post_messages' => true, 'can_pin_messages' => true];
+    $selectGroupKeyboard = json_encode([
+        'keyboard' => [
+            [['text' => $textbotlang['Admin']['Channel']['selectGroupBtn'], 'request_chat' => [
+                'request_id' => 1,
+                'chat_is_channel' => false,
+                'chat_is_forum' => true,
+                'user_administrator_rights' => $topicRights,
+                'bot_administrator_rights' => $topicRights,
+            ]]],
+            [['text' => $textbotlang['Admin']['backAdminBtn']], ['text' => $textbotlang['Admin']['backMenuBtn']]]
+        ],
+        'resize_keyboard' => true,
+    ]);
+    sendmessage($from_id, sprintf($textbotlang['Admin']['Channel']['askReportGroupId'], $setting['Channel_Report']), $selectGroupKeyboard, 'HTML');
     step('addchannelid', $from_id);
 } elseif ($user['step'] == "addchannelid") {
-    $outputcheck = sendmessage($text, $textbotlang['Admin']['Channel']['testChannel'], null, 'HTML');
-    if (!$outputcheck['ok']) {
-        $texterror = sprintf($textbotlang['Admin']['Channel']['connectionFailed'], $outputcheck['description']);
-        sendmessage($from_id, $texterror, null, 'HTML');
+    $sharedChatId = $update['message']['chat_shared']['chat_id'] ?? 0;
+    if (!$sharedChatId) {
+        sendmessage($from_id, $textbotlang['Admin']['Channel']['selectGroupHint'], null, 'HTML');
         return;
     }
-    if ($outputcheck['result']['chat']['is_forum'] == false) {
-        $texterror = $textbotlang['Admin']['Channel']['notForumGroup'];
-        sendmessage($from_id, $texterror, null, 'HTML');
+    if ($sharedChatId != $setting['Channel_Report']) {
+        update("topicid", "idreport", "0");
+    }
+    if (!syncReportTopics($sharedChatId, $textbotlang)) {
+        sendmessage($from_id, $textbotlang['Admin']['Channel']['botNotGroupAdmin'], null, 'HTML');
         return;
     }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['report']['btnPurchaseReports']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-    if ($buyreport != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "buyreport");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['report']['btnServicePurchase']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-    if ($otherservice != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "otherservice");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['report']['btnTestAccount']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-    if ($reporttest != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "reporttest");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['report']['btnOther']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-    if ($otherreport != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "otherreport");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['report']['btnErrors']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-    if ($errorreport != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "errorreport");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['report']['btnFinancial']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-
-    if ($paymentreports != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "paymentreport");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['affiliates']['titleTopic']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-
-    if ($porsantreport != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "porsantreport");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['report']['reportNight']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-
-    if ($reportnight != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "reportnight");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['report']['reportCron']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-
-    if ($reportcron != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "reportcron");
-    }
-    $createForumTopic = telegram('createForumTopic', [
-        'chat_id' => $text,
-        'name' => $textbotlang['Admin']['report']['btnBackup']
-    ]);
-    if (!$createForumTopic['ok']) {
-        $texterror = $textbotlang['Admin']['Channel']['botNotGroupAdmin'];
-        sendmessage($from_id, $texterror, null, 'HTML');
-        return;
-    }
-
-    if ($reportbackup != $createForumTopic['result']['message_thread_id']) {
-        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", "backupfile");
-    }
+    update("setting", "Channel_Report", $sharedChatId);
     sendmessage($from_id, $textbotlang['Admin']['Channel']['setChannelReport'], $setting_panel, 'HTML');
-    update("setting", "Channel_Report", $text);
     step('home', $from_id);
 } elseif ($text == $textbotlang['keyboard']['shopSettings'] && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['users']['selectoption'], $shopkeyboard, 'HTML');

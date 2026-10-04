@@ -1301,21 +1301,12 @@ n2',
                 ],
                 'Channel' => [
                         'setChannelReport' => '🔰 频道已成功配置',
-                        'testChannel' => '测试群组连接',
-                        'notForumGroup' => '❌ 所选群组未处于论坛模式。请先启用群组的话题功能，然后重新设置群组的数字ID',
                         'botNotGroupAdmin' => '❌ 机器人不是该群组的管理员',
-                        'askReportGroupId' => '📣 在此部分，您可以发送群组的数字 ID 以发送通知
-群组设置教程：
-1 - 首先创建一个群组 
-2 - 将机器人 @myidbot 加入群组，并在群组内发送命令 /getgroupid@myidbot 
-3 - 在群组设置中开启话题或论坛模式4
-4 - 将您自己的机器人设为群组管理员 
-5 - 将发送的数字 ID 发送给机器人。
+                        'askReportGroupId' => '📣 点击“选择报告群组”，从列表中选择已开启话题的群组；机器人将自动成为管理员并创建话题。
 
-您当前的数字 ID：%s',
-                        'connectionFailed' => '❌ 连接到群组未成功  
-
-收到的错误：  %s',
+当前群组：%s',
+                        'selectGroupBtn' => '选择报告群组',
+                        'selectGroupHint' => '❌ 请使用“选择报告群组”按钮选择一个群组',
                 ],
                 'Discount' => [
                         'giftManage' => "🎁 礼品码管理\n\n• 🎫 已登记的代码：%s\n\n📌 使用每个代码旁边的按钮查看详情或删除。",

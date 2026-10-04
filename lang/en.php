@@ -1301,21 +1301,12 @@ If you want the user to purchase unlimited, send the number 0',
                 ],
                 'Channel' => [
                         'setChannelReport' => '🔰 The channel was successfully configured',
-                        'testChannel' => 'Test group connection',
-                        'notForumGroup' => '❌ The selected group is not in forum mode. First enable the group\'s topic feature, then set the group\'s numeric ID again',
                         'botNotGroupAdmin' => '❌ The bot is not an admin of the group',
-                        'askReportGroupId' => '📣 In this section you can send the group\'s numeric ID for sending notifications
-Group setup tutorial:
-1 - First create a group 
-2 - Add the bot @myidbot to the group and send the command /getgroupid@myidbot inside the group 
-3 - Turn on topic or forum mode from the group settings4
-4 - Make your own bot an admin of the group 
-5 - Send the sent numeric ID to the bot.
+                        'askReportGroupId' => '📣 Tap «Select reports group» and pick your forum (topics) group from the list; the bot will be added as admin and create the topics automatically.
 
-Your current numeric ID: %s',
-                        'connectionFailed' => '❌ The connection to the group was not successful  
-
-Received error:  %s',
+Current group: %s',
+                        'selectGroupBtn' => 'Select reports group',
+                        'selectGroupHint' => '❌ Please pick a group using the «Select reports group» button',
                 ],
                 'Discount' => [
                         'giftManage' => "🎁 Gift code management\n\n• 🎫 Registered codes: %s\n\n📌 Use the buttons next to each code to view details or delete it.",

@@ -280,6 +280,36 @@ function copyDirectoryContents($source, $destination)
 }
 
 #-----------function------------#
+function syncReportTopics($chatId, $textbotlang)
+{
+    $topicNames = [
+        'buyreport' => $textbotlang['Admin']['report']['btnPurchaseReports'],
+        'otherservice' => $textbotlang['Admin']['report']['btnServicePurchase'],
+        'reporttest' => $textbotlang['Admin']['report']['btnTestAccount'],
+        'otherreport' => $textbotlang['Admin']['report']['btnOther'],
+        'errorreport' => $textbotlang['Admin']['report']['btnErrors'],
+        'paymentreport' => $textbotlang['Admin']['report']['btnFinancial'],
+        'porsantreport' => $textbotlang['Admin']['affiliates']['titleTopic'],
+        'reportnight' => $textbotlang['Admin']['report']['reportNight'],
+        'reportcron' => $textbotlang['Admin']['report']['reportCron'],
+        'backupfile' => $textbotlang['Admin']['report']['btnBackup'],
+    ];
+    foreach ($topicNames as $report => $name) {
+        $topicId = intval(select("topicid", "idreport", "report", $report, "select")['idreport'] ?? 0);
+        if ($topicId > 0) {
+            $editTopic = telegram('editForumTopic', ['chat_id' => $chatId, 'message_thread_id' => $topicId, 'name' => $name]);
+            if ($editTopic['ok'] || str_contains($editTopic['description'] ?? '', 'TOPIC_NOT_MODIFIED')) {
+                continue;
+            }
+        }
+        $createForumTopic = telegram('createForumTopic', ['chat_id' => $chatId, 'name' => $name]);
+        if (!$createForumTopic['ok']) {
+            return false;
+        }
+        update("topicid", "idreport", $createForumTopic['result']['message_thread_id'], "report", $report);
+    }
+    return true;
+}
 function step($step, $from_id)
 {
     global $pdo;

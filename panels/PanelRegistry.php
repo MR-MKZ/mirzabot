@@ -2,7 +2,20 @@
 
 class PanelRegistry
 {
-    private static $types = [];
+    private static $types = [
+        'marzban' => 'Marzban',
+        'marzneshin' => 'Marzneshin',
+        'x-ui_single' => 'XuiSingle',
+        'hiddify' => 'Hiddify',
+        'Manualsale' => 'Manualsale',
+        'WGDashboard' => 'WGDashboard',
+        'ibsng' => 'Ibsng',
+        'mikrotik' => 'Mikrotik',
+        'mirza_agent' => 'MirzaAgent',
+        'rebecca' => 'Rebeca',
+        'nexora' => 'Nexora',
+        'wg_mate' => 'WGMate',
+    ];
 
     private static $instances = [];
 

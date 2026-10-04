@@ -753,7 +753,7 @@ if ($datain == "paygwback") {
 } elseif ($text == $textbotlang['Admin']['btnKeyboard']['addPanel'] && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['Admin']['managepanel']['Inbound']['getPanelType'], $keyboardtypepanel, 'HTML');
 } elseif (preg_match('/^typepanel#(.+)$/', $datain, $dataget) && $adminrulecheck['rule'] == "administrator") {
-    if (!in_array($dataget[1], ["marzban", "marzneshin", "pasarguard", "mirza_agent", "x-ui_single", "alireza_single", "Manualsale", "hiddify", "WGDashboard", "s_ui", "ibsng", "mikrotik", "rebecca", "nexora", "wg_mate"], true)) {
+    if (!in_array($dataget[1], ["marzban", "marzneshin", "pasarguard", "mirza_agent", "x-ui_single", "Manualsale", "hiddify", "WGDashboard", "ibsng", "mikrotik", "rebecca", "nexora", "wg_mate"], true)) {
         return;
     }
     deletemessage($from_id, $message_id);
@@ -796,7 +796,7 @@ if ($datain == "paygwback") {
         savedata("save", "username", "null");
         savedata("save", "password", "null");
         finishAddPanel();
-    } elseif (in_array($paneltype, ["s_ui", "WGDashboard", "x-ui_single", "mirza_agent", "rebecca", "nexora", "wg_mate"], true)) {
+    } elseif (in_array($paneltype, ["WGDashboard", "x-ui_single", "mirza_agent", "rebecca", "nexora", "wg_mate"], true)) {
         savedata("save", "username", "null");
         sendmessage($from_id, $textbotlang['Admin']['agentbot']['askToken'], $backadmin, 'HTML');
         step('add_password_panel', $from_id);
@@ -2567,17 +2567,6 @@ elseif ($datain == "systemsms") {
         }
     } elseif ($marzban_list_get['type'] == "mirza_agent") {
         sendmessage($from_id, $textbotlang['users']['selectoption'], $option_mirza, 'HTML');
-    } elseif ($marzban_list_get['type'] == "alireza_single") {
-        $x_ui_check_connect = login($marzban_list_get['code_panel'], false);
-        if ($x_ui_check_connect['success']) {
-            sendmessage($from_id, $textbotlang['Admin']['managepanel']['connectXUi'], $optionalireza_single, 'HTML');
-        } elseif ($x_ui_check_connect['msg'] == "The username or password is incorrect") {
-            $text_marzban = $textbotlang['Admin']['managepanel']['invalidCredentials'];
-            sendmessage($from_id, $text_marzban, $optionalireza_single, 'HTML');
-        } else {
-            $text_marzban = panelErrorText($x_ui_check_connect['errror']);
-            sendmessage($from_id, $text_marzban, $optionalireza_single, 'HTML');
-        }
     } elseif ($marzban_list_get['type'] == "hiddify") {
         $System_Stats = serverstatus($marzban_list_get['name_panel']);
         if (!empty($System_Stats['status']) && $System_Stats['status'] != 200) {
@@ -2640,8 +2629,6 @@ elseif ($datain == "systemsms") {
         }
     } elseif ($marzban_list_get['type'] == "WGDashboard") {
         sendmessage($from_id, $textbotlang['users']['selectoption'], $optionwg, 'HTML');
-    } elseif ($marzban_list_get['type'] == "s_ui") {
-        sendmessage($from_id, $textbotlang['users']['selectoption'], $options_ui, 'HTML');
     } elseif ($marzban_list_get['type'] == "ibsng") {
         $result = loginIBsng($marzban_list_get['url_panel'], $marzban_list_get['username_panel'], $marzban_list_get['password_panel']);
         if ($result) {
@@ -7126,18 +7113,6 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
             update("marzban_panel", "proxies", json_encode($DataUserOut['proxies'], true), "name_panel", $user['Processing_value']);
         }
         sendmessage($from_id, $textbotlang['Admin']['managepanel']['protocolSaved'], $optionMarzban, 'HTML');
-    } elseif ($panel['type'] == "s_ui") {
-        $data = GetClientsS_UI($text, $panel['name_panel']); {
-            if (count($data) == 0) {
-                sendmessage($from_id, $textbotlang['Admin']['managepanel']['userNotInPanel2'], $options_ui, 'HTML');
-                return;
-            }
-            $servies = [];
-            foreach ($data['inbounds'] as $service) {
-                $servies[] = $service;
-            }
-            update("marzban_panel", "proxies", json_encode($servies, true), "name_panel", $user['Processing_value']);
-        }
     } elseif ($panel['type'] == "ibsng" || $panel['type'] == "mikrotik") {
         update("marzban_panel", "proxies", $text, "name_panel", $user['Processing_value']);
         $groupSavedKeyboard = $panel['type'] == "ibsng" ? $optionibsng : $option_mikrotik;
@@ -7523,17 +7498,6 @@ elseif ($text == $textbotlang['keyboard']['hidePanelForUser'] && $adminrulecheck
             return;
         }
         $datainbound = json_encode($data['obj']['inboundIds']);
-    }  elseif ($marzban_list_get['type'] == "s_ui") {
-        $data = GetClientsS_UI($text, $marzban_list_get['name_panel']);
-        if (count($data) == 0) {
-            sendmessage($from_id, $textbotlang['Admin']['managepanel']['userNotInPanel2'], $options_ui, 'HTML');
-            return;
-        }
-        $servies = [];
-        foreach ($data['inbounds'] as $service) {
-            $servies[] = $service;
-        }
-        $datainbound = json_encode($servies);
     } elseif ($marzban_list_get['type'] == "ibsng" || $marzban_list_get['type'] == "mikrotik") {
         $datainbound = $text;
     } else {

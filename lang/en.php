@@ -1993,7 +1993,6 @@ The support access level has access to user services and support message reply s
                         'changedPasswordPanel' => '✅ The panel password was successfully changed.',
                         'changedUrlPanel' => '✅ The panel address was successfully changed.',
                         'changedUsernamePanel' => '✅ The panel username was successfully changed.',
-                        'connectXUi' => '✅ The panel is connected',
                         'customNameSend' => 'Send your custom text',
                         'errorStatusPanel' => 'It is not possible to connect to the panel 😔 The error is written below. If the problem is not resolved, contact support',
                         'getLoc' => 'To edit the panel, send the panel name',
@@ -2027,8 +2026,6 @@ To activate, you must go to Panel Management > Set Group Name and send the defau
 
 1 - uuid admin: get and register the admin uuid from the panel
 2 - Subscription link domain: send the subscription link domain of the Hiddify panel',
-                        'noteSendConfigUsername' => '❌ Note:
-1 - From Panel Management > Set ⚙️ Protocol and Inbound, send a config username.',
                         'invalidSelection' => '❌ The selected panel is wrong',
                         'hidden' => 'Hidden',
                         'shown' => 'Shown',
@@ -2116,7 +2113,6 @@ Copy a subscription link of an active user and send it again.',
                         'btnSetGroupName' => '🎛 Set group name',
                         'askGroupName' => '📌 Send the group name you want to be used by default.',
                         'askProtocolSetup' => '📌 To set up the inbound and protocol, you must create a config in your panel, activate the protocols and inbounds you want to be active inside the panel, and send the config\'s username',
-                        'userNotInPanel2' => '❌ The user does not exist in the panel.',
                         'groupNameSaved' => '✅ The group name was set successfully.',
                         'protocolSaved' => '✅ Your inbounds and protocols were set up successfully.',
                         'askHideUserId' => '📌 Send the numeric ID of the user for this panel.',
@@ -4174,7 +4170,6 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'setGroupName' => '🎛 Set group name',
                 'subLinkDomain' => '🔗 Subscription link domain',
                 'panelTypeSanaei' => 'Sanaei single port',
-                'panelTypeAlireza' => 'Alireza single port',
                 'acceptRulesButton' => '✅ I accept the rules',
         ],
         'panel' => [

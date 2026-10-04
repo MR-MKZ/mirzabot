@@ -75,7 +75,7 @@ $backmenu_register(["getnameproduct", "getconfigtext", "getnameremove", "getname
 $backmenu_register(["getcontentedit"], $configedit);
 $backmenu_register(["limitchangeall", "limitfreechangefree"], $keyboardchangelimit);
 $backmenu_register(["getnamebtnapp", "geturlbtnapp", "edit_app", "get_new_lin_app", "getnameappforremove"], $keyboardlinkapp);
-$backmenu_register(["add_name_panel", "add_link_panel", "add_username_panel", "add_password_panel", "getlimitedpanel"], $keyboardtypepanel);
+$backmenu_register(["add_name_panel", "add_link_panel", "add_username_panel", "add_password_panel"], $keyboardtypepanel);
 
 if ($adminrulecheck['rule'] != "administrator") {
     $limitedRoleTexts = array_merge($textadmin, [
@@ -752,13 +752,20 @@ if ($datain == "paygwback") {
     sendmessage($from_id, $statisticsall, $keyboardadmin, 'HTML');
 } elseif ($text == $textbotlang['Admin']['btnKeyboard']['addPanel'] && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['Admin']['managepanel']['Inbound']['getPanelType'], $keyboardtypepanel, 'HTML');
-} elseif (preg_match('/typepanel#(.*)/', $datain, $dataget)) {
-    $typepanel = $dataget[1];
+} elseif (preg_match('/^typepanel#(.+)$/', $datain, $dataget) && $adminrulecheck['rule'] == "administrator") {
+    if (!in_array($dataget[1], ["marzban", "marzneshin", "pasarguard", "mirza_agent", "x-ui_single", "alireza_single", "Manualsale", "hiddify", "WGDashboard", "s_ui", "ibsng", "mikrotik", "rebecca", "nexora", "wg_mate"], true)) {
+        return;
+    }
+    deletemessage($from_id, $message_id);
+    savedata("clear", "type", $dataget[1]);
     sendmessage($from_id, $textbotlang['Admin']['managepanel']['addPanelName'], $backadmin, 'HTML');
     step("add_name_panel", $from_id);
-    deletemessage($from_id, $message_id);
-    savedata("clear", "type", $typepanel);
 } elseif ($user['step'] == "add_name_panel") {
+    $text = trim($text);
+    if ($text === "" || mb_strlen($text) > 100) {
+        sendmessage($from_id, $textbotlang['Admin']['managepanel']['invalidName'], $backadmin, 'HTML');
+        return;
+    }
     if (containsHtmlMarkup($text)) {
         sendmessage($from_id, $textbotlang['common']['htmlNotAllowed'], $backadmin, 'HTML');
         return;
@@ -767,14 +774,12 @@ if ($datain == "paygwback") {
         sendmessage($from_id, $textbotlang['Admin']['managepanel']['repeatPanel'], $backadmin, 'HTML');
         return;
     }
-    $userdata = json_decode($user['Processing_value'], true);
     savedata("save", "namepanel", $text);
-    if ($userdata['type'] == "Manualsale") {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['getLimitedPanel'], $backadmin, 'HTML');
-        step('getlimitedpanel', $from_id);
+    if (json_decode($user['Processing_value'], true)['type'] == "Manualsale") {
         savedata("save", "url_panel", "null");
         savedata("save", "username", "null");
         savedata("save", "password", "null");
+        finishAddPanel();
         return;
     }
     sendmessage($from_id, $textbotlang['Admin']['managepanel']['addPanelUrl'], $backadmin, 'HTML');
@@ -786,121 +791,26 @@ if ($datain == "paygwback") {
         return;
     }
     savedata("save", "url_panel", $text);
-    $userdata = json_decode($user['Processing_value'], true);
-    if ($userdata['type'] == "hiddify") {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['getLimitedPanel'], $backadmin, 'HTML');
-        step('getlimitedpanel', $from_id);
+    $paneltype = json_decode($user['Processing_value'], true)['type'];
+    if ($paneltype == "hiddify") {
         savedata("save", "username", "null");
         savedata("save", "password", "null");
-        return;
-    } elseif ($userdata['type'] == "s_ui" || $userdata['type'] == "WGDashboard" || $userdata['type'] == "x-ui_single" || $userdata['type'] == "mirza_agent" || $userdata['type'] == "rebecca" || $userdata['type'] == "nexora" || $userdata['type'] == "wg_mate") {
+        finishAddPanel();
+    } elseif (in_array($paneltype, ["s_ui", "WGDashboard", "x-ui_single", "mirza_agent", "rebecca", "nexora", "wg_mate"], true)) {
+        savedata("save", "username", "null");
         sendmessage($from_id, $textbotlang['Admin']['agentbot']['askToken'], $backadmin, 'HTML');
         step('add_password_panel', $from_id);
-        savedata("save", "username", "null");
-        return;
+    } else {
+        sendmessage($from_id, $textbotlang['Admin']['managepanel']['usernameSet'], $backadmin, 'HTML');
+        step('add_username_panel', $from_id);
     }
-    sendmessage($from_id, $textbotlang['Admin']['managepanel']['usernameSet'], $backadmin, 'HTML');
-    step('add_username_panel', $from_id);
 } elseif ($user['step'] == "add_username_panel") {
+    savedata("save", "username", trim($text));
     sendmessage($from_id, $textbotlang['Admin']['managepanel']['getPassword'], $backadmin, 'HTML');
     step('add_password_panel', $from_id);
-    savedata("save", "username", $text);
 } elseif ($user['step'] == "add_password_panel") {
-    sendmessage($from_id, $textbotlang['Admin']['managepanel']['getLimitedPanel'], $backadmin, 'HTML');
-    step('getlimitedpanel', $from_id);
-    savedata("save", "password", $text);
-} elseif ($user['step'] == "getlimitedpanel") {
-    savedata("save", "limitpanel", $text);
-    $userdata = json_decode($user['Processing_value'], true);
-    $randomString = bin2hex(random_bytes(2));
-    $sublink = "onsublink";
-    $configstatus = "offconfig";
-    $methodusernameadd = 'numericIdRandom';
-    $status = "active";
-    $ONTestAccount = "ONTestAccount";
-    $extendtextadd = "resetVolumeTime";
-    $namecustoms = "none";
-    $type = "marzban";
-    $conecton = "offconecton";
-    $inboundid = 1;
-    $agent = "all";
-    $time = "1";
-    $valume = "100";
-    $changeloc = "offchangeloc";
-    $value = json_encode(array(
-        'f' => "4000",
-        'n' => "4000",
-        'n2' => "4000"
-    ));
-    $valuemain = json_encode(array(
-        'f' => "1",
-        'n' => "1",
-        'n2' => "1"
-    ));
-    $valuemax = json_encode(array(
-        'f' => "1000",
-        'n' => "1000",
-        'n2' => "1000"
-    ));
-    $VALUE = json_encode(array(
-        'f' => '0',
-        'n' => '0',
-        'n2' => '0'
-    ));
-    $version_panel = $userdata['type'] == "pasarguard" ? "1" : "0";
-    $userdata['type'] = $userdata['type'] == "pasarguard" ? "marzban" : $userdata['type'];
-    $stmt = $pdo->prepare("INSERT INTO marzban_panel (code_panel,name_panel,sublink,config,MethodUsername,TestAccount,status,limit_panel,namecustom,Methodextend,type,conecton,inboundid,agent,inbound_deactive,inboundstatus,url_panel,username_panel,password_panel,time_usertest,val_usertest,linksubx,priceextravolume,priceextratime,pricecustomvolume,pricecustomtime,mainvolume,maxvolume,maintime,maxtime,status_extend,subvip,changeloc,customvolume,on_hold_test,version_panel) VALUES (:code_panel,:name_panel,:sublink,:config,:MethodUsername,:TestAccount,:status,:limit_panel,:namecustom,:Methodextend,:type,:conecton,:inboundid,:agent,:inbound_deactive,'offinbounddisable',:url_panel,:username_panel,:password_panel,:val_usertest,:time_usertest,:linksubx,:priceextravolume,:priceextratime,:pricecustomvolume,:pricecustomtime,:mainvolume,:maxvolume,:maintime,:maxtime,'on_extend','offsubvip',:changeloc,:customvolume,'1',:version_panel)");
-    $stmt->bindParam(':code_panel', $randomString);
-    $stmt->bindParam(':name_panel', $userdata['namepanel'], PDO::PARAM_STR);
-    $stmt->bindParam(':sublink', $sublink);
-    $stmt->bindParam(':config', $configstatus);
-    $stmt->bindParam(':MethodUsername', $methodusernameadd);
-    $stmt->bindParam(':TestAccount', $ONTestAccount);
-    $stmt->bindParam(':status', $status);
-    $stmt->bindParam(':limit_panel', $text);
-    $stmt->bindParam(':namecustom', $namecustoms);
-    $stmt->bindParam(':Methodextend', $extendtextadd);
-    $stmt->bindParam(':type', $userdata['type'], PDO::PARAM_STR);
-    $stmt->bindParam(':conecton', $conecton);
-    $stmt->bindParam(':inboundid', $inboundid);
-    $stmt->bindParam(':agent', $agent);
-    $stmt->bindParam(':inbound_deactive', $inboundid);
-    $stmt->bindParam(':url_panel', $userdata['url_panel']);
-    $stmt->bindParam(':linksubx', $userdata['url_panel']);
-    $stmt->bindParam(':username_panel', $userdata['username']);
-    $stmt->bindParam(':password_panel', $userdata['password']);
-    $stmt->bindParam(':val_usertest', $valume);
-    $stmt->bindParam(':time_usertest', $time);
-    $stmt->bindParam(':priceextravolume', $value);
-    $stmt->bindParam(':priceextratime', $value);
-    $stmt->bindParam(':pricecustomtime', $value);
-    $stmt->bindParam(':pricecustomvolume', $value);
-    $stmt->bindParam(':mainvolume', $valuemain);
-    $stmt->bindParam(':maxvolume', $valuemax);
-    $stmt->bindParam(':maintime', $valuemain);
-    $stmt->bindParam(':maxtime', $valuemax);
-    $stmt->bindParam(':changeloc', $changeloc);
-    $stmt->bindParam(':customvolume', $VALUE);
-    $stmt->bindParam(':version_panel', $version_panel);
-    $stmt->execute();
-    sendmessage($from_id, $textbotlang['Admin']['managepanel']['addedPanel'], $keyboardadmin, 'HTML');
-    sendmessage($from_id, "🥳", $keyboardadmin, 'HTML');
-    step("home", $from_id);
-    if ($userdata['type'] == "x-ui_single" or $userdata['type'] == "alireza_single") {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['noteSetInboundAndDomain'], null, 'HTML');
-    } elseif ($userdata['type'] == "marzban") {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['noteSetProtocolInbound'], null, 'HTML');
-    } elseif ($userdata['type'] == "WGDashboard") {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['noteSetInboundId'], null, 'HTML');
-    } elseif ($userdata['type'] == "ibsng") {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['noteSetGroupNameIbsng'], null, 'HTML');
-    } elseif ($userdata['type'] == "mikrotik") {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['noteMikrotikAccounting'], null, 'HTML');
-    } elseif ($userdata['type'] == "hiddify") {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['noteSetAdminUuid'], null, 'HTML');
-    } elseif ($userdata['type'] == "s_ui") {
-        sendmessage($from_id, $textbotlang['Admin']['managepanel']['noteSendConfigUsername'], null, 'HTML');
-    }
+    savedata("save", "password", trim($text));
+    finishAddPanel();
 }
 //_____________________[ message ]____________________________//
 elseif ($datain == "systemsms") {

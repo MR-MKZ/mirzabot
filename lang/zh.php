@@ -1996,9 +1996,6 @@ support 权限级别可访问用户服务和客服消息回复部分',
                         'connectXUi' => '✅ 面板已连接',
                         'customNameSend' => '请发送您的自定义文本',
                         'errorStatusPanel' => '无法连接到面板 😔 错误信息如下。如果问题未解决，请联系客服',
-                        'getLimitedPanel' => '📌 请指定此面板上的账户创建限制。
-⚠️ 请注意，该限制基于机器人中的有效订单数量 
-如果您希望无限制，请发送文本 unlimited',
                         'getLoc' => '如需编辑面板，请发送面板名称',
                         'getNameNew' => '请发送新的面板名称',
                         'getPassword' => '🔑 用户名已保存。请输入您的密码',

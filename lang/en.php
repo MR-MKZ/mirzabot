@@ -1996,9 +1996,6 @@ The support access level has access to user services and support message reply s
                         'connectXUi' => '✅ The panel is connected',
                         'customNameSend' => 'Send your custom text',
                         'errorStatusPanel' => 'It is not possible to connect to the panel 😔 The error is written below. If the problem is not resolved, contact support',
-                        'getLimitedPanel' => '📌 Specify the account creation limit on this panel.
-⚠️ Note that the limit is based on the number of active orders in the bot 
-If you want it to be unlimited, send the text unlimited',
                         'getLoc' => 'To edit the panel, send the panel name',
                         'getNameNew' => 'Send the new panel name',
                         'getPassword' => '🔑 The username was saved. Enter your password',

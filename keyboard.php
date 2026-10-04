@@ -247,10 +247,11 @@ $NowPaymentsManage = json_encode([
 $setting_panel = json_encode([
     'keyboard' => [
         [['text' => $textbotlang['keyboard']['featureStatus']], ['text' => $textbotlang['keyboard']['adminSection']]],
-        [['text' => $textbotlang['keyboard']['botReports']], ['text' => $textbotlang['keyboard']['channelSettings']]],
-        [['text' => $textbotlang['keyboard']['activateWebPanel']], ['text' => $textbotlang['keyboard']['setTestAccountLimitAll']]],
+        [['text' => $textbotlang['keyboard']['channelSettings']], ['text' => $textbotlang['keyboard']['botReports']]],
         [['text' => $textbotlang['keyboard']['agentMembershipFee']], ['text' => $textbotlang['keyboard']['qrBackground']]],
-        [['text' => $textbotlang['keyboard']['reWebhookAgentBots']], ['text' => $textbotlang['keyboard']['optimizeBot']]],
+        [['text' => $textbotlang['keyboard']['setTestAccountLimitAll']]],
+        [['text' => $textbotlang['keyboard']['activateWebPanel']], ['text' => $textbotlang['keyboard']['optimizeBot']]],
+        [['text' => $textbotlang['keyboard']['reWebhookAgentBots']]],
         [['text' => $textbotlang['Admin']['backAdminBtn']], ['text' => $textbotlang['Admin']['backMenuBtn']]]
     ],
     'resize_keyboard' => true

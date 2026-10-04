@@ -1569,6 +1569,69 @@ function savedata($type, $namefiled, $valuefiled)
         update("user", "Processing_value", json_encode($dataperevieos), "id", $from_id);
     }
 }
+function finishAddPanel()
+{
+    global $pdo, $from_id, $textbotlang, $keyboardadmin;
+    $userdata = json_decode(select("user", "Processing_value", "id", $from_id, "select")['Processing_value'], true);
+    $defaultPrice = json_encode(['f' => "4000", 'n' => "4000", 'n2' => "4000"]);
+    $defaultMain = json_encode(['f' => "1", 'n' => "1", 'n2' => "1"]);
+    $defaultMax = json_encode(['f' => "1000", 'n' => "1000", 'n2' => "1000"]);
+    $panelData = [
+        'code_panel' => bin2hex(random_bytes(2)),
+        'name_panel' => $userdata['namepanel'],
+        'sublink' => "onsublink",
+        'config' => "offconfig",
+        'MethodUsername' => "numericIdRandom",
+        'TestAccount' => "ONTestAccount",
+        'status' => "active",
+        'limit_panel' => "unlimited",
+        'namecustom' => "none",
+        'Methodextend' => "resetVolumeTime",
+        'type' => $userdata['type'] == "pasarguard" ? "marzban" : $userdata['type'],
+        'conecton' => "offconecton",
+        'inboundid' => "1",
+        'agent' => "all",
+        'inbound_deactive' => "1",
+        'inboundstatus' => "offinbounddisable",
+        'url_panel' => $userdata['url_panel'],
+        'linksubx' => $userdata['url_panel'],
+        'username_panel' => $userdata['username'],
+        'password_panel' => $userdata['password'],
+        'time_usertest' => "1",
+        'val_usertest' => "100",
+        'priceextravolume' => $defaultPrice,
+        'priceextratime' => $defaultPrice,
+        'pricecustomvolume' => $defaultPrice,
+        'pricecustomtime' => $defaultPrice,
+        'mainvolume' => $defaultMain,
+        'maxvolume' => $defaultMax,
+        'maintime' => $defaultMain,
+        'maxtime' => $defaultMax,
+        'status_extend' => "on_extend",
+        'subvip' => "offsubvip",
+        'changeloc' => "offchangeloc",
+        'customvolume' => json_encode(['f' => "0", 'n' => "0", 'n2' => "0"]),
+        'on_hold_test' => "1",
+        'version_panel' => $userdata['type'] == "pasarguard" ? "1" : "0",
+    ];
+    $stmt = $pdo->prepare("INSERT INTO marzban_panel (" . implode(',', array_keys($panelData)) . ") VALUES (:" . implode(', :', array_keys($panelData)) . ")");
+    $stmt->execute($panelData);
+    step("home", $from_id);
+    sendmessage($from_id, $textbotlang['Admin']['managepanel']['addedPanel'] . " 🥳", $keyboardadmin, 'HTML');
+    $panelNotes = [
+        "x-ui_single" => "noteSetInboundAndDomain",
+        "alireza_single" => "noteSetInboundAndDomain",
+        "marzban" => "noteSetProtocolInbound",
+        "WGDashboard" => "noteSetInboundId",
+        "ibsng" => "noteSetGroupNameIbsng",
+        "mikrotik" => "noteMikrotikAccounting",
+        "hiddify" => "noteSetAdminUuid",
+        "s_ui" => "noteSendConfigUsername",
+    ];
+    if (isset($panelNotes[$panelData['type']])) {
+        sendmessage($from_id, $textbotlang['Admin']['managepanel'][$panelNotes[$panelData['type']]], null, 'HTML');
+    }
+}
 function addFieldToTable($tableName, $fieldName, $defaultValue = null, $datatype = "VARCHAR(500)")
 {
     global $pdo;

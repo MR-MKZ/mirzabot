@@ -3701,6 +3701,12 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     } else {
         step('getvolumecustomuser', $from_id);
     }
+} elseif ($datain == "productsoldout" || (preg_match('/^prodcutservices?(?:om)?_([^-]+)/', $datain, $soldOutMatch) && (select("product", "status_product", "code_product", $soldOutMatch[1], "select")['status_product'] ?? '') == "disable")) {
+    telegram('answerCallbackQuery', [
+        'callback_query_id' => $callback_query_id,
+        'text' => $textbotlang['users']['sell']['productSoldOut'],
+        'show_alert' => true,
+    ]);
 } elseif ($user['step'] == "getvolumecustomusername" || preg_match('/^prodcutservices_(.*)/', $datain, $dataget)) {
     $prodcut = $dataget[1];
     $userdate = json_decode($user['Processing_value'], true);

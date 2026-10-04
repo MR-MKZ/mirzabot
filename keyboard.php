@@ -1034,6 +1034,7 @@ $change_product = json_encode([
         [['text' => $textbotlang['keyboard']['volumeResetType']], ['text' => $textbotlang['keyboard']['note']]],
         [['text' => $textbotlang['keyboard']['productLocation']], ['text' => $textbotlang['keyboard']['category']]],
         [['text' => $textbotlang['keyboard']['setInbound']], ['text' => $textbotlang['keyboard']['showFirstPurchase']]],
+        [['text' => $textbotlang['keyboard']['productSaleStatus']]],
         [['text' => $textbotlang['keyboard']['hidePanel']], ['text' => $textbotlang['keyboard']['deleteAllHiddenPanels']]],
         [['text' => $textbotlang['Admin']['backAdminBtn']], ['text' => $textbotlang['Admin']['backMenuBtn']]]
     ],
@@ -1348,6 +1349,12 @@ function KeyboardProduct($location, $query, $pricediscount, $datakeyboard, $stat
         $namekeyboard = $result['name_product'] . " - " . number_format($result['price_product']) . $textbotlang['common']['labels']['toman'];
         if ($statusshowprice == "onshowprice") {
             $result['name_product'] = $namekeyboard;
+        }
+        if ($result['status_product'] == "disable" && str_starts_with($datakeyboard, "prodcutservice")) {
+            $product['inline_keyboard'][] = [
+                ['text' => $result['name_product'] . " | " . $textbotlang['keyboard']['productSoldOut'], 'callback_data' => "productsoldout"]
+            ];
+            continue;
         }
         $product['inline_keyboard'][] = [
             ['text' => $result['name_product'], 'callback_data' => "{$datakeyboard}{$result['code_product']}{$valuetow}"]

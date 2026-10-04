@@ -9379,6 +9379,30 @@ if ($datain == "settimecornday" && $adminrulecheck['rule'] == "administrator") {
         ]
     ]);
     Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Product']['firstPurchaseDesc'], $Response);
+} elseif (($text == $textbotlang['keyboard']['productSaleStatus'] || preg_match('/^status_sale-(.+)$/', $datain, $dataget)) && $adminrulecheck['rule'] == "administrator") {
+    $panel = select("marzban_panel", "*", "code_panel", $user['Processing_value_one'], "select");
+    $stmt = $pdo->prepare("SELECT * FROM product WHERE id = :name_product AND agent = :agent AND (Location = :Location OR Location = '/all') LIMIT 1");
+    $stmt->execute([':name_product' => $user['Processing_value'], ':agent' => $user['Processing_value_tow'], ':Location' => $panel['name_panel']]);
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$product) {
+        return;
+    }
+    if (isset($dataget[1])) {
+        $product['status_product'] = $product['status_product'] == "disable" ? "active" : "disable";
+        update("product", "status_product", $product['status_product'], "id", $product['id']);
+    }
+    $Response = json_encode([
+        'inline_keyboard' => [
+            [
+                ['text' => $textbotlang['keyboard'][$product['status_product'] == "disable" ? 'productSoldOut' : 'productAvailable'], 'callback_data' => 'status_sale-' . $product['id']],
+            ],
+        ]
+    ]);
+    if (isset($dataget[1])) {
+        Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Product']['saleStatusDesc'], $Response);
+    } else {
+        sendmessage($from_id, $textbotlang['Admin']['Product']['saleStatusDesc'], $Response, 'HTML');
+    }
 } elseif ($text == $textbotlang['keyboard']['excludeUserAutoConfirm']) {
     sendmessage($from_id, $textbotlang['Admin']['Payment']['autoConfirmSelect'], $Exception_auto_cart_keyboard, 'HTML');
 } elseif ($text == $textbotlang['keyboard']['excludeUser']) {

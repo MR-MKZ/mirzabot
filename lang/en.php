@@ -897,6 +897,7 @@ Support account : @%s',
 🪪(example: Ali, Ahmad, Uncle, customer from out of town, etc.)',
                         'serviceSelect' => '🛍️ Please select the service you want to purchase!',
                         'serviceSelectFirst' => '🛍️ Please select the service you want to purchase!',
+                        'productSoldOut' => '❌ This product is currently sold out.',
                         'service_not_available' => '⛔️ You have no active service',
                         'service_sell' => '🛍 Subscriptions purchased by you
 
@@ -1467,6 +1468,7 @@ User types: f, n, n2',
                         'askNewVolume' => 'Send the new volume',
                         'updated' => '✅ Product updated',
                         'firstPurchaseDesc' => '📌 Through this feature you can set whether this product is for the first purchase or not',
+                        'saleStatusDesc' => '📌 Use this button to make the product available or sold out. A sold out product stays in the purchase list with a sold out label and cannot be bought. Renewals of existing services are not affected.',
                         'nameExists' => '❌ A product named %s already exists',
                         'editSummary' => '
 📌 Information of the product being edited:
@@ -4103,6 +4105,9 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'shopSettings' => '🏬 Store settings',
                 'showCartAfterFirstPay' => '🔒 Show card-to-card after first payment',
                 'showFirstPurchase' => 'Show for first purchase',
+                'productSaleStatus' => '🚦 Sale status',
+                'productAvailable' => '🟢 Available',
+                'productSoldOut' => '🔴 Sold out',
                 'showHiddenPanels' => '🗑 Show hidden panels',
                 'showPanel' => '🖥 Show panel',
                 'showProductPrice' => '💰 Show product price',

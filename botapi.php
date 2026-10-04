@@ -250,17 +250,56 @@ function telegram($method, $datas = [], $token = null, $allowEmojiFallback = tru
 
     return $decodedResponse;
 }
+function splitTelegramText($text, $limit = 4096)
+{
+    $utf16Length = fn($value) => strlen(mb_convert_encoding($value, 'UTF-16LE', 'UTF-8')) / 2;
+    $text = (string) $text;
+    if ($utf16Length($text) <= $limit) {
+        return [$text];
+    }
+    $chunks = [];
+    $current = '';
+    foreach (explode("\n", $text) as $line) {
+        while ($utf16Length($line) > $limit) {
+            if ($current !== '') {
+                $chunks[] = $current;
+                $current = '';
+            }
+            $part = mb_substr($line, 0, $limit);
+            while ($utf16Length($part) > $limit) {
+                $part = mb_substr($part, 0, -1);
+            }
+            $chunks[] = $part;
+            $line = mb_substr($line, mb_strlen($part));
+        }
+        $candidate = $current === '' ? $line : $current . "\n" . $line;
+        if ($utf16Length($candidate) > $limit) {
+            $chunks[] = $current;
+            $current = $line;
+        } else {
+            $current = $candidate;
+        }
+    }
+    if ($current !== '') {
+        $chunks[] = $current;
+    }
+    return $chunks;
+}
 function sendmessage($chat_id,$text,$keyboard,$parse_mode,$bot_token = null){
     if (isTelegramChatIdEmpty($chat_id)) {
         return ['ok' => false];
     }
-    return telegram('sendmessage',[
-        'chat_id' => $chat_id,
-        'text' => $text,
-        'reply_markup' => $keyboard,
-        'parse_mode' => $parse_mode,
-        
-        ],$bot_token);
+    $chunks = splitTelegramText($text);
+    $result = ['ok' => false];
+    foreach ($chunks as $index => $chunk) {
+        $result = telegram('sendmessage', [
+            'chat_id' => $chat_id,
+            'text' => $chunk,
+            'reply_markup' => $index == count($chunks) - 1 ? $keyboard : null,
+            'parse_mode' => $parse_mode,
+        ], $bot_token);
+    }
+    return $result;
 }
 function sendDocument($chat_id, $documentPath, $caption) {
         return telegram('sendDocument',[

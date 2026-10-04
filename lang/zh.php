@@ -1077,6 +1077,8 @@ https://t.me/%s?start=%s',
                         'confirmEnableConfig' => '📌 确认下方选项后，您的配置将被开启，您将能够连接到该配置。
 ⚠️ 如果您希望再次停用配置，必须从服务管理部分点击 <u>❌ 关闭账户</u> 按钮',
                         'getConfigHint' => '📌 要获取配置，请点击获取配置按钮',
+                        'lowBalanceAlert' => '⚠️ 您的钱包余额为 %s 托曼，即将用完。
+请为钱包充值以购买或续费服务。',
                         'wireguardFile' => '⚙️ 您的 WireGuard 配置文件
 📥 请将此文件导入 WireGuard 应用。',
                         'connectionInfo' => '
@@ -1769,6 +1771,10 @@ trojan://xyz',
                         'cannotDeleteUnlimited' => '❌ 由于流量和时间均为无限，无法删除该服务。',
                         'askOnHoldDays' => '在此部分，您必须设置：如果用户在若干天后仍未连接到其配置且处于 on_hold 状态，则向用户发送消息',
                         'askVolumeAlert' => '📌 在此部分，您可以设置：当用户的流量达到 x 时发送警告消息。请以 GB 为单位发送流量。',
+                        'askLowBalanceAlert' => '📌 当用户钱包余额达到或低于此金额时，将向其发送一次提醒。
+请发送金额（托曼）。
+
+当前值：%s 托曼',
                         'askNotifyDays' => '📌 在此部分，您可以设置在订阅结束前多少天通知用户。时间以天为单位',
                         'userNotifyEnabled' => '✅ 已为用户启用定时任务通知。',
                         'userNotifyDisabled' => '✅ 已为用户停用定时任务通知。',
@@ -2420,6 +2426,10 @@ f,n.n2',
 ✅ 已删除 %s 个已过期的付款。
 ✅ 已删除 %s 条 API 日志。
 ✅ 数据库表已优化。',
+                        'autoCleanup' => '🧹 机器人自动清理
+
+🗑 已删除未付款账单：%s
+🗑 已删除 API 日志：%s',
                         'backupCaption' => '📌 主机器人数据库导出 ',
                         'dailyBot' => '📌 机器人每日运行报告：
 
@@ -4085,6 +4095,7 @@ f,n.n2',
                 'setThirdPrize' => '3️⃣ 设置第三名奖品',
                 'settings' => '⚙️ 设置',
                 'settleDebt' => '💎 结清欠款',
+                'lowBalanceAlert' => '💰 余额提醒',
                 'shareLink' => '🔗 分享链接',
                 'shopFeatureStatus' => '🛒 商店功能状态',
                 'shopSettings' => '🏬 商店设置',

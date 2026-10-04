@@ -1077,6 +1077,8 @@ Thank you for using our services.',
                         'confirmEnableConfig' => '📌 By confirming the option below, your config will be turned on and you will be able to connect to it.
 ⚠️ If you want the config to be deactivated again, you must click the <u>❌ Turn off account</u> button from the service management section',
                         'getConfigHint' => '📌 To get the config, click the Get config button',
+                        'lowBalanceAlert' => '⚠️ Your wallet balance is %s Toman and running low.
+Top up your wallet to buy or renew services.',
                         'wireguardFile' => '⚙️ Your WireGuard config file
 📥 Import this file into the WireGuard app.',
                         'connectionInfo' => '
@@ -1769,6 +1771,10 @@ Current time: ',
                         'cannotDeleteUnlimited' => '❌ The service cannot be deleted because its volume and time are unlimited. ',
                         'askOnHoldDays' => 'In this section you must set, if the user has not connected to their config after a certain number of days and is in on_hold status, to send the user a message',
                         'askVolumeAlert' => '📌 In this section you can set that if the user\'s volume reaches x, a warning message is sent. Send the volume in GB.',
+                        'askLowBalanceAlert' => '📌 When the wallet balance of a user reaches this amount or less, they receive a one-time warning.
+Send the amount in Toman.
+
+Current value: %s Toman',
                         'askNotifyDays' => '📌 In this section you can set how many days before the subscription ends the user is notified. The time is in days',
                         'userNotifyEnabled' => '✅ Cron notifications were enabled for the user.',
                         'userNotifyDisabled' => '✅ Cron notifications were disabled for the user.',
@@ -2420,6 +2426,10 @@ Current amount: %s',
 ✅ %s expired payments were deleted.
 ✅ %s API logs were deleted.
 ✅ Database tables were optimized.',
+                        'autoCleanup' => '🧹 Automatic bot cleanup
+
+🗑 Unpaid invoices removed: %s
+🗑 API logs removed: %s',
                         'backupCaption' => '📌 Main bot database export ',
                         'dailyBot' => '📌 Daily bot performance report :
 
@@ -4085,6 +4095,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'setThirdPrize' => '3️⃣ Set third place prize',
                 'settings' => '⚙️ Settings',
                 'settleDebt' => '💎 Settle debt',
+                'lowBalanceAlert' => '💰 Low balance',
                 'shareLink' => '🔗 Share link',
                 'shopFeatureStatus' => '🛒 Store feature status',
                 'shopSettings' => '🏬 Store settings',

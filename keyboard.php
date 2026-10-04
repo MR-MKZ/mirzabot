@@ -422,6 +422,7 @@ $featureCategories = [
             'bulkbuy' => ['label' => $textbotlang['keyboard']['bulkPurchaseStatus'], 'setting' => 'bulkbuy', 'on' => 'onbulk', 'off' => 'offbulk'],
             'compycart' => ['label' => $textbotlang['keyboard']['copyCard'], 'setting' => 'statuscopycart', 'on' => '1', 'off' => '0'],
             'Debtsettlement' => ['label' => $textbotlang['keyboard']['settleDebt'], 'setting' => 'Debtsettlement', 'on' => '1', 'off' => '0'],
+            'alert_balance' => ['label' => $textbotlang['keyboard']['lowBalanceAlert'], 'setting' => 'alert_balance', 'on' => '1', 'off' => '0', 'config' => 'setlowbalancealert'],
             'changeloc' => ['label' => $textbotlang['keyboard']['locationChangeLimit'], 'setting' => 'statuslimitchangeloc', 'on' => '1', 'off' => '0', 'config' => 'changeloclimit'],
             'statusnamecustom' => ['label' => $textbotlang['keyboard']['configNote'], 'setting' => 'statusnamecustom', 'on' => 'onnamecustom', 'off' => 'offnamecustom'],
             'statusnamecustomf' => ['label' => $textbotlang['keyboard']['userNote'], 'setting' => 'statusnoteforf', 'on' => '1', 'off' => '0'],

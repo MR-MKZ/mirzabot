@@ -68,7 +68,7 @@ $backmenu_register(["chashbackstar", "gethelpstar", "getmainaqstar", "maxbalance
 $backmenu_register(["variza_api_token", "variza_webhook_secret", "getcashvariza", "getmainvariza", "getmaaxvariza", "helpvariza"], $keyboardvariza);
 $backmenu_register([
     "addchannelid", "limit_usertest_allusers", "getimagebackgroundqr", "getpricereqagent",
-    "getcronvolumere", "on_hold_day", "getdaycron", "getvolumewarn", "getdaywarn"
+    "getcronvolumere", "on_hold_day", "getdaycron", "getvolumewarn", "getdaywarn", "getlowbalancealert"
 ], $setting_panel);
 $backmenu_register(["idsupportset", "getidadmindep", "getdeparteman", "getremovedep"], $supportcenter);
 $backmenu_register(["getnameproduct", "getconfigtext", "getnameremove", "getnameedit"], $panelOptions['Manualsale']);
@@ -5357,6 +5357,17 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     $time = time();
     $logss = "optimize_{$countunpiadorder}_{$countdisableorder}_{$countremoveadminorder}_{$countdisableordtester}_{$countremoveuserorder}_{$countexpiredorder}_{$countexpiredpayment}_{$countapilogs}_$time";
     @file_put_contents(__DIR__ . '/storage/log.txt', "\n" . $logss, @filesize(__DIR__ . '/storage/log.txt') > 5 * 1024 * 1024 ? 0 : FILE_APPEND);
+} elseif ($datain == "setlowbalancealert" && $adminrulecheck['rule'] == "administrator") {
+    sendmessage($from_id, sprintf($textbotlang['Admin']['cronjob']['askLowBalanceAlert'], number_format(intval($setting['balance_value_alert']))), $backadmin, 'HTML');
+    step("getlowbalancealert", $from_id);
+} elseif ($user['step'] == "getlowbalancealert") {
+    if (!ctype_digit($text)) {
+        sendmessage($from_id, $textbotlang['Admin']['invalidValue'], null, 'html');
+        return;
+    }
+    update("setting", "balance_value_alert", $text);
+    sendmessage($from_id, $textbotlang['Admin']['changesSaved2'], $setting_panel, 'HTML');
+    step("home", $from_id);
 } elseif ($datain == "settimecornvolume") {
     sendmessage($from_id, $textbotlang['Admin']['cronjob']['askVolumeAlert'], $backadmin, 'HTML');
     step("getvolumewarn", $from_id);

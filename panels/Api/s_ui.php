@@ -1,5 +1,5 @@
 <?php
-require_once 'config.php';
+require_once __DIR__ . '/../../config.php';
 ini_set('error_log', 'error_log');
 
 

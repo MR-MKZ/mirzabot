@@ -1,19 +1,7 @@
 <?php
 ini_set('error_log', 'error_log');
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/Marzban.php';
-require_once __DIR__ . '/x-ui_single.php';
-require_once __DIR__ . '/hiddify.php';
-require_once __DIR__ . '/marzneshin.php';
-require_once __DIR__ . '/alireza_single.php';
-require_once __DIR__ . '/WGDashboard.php';
-require_once __DIR__ . '/s_ui.php';
-require_once __DIR__ . '/ibsng.php';
-require_once __DIR__ . '/mikrotik.php';
-require_once __DIR__ . '/mirza_agent.php';
-require_once __DIR__ . '/Rebecca.php';
-require_once __DIR__ . '/nexora.php';
-require_once __DIR__ . '/wg_mate.php';
+require_once __DIR__ . '/panels/bootstrap.php';
 
 class ManagePanel
 {

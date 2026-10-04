@@ -295,7 +295,6 @@ if ($datain == "paygwback") {
     step('get_number_limit', $from_id);
 } elseif ($user['step'] == "get_number_limit") {
     sendmessage($from_id, $textbotlang['Admin']['getlimitusertest']['setLimit'], $keyboardadmin, 'HTML');
-    $id_user_set = $text;
     step('home', $from_id);
     update("user", "limit_usertest", $text, "id", $user['Processing_value']);
 } elseif ($text == $textbotlang['Admin']['getlimitusertest']['setLimitBtn'] && $adminrulecheck['rule'] == "administrator") {
@@ -814,22 +813,6 @@ if ($datain == "paygwback") {
     savedata("save", "limitpanel", $text);
     $userdata = json_decode($user['Processing_value'], true);
     $randomString = bin2hex(random_bytes(2));
-    if ($userdata['type'] == "x-ui_single" || $userdata['type'] == "alireza") {
-        $marzbanprotocol = $randomString;
-        $protocols = "vmess";
-        $settingpanel = json_encode(array(
-            'network' => 'ws',
-            'security' => 'none',
-            'externalProxy' => array(),
-            'wsSettings' => array(
-                'acceptProxyProtocol' => false,
-                'path' => '/',
-                'host' => '',
-                'headers' => array()
-
-            ),
-        ));
-    }
     $sublink = "onsublink";
     $configstatus = "offconfig";
     $methodusernameadd = 'numericIdRandom';
@@ -2613,7 +2596,6 @@ elseif ($datain == "systemsms") {
             $__q42->execute();
             $ListSellSUM = number_format($__q42->fetch(PDO::FETCH_ASSOC)['SUM(price_product)'] ?? 0);
 
-            $Condition_marzban = "";
             $text_marzban = sprintf($textbotlang['Admin']['stats']['panelMarzban'], $total_user, $active_users, $System_Stats['version'], $mem_total, $mem_used, $bandwidth, $ListSell, $ListSellSUM, $marzban_list_get['agent']);
             if ($marzban_list_get['version_panel'] == "1") {
                 $text_marzban = str_replace($textbotlang['keyboard']['marzban'], $textbotlang['keyboard']['passargadPanel'], $text_marzban);
@@ -2737,7 +2719,6 @@ elseif ($datain == "systemsms") {
             $__q44->bindValue(2, $textbotlang['common']['labels']['testServiceName'], PDO::PARAM_STR);
             $__q44->execute();
             $ListSellSUM = number_format($__q44->fetch(PDO::FETCH_ASSOC)['SUM(price_product)'] ?? 0);
-            $Condition_marzban = "";
             $text_marzban = sprintf($textbotlang['Admin']['stats']['panelMarzban2'], $total_user, $active_users, $ListSell, $ListSellSUM, $marzban_list_get['agent']);
             sendmessage($from_id, $text_marzban, $optionmarzneshin, 'HTML');
         } elseif (isset($Check_token['detail']) && $Check_token['detail'] == "Incorrect username or password") {
@@ -4015,7 +3996,6 @@ elseif ($datain == "systemsms") {
     $userdata = json_decode($user['Processing_value'], true);
     $stmt = $pdo->prepare("INSERT INTO DiscountSell (codeDiscount, usedDiscount, price, limitDiscount, agent, usefirst, useuser, code_panel, code_product, time,type) VALUES (:codeDiscount, :usedDiscount, :price, :limitDiscount, :agent, :usefirst, :useuser, :code_panel, :code_product, :time,:type)");
     $values = "0";
-    $values1 = "1";
     $code_product = "0";
     $stmt->bindParam(':codeDiscount', $userdata['code'], PDO::PARAM_STR);
     $stmt->bindParam(':usedDiscount', $values, PDO::PARAM_STR);
@@ -4133,7 +4113,7 @@ elseif ($datain == "systemsms") {
     $Payment_report = select("Payment_report", "*", "id_order", $id_order, "select");
     update("user", "Processing_value", $id_order, "id", $from_id);
     if ($Payment_report['payment_Status'] == "paid" || $Payment_report['payment_Status'] == "reject") {
-        $ff = telegram('answerCallbackQuery', array(
+        telegram('answerCallbackQuery', array(
             'callback_query_id' => $callback_query_id,
             'text' => $textbotlang['Admin']['Payment']['reviewedPayment'],
             'show_alert' => true,
@@ -5042,7 +5022,6 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     $apiDocsUrl = "https://$domainhostsEscaped/api/index.html";
     sendmessage($from_id, sprintf($textbotlang['Admin']['api']['docsLink'], $apiDocsUrl), null, 'HTML');
 } elseif ($text == $textbotlang['keyboard']['activateWebPanel'] && $adminrulecheck['rule'] == "administrator") {
-    $admin_select = select("admin", "*", "id_admin", $from_id, "select");
     $randomString = bin2hex(random_bytes(6));
     update("admin", "username", $from_id, "id_admin", $from_id);
     update("admin", "password", password_hash($randomString, PASSWORD_BCRYPT, ['cost' => 12]), "id_admin", $from_id);
@@ -7518,7 +7497,6 @@ elseif ($text == $textbotlang['keyboard']['hidePanelForUser'] && $adminrulecheck
         sendmessage($from_id, $textbotlang['Admin']['Payment']['noPending'], $list_payment, 'HTML');
         return;
     }
-    $list_pay = ['inline_keyboard' => []];
     foreach ($list_payment as $payment) {
         $list_payment['inline_keyboard'][] = [
             ['text' => $payment['id_user'], 'callback_data' => "checkpay"]

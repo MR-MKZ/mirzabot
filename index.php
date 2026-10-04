@@ -137,8 +137,6 @@ foreach ($topic_id as $topic) {
         $errorreport = $topic['idreport'];
     if ($topic['report'] == 'porsantreport')
         $porsantreport = $topic['idreport'];
-    if ($topic['report'] == 'reportcron')
-        $reportcron = $topic['idreport'];
     if ($topic['report'] == 'backupfile')
         $reportbackup = $topic['idreport'];
     if ($topic['report'] == 'buyreport')
@@ -2332,7 +2330,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $output = $DataUserOut['data_limit'] - $DataUserOut['used_traffic'];
     $RemainingVolume = $DataUserOut['data_limit'] ? formatBytes($output) : $textbotlang['common']['labels']['unlimitedShort'];
     if ($marzban_list_get['url_panel'] == $marzban_list_get_new['url_panel']) {
-        $remove = $ManagePanel->RemoveUser($nameloc['Service_location'], $nameloc['username']);
+        $ManagePanel->RemoveUser($nameloc['Service_location'], $nameloc['username']);
         $dataoutput = $ManagePanel->createUser($marzban_list_get_new['name_panel'], "usertest", $DataUserOut['username'], $datac);
         if ($dataoutput['username'] == null) {
             addBalance($from_id, $Pricechange);
@@ -2366,7 +2364,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             }
             return;
         }
-        $remove = $ManagePanel->RemoveUser($nameloc['Service_location'], $nameloc['username']);
+        $ManagePanel->RemoveUser($nameloc['Service_location'], $nameloc['username']);
     }
     $output_config_link = "";
     if ($marzban_list_get_new['sublink'] == "onsublink") {
@@ -3524,7 +3522,6 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         $location = $userdate['name_panel'];
     }
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $location, "select");
-    $locationproductcount = select("marzban_panel", "*", "name_panel", $location, "count");
     $stmt = $pdo->prepare("SELECT * FROM invoice WHERE (status = 'active' OR status = 'end_of_time' OR status = 'end_of_volume' OR status = 'sendedwarn' OR Status = 'send_on_hold') AND  Service_location = :mp2");
     $stmt->execute([':mp2' => $marzban_list_get['name_panel']]);
     $countinovoice = $stmt->rowCount();
@@ -4582,7 +4579,6 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     sendmessage($from_id, $textbotlang['users']['selectoption'], $keyboard, 'HTML');
     $balanceformatsell = number_format(select("user", "Balance", "id", $from_id, "select")['Balance'], 0);
     $balanceformatsellbefore = number_format($user['Balance'], 0);
-    $pricebulk = $info_product['price_product'] * intval($user['Processing_value_four']);
     $count_service = $user['Processing_value_four'];
     $timejalali = jdate('Y/m/d H:i:s');
     $text_report = sprintf($textbotlang['Admin']['reportgroup']['bulkAccountCreated'], $from_id, $username, $username_ac, $count_service, $first_name, $user['Processing_value'], $info_product['name_product'], $info_product['Service_time'], $info_product['Volume_constraint'], $balanceformatsellbefore, $balanceformatsell, $randomString, $user['agent'], $user['number'], $info_product['price_product'], $info_product['price_product'], $user['Processing_value_four'], $timejalali);
@@ -5377,7 +5373,6 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             return;
         }
         $usd = $rates['USD'];
-        $ton = $rates['Ton'];
         $usdprice = round($user['Processing_value'] / $usd, 2);
         $starAmount = $usd * 0.016;
         $starAmount = intval($user['Processing_value'] / $starAmount);
@@ -5770,7 +5765,6 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $stmt->bindParam(':code', $text);
     $stmt->execute();
     $get_codesql = $stmt->fetch(PDO::FETCH_ASSOC);
-    $balance_user = $user['Balance'] + $get_codesql['price'];
     addBalance($from_id, $get_codesql['price']);
     $discountlimitadd = intval($checklimit['limitused']) + 1;
     update("Discount", "limitused", $discountlimitadd, "code", $text);
@@ -6247,7 +6241,6 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         }
     }
     if ($status) {
-        $balance_last = intval($setting['wheelـluck_price']) + $user['Balance'];
         addBalance($from_id, intval($setting['wheelـluck_price']));
         $price = number_format($setting['wheelـluck_price']);
         sendmessage($from_id, sprintf($textbotlang['users']['wheelLuck']['winnerCongratulations'], $price), null, 'HTML');

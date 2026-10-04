@@ -418,7 +418,6 @@ if (isDuplicateUpdate($update_id)) {
     exit;
 }
 $from_id = $update['message']['from']['id'] ?? $update['callback_query']['from']['id'] ?? $update["inline_query"]['from']['id'] ?? 0;
-$time_message = $update['message']['date'] ?? $update['callback_query']['date'] ?? $update["inline_query"]['date'] ?? 0;
 $is_bot = $update['message']['from']['is_bot'] ?? false;
 $chat_member = $update['chat_member'] ?? null;
 $Chat_type = $update["message"]["chat"]["type"] ?? $update['callback_query']['message']['chat']['type'] ?? '';
@@ -475,7 +474,6 @@ if(isset($update['pre_checkout_query'])){
 $text =convertPersianNumbersToEnglish($text);
 $text_inline = $update["callback_query"]["message"]['text'] ?? '';
 $message_id = $update["message"]["message_id"] ?? $update["callback_query"]["message"]["message_id"] ?? 0;
-$time_message = $update["message"]["date"] ?? $update["callback_query"]["date"] ?? 0;
 $photo = $update["message"]["photo"] ?? 0;
 $document = $update["message"]["document"] ?? 0;
 $fileid = $update["message"]["document"]["file_id"] ?? 0;

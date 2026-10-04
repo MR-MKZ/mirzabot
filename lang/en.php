@@ -200,7 +200,6 @@ To enable it, the bot owner needs a Telegram Premium subscription, or the bot mu
                 'backmenu' => '🏠 Back to previous menu',
                 'buttonDisabled' => '❌ This button is disabled',
                 'buttonDisabledForYou' => '❌ This button is disabled for you',
-                'customusername' => 'Custom username',
                 'erroroccurred' => '❌ An error occurred. Please start the steps again',
                 'featureUnavailable' => '❌ This feature is not available at the moment',
                 'featureUnavailable2' => '❌ This feature is not available at the moment.',
@@ -219,7 +218,6 @@ To enable it, the bot owner needs a Telegram Premium subscription, or the bot mu
 ❌ Invalid usernames: ali_ | tele@ | _mahdi | محسن',
                 'text_start' => 'Hello, welcome',
                 'Balance' => [
-                        'Failed' => '⭕️ Your payment has not been confirmed',
                         'addBalanceUser' => '⭕️ Manually add balance',
                         'blockedfake' => '⭕️ Block user',
                         'changeto' => '❌ Error 
@@ -244,7 +242,6 @@ To enable it, the bot owner needs a Telegram Premium subscription, or the bot mu
                         'selectPayment' => '💵 Choose your payment method',
                         'sendReceipt' => '🚀 Your payment receipt has been sent. After approval by the administration, the amount will be deposited into your wallet',
                         'sendReceiptAndConfig' => '🚀 Your receipt has been sent, and after review the service details will be sent to you',
-                        'sending' => 'The payment has been received and is being reviewed, please wait',
                         'waiting' => 'Awaiting payment confirmation',
                         'zarinpal' => '❌ Error 
     The minimum amount for payment via this gateway is 5000 Toman.',
@@ -1885,7 +1882,6 @@ Error reason : %s',
                         'descriptionBlock' => '✍️ The reason for blocking the user was saved',
                         'failedPhone' => 'Not confirmed',
                         'getIdUserUnblock' => '👤 Send the user\'s numeric ID',
-                        'getText' => 'Send your text',
                         'getTextResponse' => 'To reply to the message, send your text.',
                         'lowBalanceUser' => '👇 Decrease balance',
                         'lowBalanceUserDesc' => '⭕️ Send the amount you want to deduct',
@@ -4176,7 +4172,6 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'subLinkDomain' => '🔗 Subscription link domain',
                 'panelTypeSanaei' => 'Sanaei single port',
                 'panelTypeAlireza' => 'Alireza single port',
-                'usernameMethodAgentCustom' => 'Custom agent text + sequential number',
                 'acceptRulesButton' => '✅ I accept the rules',
         ],
         'panel' => [

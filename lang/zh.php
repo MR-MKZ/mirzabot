@@ -200,7 +200,6 @@ return [
                 'backmenu' => '🏠 返回上一级菜单',
                 'buttonDisabled' => '❌ 此按钮已停用',
                 'buttonDisabledForYou' => '❌ 此按钮对您已停用',
-                'customusername' => '自定义用户名',
                 'erroroccurred' => '❌ 发生错误，请重新开始操作',
                 'featureUnavailable' => '❌ 此功能目前不可用',
                 'featureUnavailable2' => '❌ 此功能目前不可用。',
@@ -219,7 +218,6 @@ return [
 ❌ 错误的用户名：ali_ | tele@ | _mahdi | محسن',
                 'text_start' => '你好，欢迎',
                 'Balance' => [
-                        'Failed' => '⭕️ 您的支付未通过确认',
                         'addBalanceUser' => '⭕️ 手动增加余额',
                         'blockedfake' => '⭕️ 封禁用户',
                         'changeto' => '❌ 错误 
@@ -244,7 +242,6 @@ return [
                         'selectPayment' => '💵 请选择您的支付方式',
                         'sendReceipt' => '🚀 您的支付收据已发送。经管理员审核通过后，金额将存入您的钱包',
                         'sendReceiptAndConfig' => '🚀 您的收据已发送，审核后将向您发送服务详情',
-                        'sending' => '已收到付款，正在审核中，请稍候',
                         'waiting' => '等待支付确认',
                         'zarinpal' => '❌ 错误 
     通过此网关支付的最低金额为 5000 托曼。',
@@ -1885,7 +1882,6 @@ nowpayments.io
                         'descriptionBlock' => '✍️ 封禁该用户的原因已保存',
                         'failedPhone' => '未确认',
                         'getIdUserUnblock' => '👤 请发送用户的数字ID',
-                        'getText' => '请发送您的文本',
                         'getTextResponse' => '如需回复该消息，请发送您的文本。',
                         'lowBalanceUser' => '👇 减少余额',
                         'lowBalanceUserDesc' => '⭕️ 请发送您想扣除的金额',
@@ -4176,7 +4172,6 @@ f,n.n2',
                 'subLinkDomain' => '🔗 订阅链接域名',
                 'panelTypeSanaei' => 'Sanaei 单端口',
                 'panelTypeAlireza' => 'Alireza 单端口',
-                'usernameMethodAgentCustom' => '自定义代理文本 + 顺序编号',
                 'acceptRulesButton' => '✅ 我接受规则',
         ],
         'panel' => [

@@ -1372,7 +1372,7 @@ elseif ($datain == "systemsms") {
     $stmt->execute([$text]);
     update("user", "Processing_value", $text, "id", $from_id);
     if ($setting['categoryhelp'] == "0") {
-        update("help", "category", "0", "name_os", $user['Processing_value']);
+        update("help", "category", "0", "name_os", $text);
         sendmessage($from_id, $textbotlang['Admin']['Help']['getAddDesc'], $backadmin, 'HTML');
         step('add_dec', $from_id);
         return;

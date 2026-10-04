@@ -1077,6 +1077,8 @@ Thank you for using our services.',
                         'confirmEnableConfig' => '📌 By confirming the option below, your config will be turned on and you will be able to connect to it.
 ⚠️ If you want the config to be deactivated again, you must click the <u>❌ Turn off account</u> button from the service management section',
                         'getConfigHint' => '📌 To get the config, click the Get config button',
+                        'wireguardFile' => '⚙️ Your WireGuard config file
+📥 Import this file into the WireGuard app.',
                         'connectionInfo' => '
 📶 Last connection time  : %s
 🔄 Last subscription link update time  : %s

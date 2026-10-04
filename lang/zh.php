@@ -1077,6 +1077,8 @@ https://t.me/%s?start=%s',
                         'confirmEnableConfig' => '📌 确认下方选项后，您的配置将被开启，您将能够连接到该配置。
 ⚠️ 如果您希望再次停用配置，必须从服务管理部分点击 <u>❌ 关闭账户</u> 按钮',
                         'getConfigHint' => '📌 要获取配置，请点击获取配置按钮',
+                        'wireguardFile' => '⚙️ 您的 WireGuard 配置文件
+📥 请将此文件导入 WireGuard 应用。',
                         'connectionInfo' => '
 📶 最后连接时间：%s
 🔄 订阅链接最后更新时间：%s

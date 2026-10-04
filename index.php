@@ -1246,6 +1246,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         sendmessage($from_id, $textbotlang['users']['status']['configReadError'], null, 'html');
         return;
     }
+    sendWireguardFiles($from_id, $DataUserOut['wireguard'] ?? [], $nameloc['username']);
     Editmessagetext($from_id, $message_id, $textbotlang['users']['status']['selectConfig'], keyboard_config($DataUserOut['links'], $nameloc['id_invoice']));
 } elseif (preg_match('/configget_(.*)_(.*)/', $datain, $dataget)) {
     $id_invoice = $dataget[1];
@@ -1971,6 +1972,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     } else {
         Editmessagetext($from_id, $message_id, $textconfig, $bakinfos);
     }
+    sendWireguardFiles($from_id, $DataUserOut['wireguard'] ?? [], $nameloc['username']);
     $timejalali = jdate('Y/m/d H:i:s');
     $text_report = sprintf($textbotlang['Admin']['reportgroup']['linkChanged'], $from_id, $username, $nameloc['username'], $first_name, $marzban_list_get['name_panel'], $user['agent'], $timejalali);
     if (strlen($setting['Channel_Report']) > 0) {
@@ -2385,6 +2387,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         update("invoice", "inboundid", $marzban_list_get_new['inboundid'], "username", $nameloc['username']);
     }
     Editmessagetext($from_id, $message_id, $textchangeloc, $keyboardextend);
+    sendWireguardFiles($from_id, $dataoutput['wireguard'] ?? [], $nameloc['username']);
     $balanceformatsell = number_format(select("user", "Balance", "id", $from_id, "select")['Balance'], 0);
     $format_byte = formatBytes($data_limit);
     $textreport = sprintf($textbotlang['Admin']['reportgroup']['locationChanged'], $from_id, $username, $marzban_list_get['name_panel'], $marzban_list_get_new['name_panel'], $nameloc['username'], $format_byte, $balanceformatsell);
@@ -3049,7 +3052,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         $textcreatuser = str_replace('{password}', $dataoutput['subscription_url'], $textcreatuser);
         update("invoice", "user_info", $dataoutput['subscription_url'], "id_invoice", $randomString);
     }
-    sendMessageService($marzban_list_get, $dataoutput['configs'], $output_config_link, $dataoutput['username'], $usertestinfo, $textcreatuser, $randomString);
+    sendMessageService($marzban_list_get, $dataoutput['configs'], $output_config_link, $dataoutput['username'], $usertestinfo, $textcreatuser, $randomString, wireguard: $dataoutput['wireguard'] ?? []);
     sendmessage($from_id, $textbotlang['users']['selectoption'], $keyboard, 'HTML');
     step('home', $from_id);
     if (in_array(usernameMethodKey($marzban_list_get['MethodUsername']), ['customTextSequential', 'usernameSequential', 'numericIdSequential', 'agentCustomTextSequential'], true)) {
@@ -4037,7 +4040,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         $textcreatuser = str_replace('{password}', $dataoutput['subscription_url'], $textcreatuser);
         update("invoice", "user_info", $dataoutput['subscription_url'], "id_invoice", $randomString);
     }
-    sendMessageService($marzban_list_get, $dataoutput['configs'], $output_config_link, $dataoutput['username'], $Shoppinginfo, $textcreatuser, $randomString);
+    sendMessageService($marzban_list_get, $dataoutput['configs'], $output_config_link, $dataoutput['username'], $Shoppinginfo, $textcreatuser, $randomString, wireguard: $dataoutput['wireguard'] ?? []);
     sendmessage($from_id, $textbotlang['users']['selectoption'], $keyboard, 'HTML');
     if (in_array(usernameMethodKey($marzban_list_get['MethodUsername']), ['customTextSequential', 'usernameSequential', 'numericIdSequential', 'agentCustomTextSequential'], true)) {
         $value = intval($user['number_username']) + 1;
@@ -4574,7 +4577,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         $textcreatuser = str_replace('{config}', "<code>{$output_config_link}</code>", $textcreatuser);
         $textcreatuser = str_replace('{links}', "<code>{$config}</code>", $textcreatuser);
         $textcreatuser = str_replace('{links2}', "{$output_config_link}", $textcreatuser);
-        sendMessageService($marzban_list_get, $dataoutput['configs'], $output_config_link, $dataoutput['username'], $Shoppinginfo, $textcreatuser, $randomString);
+        sendMessageService($marzban_list_get, $dataoutput['configs'], $output_config_link, $dataoutput['username'], $Shoppinginfo, $textcreatuser, $randomString, wireguard: $dataoutput['wireguard'] ?? []);
     }
     sendmessage($from_id, $textbotlang['users']['selectoption'], $keyboard, 'HTML');
     $balanceformatsell = number_format(select("user", "Balance", "id", $from_id, "select")['Balance'], 0);

@@ -1109,7 +1109,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $textcreatuser = str_replace('{password}', $dataoutput['subscription_url'], $textcreatuser);
             update("invoice", "user_info", $dataoutput['subscription_url'], "id_invoice", $get_invoice['id_invoice']);
         }
-        sendMessageService($marzban_list_get, $dataoutput['configs'], $output_config_link, $dataoutput['username'], $Shoppinginfo, $textcreatuser, $get_invoice['id_invoice'], $get_invoice['id_user'], $image);
+        sendMessageService($marzban_list_get, $dataoutput['configs'], $output_config_link, $dataoutput['username'], $Shoppinginfo, $textcreatuser, $get_invoice['id_invoice'], $get_invoice['id_user'], $image, wireguard: $dataoutput['wireguard'] ?? []);
         $partsdic = explode("_", $Balance_id['Processing_value_four']);
         if ($partsdic[0] == "dis") {
             $SellDiscountlimit = select("DiscountSell", "*", "codeDiscount", $partsdic[1], "select");
@@ -2447,7 +2447,7 @@ function isBase64($string)
     }
     return false;
 }
-function sendMessageService($panel_info, $config, $sub_link, $username_service, $reply_markup, $caption, $invoice_id, $user_id = null, $image = 'images.jpg')
+function sendMessageService($panel_info, $config, $sub_link, $username_service, $reply_markup, $caption, $invoice_id, $user_id = null, $image = 'images.jpg', $wireguard = [])
 {
     global $setting, $from_id, $textbotlang;
     if (!check_active_btn($setting['keyboardmain'], "text_help"))
@@ -2507,6 +2507,51 @@ function sendMessageService($panel_info, $config, $sub_link, $username_service, 
         if (is_array($config)) {
             sendmessage($user_id, $textbotlang['users']['status']['getConfigHint'], keyboard_config($config, $invoice_id, false), 'HTML');
         }
+    }
+    sendWireguardFiles($user_id, $wireguard, $username_service);
+}
+function sendWireguardFiles($user_id, $links, $username)
+{
+    global $textbotlang;
+    if (!is_array($links)) {
+        return;
+    }
+    $wireguardLinks = array_values(array_filter($links, fn($link) => is_string($link) && stripos(trim($link), 'wireguard://') === 0));
+    foreach ($wireguardLinks as $index => $link) {
+        [$main] = explode('#', substr(trim($link), strlen('wireguard://')), 2);
+        [$auth, $queryString] = array_pad(explode('?', $main, 2), 2, '');
+        $at = strrpos($auth, '@');
+        $endpoint = rtrim(substr($auth, $at === false ? 0 : $at + 1), '/');
+        parse_str(str_replace('+', '%2B', $queryString), $rawQuery);
+        $query = [];
+        foreach ($rawQuery as $key => $value) {
+            $query[strtolower(str_replace(['_', '-'], '', $key))] = is_array($value) ? reset($value) : $value;
+        }
+        $privateKey = $at === false ? ($query['privatekey'] ?? '') : rawurldecode(substr($auth, 0, $at));
+        $publicKey = $query['publickey'] ?? ($query['peerpublickey'] ?? '');
+        if ($endpoint === '' || $privateKey === '' || $publicKey === '') {
+            continue;
+        }
+        $conf = "[Interface]\nPrivateKey = $privateKey\n";
+        $conf .= !empty($query['address']) ? "Address = {$query['address']}\n" : "";
+        $conf .= !empty($query['dns']) ? "DNS = {$query['dns']}\n" : "";
+        $conf .= !empty($query['mtu']) ? "MTU = {$query['mtu']}\n" : "";
+        $conf .= "\n[Peer]\nPublicKey = $publicKey\n";
+        $conf .= !empty($query['presharedkey']) ? "PresharedKey = {$query['presharedkey']}\n" : "";
+        $conf .= "AllowedIPs = " . ($query['allowedips'] ?? '0.0.0.0/0, ::/0') . "\n";
+        $conf .= "Endpoint = $endpoint\n";
+        $conf .= "PersistentKeepalive = " . ($query['keepalive'] ?? ($query['persistentkeepalive'] ?? '25')) . "\n";
+        $fileName = (substr(preg_replace('/[^A-Za-z0-9_-]/', '', (string) $username), 0, 12) ?: 'wireguard') . (count($wireguardLinks) > 1 ? "_" . ($index + 1) : "") . ".conf";
+        $filePath = qrTempPath(bin2hex(random_bytes(6)) . ".conf");
+        if (@file_put_contents($filePath, $conf) === false) {
+            continue;
+        }
+        telegram('sendDocument', [
+            'chat_id' => $user_id,
+            'document' => new CURLFile($filePath, 'text/plain', $fileName),
+            'caption' => $textbotlang['users']['status']['wireguardFile'],
+        ]);
+        @unlink($filePath);
     }
 }
 function isValidInvitationCode($setting, $fromId, $verfy_status)

@@ -6,6 +6,21 @@ require_once __DIR__ . '/panels/bootstrap.php';
 class ManagePanel
 {
     public $pdo, $domainhosts, $name_panel;
+    function splitWireguardLinks($panel, $result)
+    {
+        if (!is_array($result) || ($panel['type'] != "x-ui_single" && !($panel['type'] == "marzban" && $panel['version_panel'] == "1"))) {
+            return $result;
+        }
+        $isWireguard = fn($link) => stripos(trim((string) $link), 'wireguard://') === 0;
+        $result['wireguard'] = [];
+        foreach (['configs', 'links'] as $key) {
+            if (is_array($result[$key] ?? null)) {
+                $result['wireguard'] = array_values(array_unique(array_merge($result['wireguard'], array_filter($result[$key], $isWireguard))));
+                $result[$key] = array_values(array_filter($result[$key], fn($link) => !$isWireguard($link)));
+            }
+        }
+        return $result;
+    }
     function createUser($name_panel, $code_product, $usernameC, array $Data_Config)
     {
         $Output = [];
@@ -52,7 +67,7 @@ class ManagePanel
         $note = "{$Data_Config['from_id']} | {$Data_Config['username']} | {$Data_Config['type']}";
         $driver = PanelRegistry::driver($Get_Data_Panel['type'], $this);
         if ($driver !== null && ($result = $driver->create(get_defined_vars())) !== BasePanelDriver::UNSUPPORTED) {
-            return $result;
+            return $this->splitWireguardLinks($Get_Data_Panel, $result);
         }
         $Output['status'] = 'Unsuccessful';
         $Output['msg'] = 'Panel Not Found';
@@ -76,7 +91,7 @@ class ManagePanel
         }
         $driver = PanelRegistry::driver($Get_Data_Panel['type'], $this);
         if ($driver !== null && ($result = $driver->read(get_defined_vars())) !== BasePanelDriver::UNSUPPORTED) {
-            return $result;
+            return $this->splitWireguardLinks($Get_Data_Panel, $result);
         }
         $Output = array(
             'status' => 'Unsuccessful',
@@ -90,7 +105,7 @@ class ManagePanel
         $Get_Data_Panel = select("marzban_panel", "*", "name_panel", $name_panel, "select");
         $driver = PanelRegistry::driver($Get_Data_Panel['type'], $this);
         if ($driver !== null && ($result = $driver->revokeSub(get_defined_vars())) !== BasePanelDriver::UNSUPPORTED) {
-            return $result;
+            return $this->splitWireguardLinks($Get_Data_Panel, $result);
         }
         $Output = array(
             'status' => 'Unsuccessful',

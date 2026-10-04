@@ -5045,7 +5045,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         $textcreatuser = str_replace('{password}', $DataUserOut['subscription_url'], $textcreatuser);
         update("invoice", "user_info", $DataUserOut['subscription_url'], "id_invoice", $randomString);
     }
-    sendMessageService($marzban_list_get, $DataUserOut['configs'], $output_config_link, $DataUserOut['username'], $Shoppinginfo, $textcreatuser, $randomString, $user['Processing_value']);
+    sendMessageService($marzban_list_get, $DataUserOut['configs'], $output_config_link, $DataUserOut['username'], $Shoppinginfo, $textcreatuser, $randomString, $user['Processing_value'], wireguard: $DataUserOut['wireguard'] ?? []);
     sendmessage($from_id, $textbotlang['Admin']['addorder']['stepFive'], $keyboardadmin, 'HTML');
     step('home', $from_id);
 } elseif ($text == $textbotlang['keyboard']['minBulkBalance'] && $adminrulecheck['rule'] == "administrator") {
@@ -5463,7 +5463,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
             $textcreatuser = str_replace('{password}', $dataoutput['subscription_url'], $textcreatuser);
             update("invoice", "user_info", $dataoutput['subscription_url'], "id_invoice", $randomString);
         }
-        sendMessageService($panel, $dataoutput['configs'], $output_config_link, $dataoutput['username'], null, $textcreatuser, $randomString);
+        sendMessageService($panel, $dataoutput['configs'], $output_config_link, $dataoutput['username'], null, $textcreatuser, $randomString, wireguard: $dataoutput['wireguard'] ?? []);
     }
     update("user", "Processing_value", $panel['name_panel'], "id", $from_id);
     outtypepanel($panel['type'], $textbotlang['users']['selectoption']);

@@ -1036,7 +1036,7 @@ function mini_purchase(array $data, string $method): void
     $textcreatuser = str_replace('{config}', "<code>{$output_config_link}</code>", $textcreatuser);
     $textcreatuser = str_replace('{links}', $config, $textcreatuser);
     $textcreatuser = str_replace('{links2}', $output_config_link, $textcreatuser);
-    sendMessageService($panel, $dataoutput['configs'] ?? null, $output_config_link, $user_info['username'], null, $textcreatuser, $randomString, $user_info['id'], __DIR__ . '/../images.jpg');
+    sendMessageService($panel, $dataoutput['configs'] ?? null, $output_config_link, $user_info['username'], null, $textcreatuser, $randomString, $user_info['id'], __DIR__ . '/../images.jpg', wireguard: $dataoutput['wireguard'] ?? []);
     if (in_array(usernameMethodKey($panel['MethodUsername']), ['customTextSequential', 'usernameSequential', 'numericIdSequential', 'agentCustomTextSequential'], true)) {
         $value = intval($user_info['number_username']) + 1;
         update("user", "number_username", $value, "id", $user_info['id']);

@@ -2749,7 +2749,7 @@ elseif ($datain == "systemsms") {
         if (isBase64($response)) {
             $response = trim(base64_decode($response));
         }
-        $protocol = ['vmess', 'vless', 'trojan', 'ss', 'hysteria', 'hysteria2'];
+        $protocol = ['vmess', 'vless', 'trojan', 'ss', 'hysteria', 'hysteria2', 'socks'];
         $sub_check = explode('://', $response)[0];
         if (!in_array($sub_check, $protocol)) {
             $subPreview = $response === '' ? '-' : mb_substr($response, 0, 150);

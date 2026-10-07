@@ -6994,11 +6994,6 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     step("home", $from_id);
     update("setting", "agentreqprice", $text, null, null);
 } elseif ($text == $textbotlang['keyboard']['autoConfirmReceipt'] && $adminrulecheck['rule'] == "administrator") {
-    $paymentverify = getPaySettingValue('autoconfirmcart', 'offauto');
-    if ($paymentverify == "onauto") {
-        sendmessage($from_id, $textbotlang['Admin']['Payment']['errConfirmSmsWhileNoCheck'], null, 'HTML');
-        return;
-    }
     $PaySetting = getPaySettingValue('statuscardautoconfirm', 'offautoconfirm');
     $PaySettingStatus = [
         'onautoconfirm' => $textbotlang['Admin']['Status']['statuson'],
@@ -7030,6 +7025,10 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     ]);
     Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['autoConfirmOff'], $card_Status_auto);
 } elseif ($datain == "offautoconfirm" && $adminrulecheck['rule'] == "administrator") {
+    if (getPaySettingValue('autoconfirmcart', 'offauto') == "onauto") {
+        sendmessage($from_id, $textbotlang['Admin']['Payment']['errConfirmSmsWhileNoCheck'], null, 'HTML');
+        return;
+    }
     if (!rowExists("PaySetting", "NamePay", "statuscardautoconfirm")) {
         $stmt = $pdo->prepare("INSERT INTO PaySetting (NamePay, ValuePay) VALUES ('statuscardautoconfirm', 'onautoconfirm')");
         $stmt->execute();
@@ -7047,12 +7046,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     ]);
     Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Status']['autoConfirmOn'], $card_Status_auto);
 } elseif ($text == $textbotlang['keyboard']['autoConfirmNoCheck'] && $adminrulecheck['rule'] == "administrator") {
-    $paymentverify = getPaySettingValue('statuscardautoconfirm', 'offautoconfirm');
-    if ($paymentverify == "onautoconfirm") {
-        sendmessage($from_id, $textbotlang['Admin']['Payment']['errConfirmNoCheckWhileSms'], null, 'HTML');
-        return;
-    }
-    $paymentverify = select("PaySetting", "ValuePay", "NamePay", "autoconfirmcart", "select")['ValuePay'];
+    $paymentverify = getPaySettingValue('autoconfirmcart', 'offauto');
     $paymentverifyStatus = [
         'onauto' => $textbotlang['Admin']['Status']['statuson'],
         'offauto' => $textbotlang['Admin']['Status']['statusoff']
@@ -7065,7 +7059,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         ]
     ]);
     sendmessage($from_id, $textbotlang['Admin']['Payment']['autoConfirmDesc'], $keyboardverify, 'HTML');
-} elseif ($datain == "onauto") {
+} elseif ($datain == "onauto" && $adminrulecheck['rule'] == "administrator") {
     update("PaySetting", "ValuePay", "offauto", "NamePay", "autoconfirmcart");
     $paymentverify = select("PaySetting", "ValuePay", "NamePay", "autoconfirmcart", "select")['ValuePay'];
     $keyboardverify = json_encode([
@@ -7076,7 +7070,11 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         ]
     ]);
     Editmessagetext($from_id, $message_id, $textbotlang['Admin']['card']['afterFirstPayOff'], $keyboardverify);
-} elseif ($datain == "offauto") {
+} elseif ($datain == "offauto" && $adminrulecheck['rule'] == "administrator") {
+    if (getPaySettingValue('statuscardautoconfirm', 'offautoconfirm') == "onautoconfirm") {
+        sendmessage($from_id, $textbotlang['Admin']['Payment']['errConfirmNoCheckWhileSms'], null, 'HTML');
+        return;
+    }
     update("PaySetting", "ValuePay", "onauto", "NamePay", "autoconfirmcart");
     $paymentverify = select("PaySetting", "ValuePay", "NamePay", "autoconfirmcart", "select")['ValuePay'];
     $keyboardverify = json_encode([

@@ -2,6 +2,11 @@
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../request.php';
 date_default_timezone_set('Asia/Tehran');
+// Older installs still have a root Marzban.php with these same functions.
+// Skip this file when that copy was already loaded, instead of redeclaring them.
+if (function_exists('token_panel')) {
+    return;
+}
 #-----------------------------#
 function token_panel($code_panel, $verify = true)
 {

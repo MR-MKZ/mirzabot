@@ -451,6 +451,9 @@ function isDuplicateUpdate($updateId)
 }
 // #-----------------------------#
 $update = json_decode(file_get_contents("php://input"), true);
+if (!is_array($update)) {
+    $update = [];
+}
 $update_id = $update['update_id'] ?? 0;
 if (isDuplicateUpdate($update_id)) {
     http_response_code(200);

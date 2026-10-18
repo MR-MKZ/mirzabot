@@ -998,17 +998,33 @@ function claimPaymentPaid($order_id)
 function DirectPayment($order_id, $image = 'images.jpg')
 {
     global $pdo, $ManagePanel, $textbotlang, $keyboardextendfnished, $keyboard, $Confirm_pay, $from_id, $message_id;
-    $buyreport = select("topicid", "idreport", "report", "buyreport", "select")['idreport'];
+    $topicReport = function ($name) {
+        $row = select("topicid", "idreport", "report", $name, "select");
+        return is_array($row) ? ($row['idreport'] ?? null) : null;
+    };
+    $buyreport = $topicReport("buyreport");
     $admin_ids = select("admin", "id_admin", null, null, "FETCH_COLUMN");
-    $otherservice = select("topicid", "idreport", "report", "otherservice", "select")['idreport'];
-    $otherreport = select("topicid", "idreport", "report", "otherreport", "select")['idreport'];
-    $errorreport = select("topicid", "idreport", "report", "errorreport", "select")['idreport'];
-    $porsantreport = select("topicid", "idreport", "report", "porsantreport", "select")['idreport'];
+    if (!is_array($admin_ids)) {
+        $admin_ids = [];
+    }
+    $otherservice = $topicReport("otherservice");
+    $otherreport = $topicReport("otherreport");
+    $errorreport = $topicReport("errorreport");
+    $porsantreport = $topicReport("porsantreport");
     $setting = select("setting", "*");
+    if (!is_array($setting)) {
+        $setting = [];
+    }
     $Payment_report = select("Payment_report", "*", "id_order", $order_id, "select");
-    $format_price_cart = number_format($Payment_report['price']);
+    if (!is_array($Payment_report)) {
+        return;
+    }
+    $format_price_cart = number_format((float) $Payment_report['price']);
     $Balance_id = select("user", "*", "id", $Payment_report['id_user'], "select");
-    $steppay = explode("|", $Payment_report['id_invoice']);
+    if (!is_array($Balance_id)) {
+        return;
+    }
+    $steppay = explode("|", (string) ($Payment_report['id_invoice'] ?? ''));
     $stmtReset = $pdo->prepare("UPDATE user SET Processing_value = '0', Processing_value_one = '0', Processing_value_tow = '0', Processing_value_four = '0' WHERE id = ?");
     $stmtReset->execute([$Balance_id['id']]);
     clearSelectCache('user');
@@ -1040,7 +1056,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         }
         $datac = array(
             'expire' => $timestamp,
-            'data_limit' => $get_invoice['Volume'] * pow(1024, 3),
+            'data_limit' => (float) ($get_invoice['Volume'] ?? 0) * pow(1024, 3),
             'from_id' => $Balance_id['id'],
             'username' => $Balance_id['username'],
             'type' => 'buy'
@@ -1138,7 +1154,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
         if ($affiliatescommission['status_commission'] == "oncommission" && ($Balance_id['affiliates'] != null && intval($Balance_id['affiliates']) != 0)) {
             if ($marzbanporsant_one_buy['porsant_one_buy'] == "on_buy_porsant") {
                 if ($countinvoice <= 1) {
-                    $result = ($Payment_report['price'] * $setting['affiliatespercentage']) / 100;
+                    $result = ((float) $Payment_report['price'] * (float) ($setting['affiliatespercentage'] ?? 0)) / 100;
                     $user_Balance = select("user", "*", "id", $Balance_id['affiliates'], "select");
                     if (intval($setting['scorestatus']) == 1 and !in_array($Balance_id['affiliates'], $admin_ids)) {
                         sendmessage($Balance_id['affiliates'], $textbotlang['users']['affiliates']['pointsEarned2Alt'], null, 'html');
@@ -1163,7 +1179,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
                 }
             } else {
 
-                $result = ($Payment_report['price'] * $setting['affiliatespercentage']) / 100;
+                $result = ((float) $Payment_report['price'] * (float) ($setting['affiliatespercentage'] ?? 0)) / 100;
                 $user_Balance = select("user", "*", "id", $Balance_id['affiliates'], "select");
                 if (intval($setting['scorestatus']) == 1 and !in_array($Balance_id['affiliates'], $admin_ids)) {
                     sendmessage($Balance_id['affiliates'], $textbotlang['users']['affiliates']['pointsEarned2Alt'], null, 'html');
@@ -1332,7 +1348,7 @@ function DirectPayment($order_id, $image = 'images.jpg')
             $valurcashbackextend = json_decode(select("shopSetting", "*", "Namevalue", "chashbackextend_agent", "select")['value'], true)[$Balance_id['agent']];
         }
         if (intval($valurcashbackextend) != 0) {
-            $result = ($prodcut['price_product'] * $valurcashbackextend) / 100;
+            $result = ((float) ($prodcut['price_product'] ?? 0) * (float) $valurcashbackextend) / 100;
             $pricelastextend = $result;
             update("user", "Balance", $pricelastextend, "id", $Balance_id['id']);
             sendmessage($Balance_id['id'], sprintf($textbotlang['users']['extend']['giftChargedFn'], $result), null, 'HTML');
@@ -2410,17 +2426,22 @@ function sanitize_recursive(array $data): array
 
 function check_active_btn($keyboard, $text_var)
 {
-    $trace_keyboard = json_decode($keyboard, true)['keyboard'];
-    $status = false;
-    foreach ($trace_keyboard as $key => $callback_set) {
-        foreach ($callback_set as $keyboard_key => $keyboard) {
-            if ($keyboard['text'] == $text_var) {
-                $status = true;
-                break;
+    $decoded = json_decode((string) $keyboard, true);
+    $trace_keyboard = is_array($decoded) ? ($decoded['keyboard'] ?? $decoded['inline_keyboard'] ?? null) : null;
+    if (!is_array($trace_keyboard)) {
+        return false;
+    }
+    foreach ($trace_keyboard as $callback_set) {
+        if (!is_array($callback_set)) {
+            continue;
+        }
+        foreach ($callback_set as $keyboard) {
+            if (is_array($keyboard) && ($keyboard['text'] ?? null) == $text_var) {
+                return true;
             }
         }
     }
-    return $status;
+    return false;
 }
 function deleteFolder($folderPath)
 {

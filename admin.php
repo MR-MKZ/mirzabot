@@ -4,7 +4,7 @@ $version = file_get_contents('version');
 $textadmin = ["panel", "/panel", $textbotlang['Admin']['panelAdmin']];
 $text_panel_admin_login_template = sprintf($textbotlang['Admin']['report']['aboutBot'], $version);
 
-if (!in_array($from_id, $admin_ids))
+if (!is_array($admin_ids ?? null) || !in_array($from_id ?? null, $admin_ids))
     return;
 $domainhostsEscaped = htmlspecialchars($domainhosts, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 

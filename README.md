@@ -29,7 +29,7 @@
   <a href="https://github.com/mahdiMGF2/mirzabot/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/mahdiMGF2/mirzabot?style=flat-square" alt="License"/>
   </a>
-  <img src="https://img.shields.io/badge/PHP-8.2-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP 8.2"/>
+  <img src="https://img.shields.io/badge/PHP-8.5.12%2B-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP 8.5.12+"/>
 </p>
 
 </div>
@@ -167,7 +167,7 @@ Mirza Bot integrates with the most popular VPN and network management panels:
 |-------------|---------|
 | 🖥️ **OS** | A **clean** Ubuntu **22.04** or **24.04** server |
 | 🌐 **Domain** | A domain name pointed to your server's IP |
-| ⚙️ **Stack** | PHP 8.2, Apache, MySQL, SSL — *installed automatically by the script* |
+| ⚙️ **Stack** | PHP 8.5.12+, Apache, MySQL, SSL — *installed automatically by the script* |
 
 > 💡 Start from a fresh server with no existing web server, database, or panel installed.
 

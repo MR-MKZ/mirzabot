@@ -150,7 +150,6 @@ function getusers($location, $status)
     ));
 
     $output = curl_exec($ch);
-    curl_close($ch);
     $data_useer = json_decode($output, true);
     return $data_useer;
 }
@@ -175,7 +174,6 @@ function getinbounds($location)
     ));
 
     $output = curl_exec($ch);
-    curl_close($ch);
     $inbounds = json_decode($output, true);
     return $inbounds;
 }
@@ -362,7 +360,6 @@ function Get_System_Stats($location)
     ));
 
     $output = curl_exec($ch);
-    curl_close($ch);
     $Get_System_Stats = json_decode($output, true);
     return $Get_System_Stats;
 }
@@ -445,7 +442,6 @@ function Modifyuser_node($location, $id_node, array $data)
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
     $result = curl_exec($ch);
-    curl_close($ch);
     $data_useer = json_decode($result, true);
     return $data_useer;
 }

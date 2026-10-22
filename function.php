@@ -3,6 +3,8 @@ require_once 'vendor/autoload.php';
 require 'config.php';
 ini_set('error_log', 'error_log');
 
+const MIN_PHP_VERSION = '8.5.12';
+
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
@@ -811,10 +813,8 @@ function createPayiranpay4($price, $order_id)
 
     $response = curl_exec($curl);
     if ($response === false) {
-        curl_close($curl);
         return ['success' => false, 'message' => 'iranpay4: gateway unreachable'];
     }
-    curl_close($curl);
 
     return json_decode($response, true) ?: ['success' => false, 'message' => 'iranpay4: bad response'];
 }
@@ -848,7 +848,6 @@ function cubepay($order_id, $price, $customer_user_id)
     ], JSON_UNESCAPED_UNICODE));
 
     $response = curl_exec($curl);
-    curl_close($curl);
 
     $decoded = json_decode($response, true);
     if (is_array($decoded) && empty($decoded['payment_link']) && !empty($decoded['pay_page_url'])) {
@@ -1709,7 +1708,6 @@ function addBackgroundImage($urlimage, $qrCodeResult, $backgroundPath)
         error_log("addBackgroundImage::System Error: " . $lastError['message']);
 
         imagepng($qrCodeImage, $urlimage);
-        imagedestroy($qrCodeImage);
         return;
     }
 
@@ -1728,8 +1726,6 @@ function addBackgroundImage($urlimage, $qrCodeResult, $backgroundPath)
         @file_put_contents($urlimage, $qrString);
     }
 
-    imagedestroy($qrCodeImage);
-    imagedestroy($backgroundImage);
 }
 
 function checktelegramip()
@@ -2616,7 +2612,6 @@ function createPayZarinpal($price, $order_id)
         )
     ]));
     $response = curl_exec($curl);
-    curl_close($curl);
     return json_decode($response, true);
 }
 function createPayVariza($price, $order_id)
@@ -2651,11 +2646,9 @@ function createPayVariza($price, $order_id)
     $response = curl_exec($curl);
     if ($response === false) {
         $err = curl_error($curl);
-        curl_close($curl);
         return ['error' => 'curl: ' . $err];
     }
     $httpCode = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    curl_close($curl);
     $decoded = json_decode($response, true);
     if (!is_array($decoded)) {
         return ['error' => 'invalid json', 'raw' => $response, 'http_code' => $httpCode];
@@ -2691,7 +2684,6 @@ function createPayaqayepardakht($price, $order_id)
         'invoice_id' => $order_id,
     ]));
     $response = curl_exec($curl);
-    curl_close($curl);
     return json_decode($response, true);
 }
 function parseConfigs($input)

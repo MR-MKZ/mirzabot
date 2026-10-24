@@ -647,6 +647,8 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         step('home', $from_id);
         return;
     }
+    savedata("clear", "username", $DataUserOut['username']);
+    savedata("save", "code_panel", $marzban_list_get['code_panel']);
     #-------------[ status ]----------------#
     $status = $DataUserOut['status'];
     $status_var = [
@@ -710,7 +712,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     if ($marzbanstatusextra == "onextra") {
         $keyboardinfo['inline_keyboard'][] = [
             ['text' => $textbotlang['users']['extend']['title'], 'callback_data' => 'extends_' . $DataUserOut['username'] . "_" . $dataget[1]],
-            ['text' => $textbotlang['users']['extraVolume']['sellextra'], 'callback_data' => 'Extra_volumes_' . $DataUserOut['username'] . '_' . $dataget[1]],
+            ['text' => $textbotlang['users']['extraVolume']['sellextra'], 'callback_data' => 'Extra_volumes'],
         ];
     } else {
         $keyboardinfo['inline_keyboard'][] = [['text' => $textbotlang['users']['extend']['title'], 'callback_data' => 'extends_' . $DataUserOut['username'] . "_" . $dataget[1]]];
@@ -2860,7 +2862,6 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         'inline_keyboard' => [
             [
                 ['text' => $textbotlang['keyboard']['manualDelete'], 'callback_data' => "remoceserviceadminmanual-{$nameloc['id_invoice']}"],
-                ['text' => $textbotlang['keyboard']['deleteServiceAlt'], 'callback_data' => "remoceserviceadmin-{$nameloc['id_invoice']}"],
                 ['text' => $textbotlang['keyboard']['rejectDelete'], 'callback_data' => "rejectremoceserviceadmin-{$nameloc['id_invoice']}"],
             ],
         ]
@@ -4335,10 +4336,10 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     }
     step('getcountconfig', $from_id);
 } elseif ($user['step'] == "getcountconfig") {
+    if (!ctype_digit($text))
+        return sendmessage($from_id, $textbotlang['users']['Balance']['errorprice'], null, 'HTML');
     if (intval($text) > 15 || intval($text) < 1)
         return sendmessage($from_id, $textbotlang['common']['invalidInput'], $backuser, 'HTML');
-    if (!is_numeric($text))
-        return sendmessage($from_id, $textbotlang['users']['Balance']['errorprice'], null, 'HTML');
     sendmessage($from_id, $textbotlang['textbot']['selectLocation'], $list_marzban_panel_userom, 'HTML');
     update("user", "Processing_value_four", $text, "id", $from_id);
     step('home', $from_id);
@@ -5929,19 +5930,18 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             'parse_mode' => "HTML"
         ]);
     }
-} elseif (preg_match('/Extra_volumes_(\w+)_(.*)/', $datain, $dataget)) {
-    $usernamepanel = $dataget[1];
-    $invoice_owner = select("invoice", "*", "username", $usernamepanel, "select");
-    if (!invoiceBelongsToUser($invoice_owner, $from_id)) {
+} elseif ($datain == "Extra_volumes") {
+    $userdata = json_decode((string) $user['Processing_value'], true);
+    if (empty($userdata['username']) || empty($userdata['code_panel'])) {
         return;
     }
-    $locations = select("marzban_panel", "*", "code_panel", $dataget[2], "select");
-    $location = $locations['name_panel'];
+    $locations = select("marzban_panel", "*", "code_panel", $userdata['code_panel'], "select");
+    if ($locations == false) {
+        sendmessage($from_id, $textbotlang['users']['status']['error'], null, 'html');
+        return;
+    }
     $eextraprice = json_decode($locations['priceextravolume'], true);
     $extrapricevalue = $eextraprice[$user['agent']];
-    update("user", "Processing_value", $usernamepanel, "id", $from_id);
-    update("user", "Processing_value_one", $location, "id", $from_id);
-
     $textextra = sprintf($textbotlang['users']['extraVolume']['enterextravolume'], $extrapricevalue);
     sendmessage($from_id, $textextra, $backuser, 'HTML');
     step('getvolumeextras', $from_id);
@@ -5954,14 +5954,20 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         sendmessage($from_id, $textbotlang['users']['extraVolume']['invalidprice'], $backuser, 'HTML');
         return;
     }
-    $marzban_list_get = select("marzban_panel", "*", "name_panel", $user['Processing_value_one'], "select");
+    $userdata = json_decode((string) $user['Processing_value'], true);
+    $marzban_list_get = select("marzban_panel", "*", "code_panel", $userdata['code_panel'] ?? '', "select");
+    if ($marzban_list_get == false) {
+        sendmessage($from_id, $textbotlang['users']['status']['error'], null, 'html');
+        return;
+    }
     $eextraprice = json_decode($marzban_list_get['priceextravolume'], true);
     $extrapricevalue = $eextraprice[$user['agent']];
     $priceextra = $extrapricevalue * $text;
+    savedata("save", "volume", $text);
     $keyboardsetting = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $textbotlang['users']['extraVolume']['extracheck'], 'callback_data' => 'confirmaextras_' . $priceextra],
+                ['text' => $textbotlang['users']['extraVolume']['extracheck'], 'callback_data' => 'confirmaextras'],
             ]
         ]
     ]);
@@ -5970,12 +5976,21 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $textextra = sprintf($textbotlang['users']['extraVolume']['extravolumeinvoice'], $extrapricevalues, $priceextra, $text);
     sendmessage($from_id, $textextra, $keyboardsetting, 'HTML');
     step('home', $from_id);
-} elseif (preg_match('/confirmaextras_(\w+)/', $datain, $dataget)) {
-    $volume = $dataget[1];
-    $invoice_owner = select("invoice", "*", "username", $user['Processing_value'], "select");
-    if (!invoiceBelongsToUser($invoice_owner, $from_id)) {
+} elseif ($datain == "confirmaextras") {
+    $userdata = json_decode((string) $user['Processing_value'], true);
+    if (empty($userdata['username']) || empty($userdata['volume'])) {
         return;
     }
+    $marzban_list_get = select("marzban_panel", "*", "code_panel", $userdata['code_panel'] ?? '', "select");
+    if ($marzban_list_get == false) {
+        sendmessage($from_id, $textbotlang['users']['status']['error'], null, 'html');
+        return;
+    }
+    $eextraprice = json_decode($marzban_list_get['priceextravolume'], true);
+    $extrapricevalue = $eextraprice[$user['agent']];
+    $volume = $extrapricevalue * $userdata['volume'];
+    $usernamepanel = $userdata['username'];
+    $location = $marzban_list_get['name_panel'];
     if ($user['Balance'] < $volume && $user['agent'] != "n2") {
         $marzbandirectpay = select('shopSetting', "*", "Namevalue", "statusdirectpabuy", "select")['value'];
         if ($marzbandirectpay == "offdirectbuy") {
@@ -6004,24 +6019,19 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             return;
         }
     }
-    $marzban_list_get = select("marzban_panel", "*", "name_panel", $user['Processing_value_one'], "select");
-    if ($marzban_list_get == false) {
-        sendmessage($from_id, $textbotlang['users']['status']['error'], null, 'html');
-        return;
-    }
-    $eextraprice = json_decode($marzban_list_get['priceextravolume'], true);
-    $extrapricevalue = $eextraprice[$user['agent']];
     deletemessage($from_id, $message_id);
+    $volumepricelast = $volume;
     if (intval($user['pricediscount']) != 0) {
         $result = ($volume * $user['pricediscount']) / 100;
-        $volume = $volume - $result;
+        $volumepricelast = $volume - $result;
         sendmessage($from_id, sprintf($textbotlang['users']['Discount']['discountapplied'], $user['pricediscount']), null, 'HTML');
     }
-    if (!deductBalance($user, $volume)) {
+    savedata("save", "volume", 0);
+    if (!deductBalance($user, $volumepricelast)) {
         sendmessage($from_id, $textbotlang['users']['Balance']['notEnoughBalance'], null, 'HTML');
         return;
     }
-    $DataUserOut = $ManagePanel->DataUser($user['Processing_value_one'], $user['Processing_value']);
+    $DataUserOut = $ManagePanel->DataUser($location, $usernamepanel);
     $data_limit = $DataUserOut['data_limit'] + (intval($volume) / intval($extrapricevalue) * pow(1024, 3));
     $stmt = $pdo->prepare("INSERT IGNORE INTO service_other (id_user, username, value, type, time, price) VALUES (:id_user, :username, :value, :type, :time, :price)");
     $value = $data_limit;
@@ -6029,18 +6039,18 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $type = "extra_not_user";
     $stmt->execute([
         ':id_user' => $from_id,
-        ':username' => $user['Processing_value'],
+        ':username' => $usernamepanel,
         ':value' => $value,
         ':type' => $type,
         ':time' => $dateacc,
-        ':price' => $volume,
+        ':price' => $volumepricelast,
     ]);
     $data_limit_new = (intval($volume) / intval($extrapricevalue));
-    $extra_volume = $ManagePanel->extra_volume($user['Processing_value'], $marzban_list_get['code_panel'], $data_limit_new);
+    $extra_volume = $ManagePanel->extra_volume($usernamepanel, $marzban_list_get['code_panel'], $data_limit_new);
     if ($extra_volume['status'] == false) {
-        addBalance($from_id, $volume);
+        addBalance($from_id, $volumepricelast);
         $extra_volume['msg'] = json_encode($extra_volume['msg']);
-        $textreports = sprintf($textbotlang['Admin']['reportgroup']['errorExtraVolume2'], $user['Processing_value_one'], $user['Processing_value'], $extra_volume['msg']);
+        $textreports = sprintf($textbotlang['Admin']['reportgroup']['errorExtraVolume2'], $location, $usernamepanel, $extra_volume['msg']);
         sendmessage($from_id, $textbotlang['users']['extraVolume']['serviceError'], null, 'HTML');
         if (strlen($setting['Channel_Report']) > 0) {
             telegram('sendmessage', [
@@ -6062,7 +6072,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     sendmessage($from_id, $textbotlang['users']['extend']['thanks'], $back, 'HTML');
     $volumes = $volume / $extrapricevalue;
     $volumes = number_format($volumes, 0);
-    $text_report = sprintf($textbotlang['Admin']['reportgroup']['volumePurchase'], $from_id, $volumes, $volume, $user['Balance'], $user['Processing_value']);
+    $text_report = sprintf($textbotlang['Admin']['reportgroup']['volumePurchase'], $from_id, $volumes, $volumepricelast, $user['Balance'], $usernamepanel);
     if (strlen($setting['Channel_Report']) > 0) {
         telegram('sendmessage', [
             'chat_id' => $setting['Channel_Report'],
@@ -6156,7 +6166,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     }
     sendmessage($from_id, $textbotlang['users']['agent']['endrequest'], $keyboard, 'html');
     step("home", $from_id);
-    $stmt = $pdo->prepare("INSERT INTO Requestagent (id, username, time, Description, status, type) VALUES (:id, :username, :time, :description, :status, :type)");
+    $stmt = $pdo->prepare("INSERT INTO Requestagent (id, username, time, Description, status, type, price) VALUES (:id, :username, :time, :description, :status, :type, :price)");
     $status = "waiting";
     $type = "None";
     $current_time = time();
@@ -6170,6 +6180,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             ':description' => $description,
             ':status' => $status,
             ':type' => $type,
+            ':price' => intval($setting['agentreqprice']),
         ]);
         $requestAgentInserted = true;
     } catch (PDOException $e) {
@@ -6184,6 +6195,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
                         ':description' => $description,
                         ':status' => $status,
                         ':type' => $type,
+                        ':price' => intval($setting['agentreqprice']),
                     ]);
                     $requestAgentInserted = true;
                 } catch (PDOException $retryException) {

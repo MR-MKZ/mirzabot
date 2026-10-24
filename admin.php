@@ -4909,6 +4909,11 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     $stmt->execute();
     $info_product = $stmt->fetch(PDO::FETCH_ASSOC);
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $user['Processing_value_tow'], "select");
+    if ($info_product == false || $marzban_list_get == false) {
+        sendmessage($from_id, $textbotlang['users']['status']['error'], $keyboardadmin, 'HTML');
+        step("home", $from_id);
+        return;
+    }
     $DataUserOut = $ManagePanel->DataUser($user['Processing_value_tow'], $user['Processing_value_one']);
     if ($DataUserOut['status'] == "Unsuccessful") {
         $datetimestep = strtotime("+" . $info_product['Service_time'] . "days");
@@ -4936,8 +4941,8 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
                     'text' => $texterros,
                     'parse_mode' => "HTML"
                 ]);
-                step("home", $from_id);
             }
+            step("home", $from_id);
             return;
         }
     } else {
@@ -6571,8 +6576,8 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     sendmessage($from_id, $textsetservice, $backadmin, 'HTML');
     step('getservceid', $from_id);
 } elseif ($user['step'] == "getservceid") {
-    $userdata = json_decode(getuserm($text, $user['Processing_value'])['body'], true);
-    if (isset($userdata['detail']) and $userdata['detail'] == "User not found") {
+    $userdata = json_decode(getuserm($text, $user['Processing_value'])['body'] ?? '', true);
+    if (!is_array($userdata) || !isset($userdata['service_ids']) || !is_array($userdata['service_ids'])) {
         sendmessage($from_id, $textbotlang['Admin']['managepanel']['userNotInPanel'], null, 'HTML');
         return;
     }
@@ -6985,6 +6990,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
         return;
     }
     sendmessage($from_id, $textbotlang['Admin']['manageUser']['transferDone'], $keyboardadmin, 'HTML');
+    $targetBalance = intval(select("user", "Balance", "id", $text, "select")['Balance'] ?? 0);
     $stmt = $pdo->prepare("DELETE FROM user WHERE id = :id_user");
     $stmt->bindParam(':id_user', $text, PDO::PARAM_STR);
     $stmt->execute();
@@ -6994,6 +7000,7 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     update("support_message", "iduser", $text, "iduser", $user['Processing_value']);
     update("service_other", "id_user", $text, "id_user", $user['Processing_value']);
     update("Giftcodeconsumed", "id_user", $text, "id_user", $user['Processing_value']);
+    addBalance($text, $targetBalance);
     step("home", $from_id);
 } elseif ($text == $textbotlang['keyboard']['qrBackground']) {
     sendmessage($from_id, $textbotlang['Admin']['managepanel']['askQrBackground'], $backadmin, 'HTML');
@@ -7435,8 +7442,8 @@ elseif ($text == $textbotlang['keyboard']['hidePanelForUser'] && $adminrulecheck
         }
         $datainbound = json_encode($isPasarguard ? $DataUserOut['group_ids'] : $DataUserOut['inbounds']);
     } elseif ($marzban_list_get['type'] == "marzneshin") {
-        $userdata = json_decode(getuserm($text, $marzban_list_get['name_panel'])['body'], true);
-        if (isset($userdata['detail']) and $userdata['detail'] == "User not found") {
+        $userdata = json_decode(getuserm($text, $marzban_list_get['name_panel'])['body'] ?? '', true);
+        if (!is_array($userdata) || !isset($userdata['service_ids']) || !is_array($userdata['service_ids'])) {
             sendmessage($from_id, $textbotlang['Admin']['managepanel']['userNotInPanel'], null, 'HTML');
             return;
         }
@@ -7524,10 +7531,7 @@ elseif ($text == $textbotlang['keyboard']['hidePanelForUser'] && $adminrulecheck
     $prodcut['price_product'] = 0;
     $prodcut['Service_time'] = $text;
     $prodcut['Volume_constraint'] = $userdate['volume'];
-    update("invoice", "name_product", $prodcut['name_product'], "id_invoice", $userdate['id_invoice']);
-    update("invoice", "price_product", $prodcut['price_product'], "id_invoice", $userdate['id_invoice']);
-    update("invoice", "Volume", $prodcut['Volume_constraint'], "id_invoice", $userdate['id_invoice']);
-    update("invoice", "Service_time", $prodcut['Service_time'], "id_invoice", $userdate['id_invoice']);
+    savedata("save", "time", $text);
     step("home", $from_id);
     $keyboardextend = json_encode([
         'inline_keyboard' => [
@@ -7548,14 +7552,19 @@ elseif ($text == $textbotlang['keyboard']['hidePanelForUser'] && $adminrulecheck
 } elseif (preg_match('/^confirmserivceadmin-(.*)/', $datain, $dataget)) {
     Editmessagetext($from_id, $message_id, $text_inline, json_encode(['inline_keyboard' => []]));
     $id_invoice = $dataget[1];
+    $userdate = json_decode((string) $user['Processing_value'], true);
     $nameloc = select("invoice", "*", "id_invoice", $id_invoice, "select");
+    if (($userdate['id_invoice'] ?? null) != $id_invoice || !isset($userdate['volume'], $userdate['time'])) {
+        sendmessage($from_id, $textbotlang['Admin']['order']['renewError'], null, 'HTML');
+        return;
+    }
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $nameloc['Service_location'], "select");
     $prodcut['code_product'] = "custom_volume";
     $prodcut['name_product'] = $nameloc['name_product'];
     $prodcut['price_product'] = 0;
-    $prodcut['Service_time'] = $nameloc['Service_time'];
-    $prodcut['Volume_constraint'] = $nameloc['Volume'];
-    if ($prodcut == false || !in_array($nameloc['Status'], ['active', 'end_of_time', 'end_of_volume', 'sendedwarn', 'send_on_hold'])) {
+    $prodcut['Service_time'] = $userdate['time'];
+    $prodcut['Volume_constraint'] = $userdate['volume'];
+    if ($nameloc == false || !in_array($nameloc['Status'], ['active', 'end_of_time', 'end_of_volume', 'sendedwarn', 'send_on_hold'])) {
         sendmessage($from_id, $textbotlang['Admin']['order']['renewError'], null, 'HTML');
         return;
     }
@@ -7588,6 +7597,10 @@ elseif ($text == $textbotlang['keyboard']['hidePanelForUser'] && $adminrulecheck
     $output_json = json_encode($extend);
     $stmt->bindParam(':output', $output_json, PDO::PARAM_STR);
     $stmt->execute();
+    savedata("clear", "id_invoice", null);
+    update("invoice", "price_product", $prodcut['price_product'], "id_invoice", $id_invoice);
+    update("invoice", "Volume", $prodcut['Volume_constraint'], "id_invoice", $id_invoice);
+    update("invoice", "Service_time", $prodcut['Service_time'], "id_invoice", $id_invoice);
     update("invoice", "Status", "active", "id_invoice", $id_invoice);
     sendmessage($from_id, $textbotlang['users']['extend']['thanks'], null, 'HTML');
     $text_report = sprintf($textbotlang['Admin']['reportgroup']['renewedByAdmin'], $from_id, $nameloc['id_user'], $prodcut['name_product'], $nameloc['username'], $nameloc['Service_location']);

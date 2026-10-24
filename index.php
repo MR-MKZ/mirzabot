@@ -2956,34 +2956,43 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     ]);
     Editmessagetext($from_id, $message_id, $textbotlang['users']['transfer']['description'], $bakinfos);
     step("getidfortransfer", $from_id);
-    update("user", "Processing_value_one", $nameloc['username'], "id", $from_id);
-    update("user", "Processing_value_tow", $nameloc['id_invoice'], "id", $from_id);
+    savedata("clear", "transfer_invoice", $nameloc['id_invoice']);
 } elseif ($user['step'] == "getidfortransfer") {
     if (!rowExists("user", "id", $text)) {
         sendmessage($from_id, $textbotlang['users']['transfer']['notUserTrans'], $backuser, 'HTML');
         return;
     }
-    update("user", "Processing_value_one", $text, "id", $from_id);
+    savedata("save", "transfer_to", $text);
     $confirmtransfer = json_encode([
         'inline_keyboard' => [
             [
-                ['text' => $textbotlang['keyboard']['confirmTransferService'], 'callback_data' => "confrimtransfers_{$user['Processing_value_tow']}"],
+                ['text' => $textbotlang['keyboard']['confirmTransferService'], 'callback_data' => "confrimtransfers"],
             ],
         ]
     ]);
     sendmessage($from_id, $textbotlang['users']['transfer']['confirm'], $confirmtransfer, 'HTML');
     step("home", $from_id);
-} elseif (preg_match('/confrimtransfers_(\w+)/', $datain, $dataget)) {
-    if ($from_id == $user['Processing_value_one']) {
+} elseif ($datain == "confrimtransfers") {
+    $userdata = json_decode((string) $user['Processing_value'], true);
+    if (empty($userdata['transfer_invoice']) || empty($userdata['transfer_to'])) {
+        return;
+    }
+    $transferTo = $userdata['transfer_to'];
+    if ($from_id == $transferTo) {
         sendmessage($from_id, $textbotlang['users']['transfer']['notSendServiceYou'], $keyboard, 'HTML');
         return;
     }
-    $id_invoice = $dataget[1];
+    if (!rowExists("user", "id", $transferTo)) {
+        sendmessage($from_id, $textbotlang['users']['transfer']['notUserTrans'], $keyboard, 'HTML');
+        return;
+    }
+    $id_invoice = $userdata['transfer_invoice'];
     $nameloc = select("invoice", "*", "id_invoice", $id_invoice, "select");
     if (!invoiceBelongsToUser($nameloc, $from_id)) {
         return;
     }
-    update("invoice", "id_user", $user['Processing_value_one'], "id_invoice", $id_invoice);
+    savedata("clear", "transfer_invoice", null);
+    update("invoice", "id_user", $transferTo, "id_invoice", $id_invoice);
     $bakinfos = json_encode([
         'inline_keyboard' => [
             [
@@ -2993,9 +3002,9 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     ]);
     Editmessagetext($from_id, $message_id, $textbotlang['users']['transfer']['confirmed'], $bakinfos);
     $texttransfer = strtr($textbotlang['users']['transfer']['receivedNotice'], ['{service_username}' => $nameloc['username'], '{from_id}' => $from_id]);
-    sendmessage($user['Processing_value_one'], $texttransfer, $keyboard, 'HTML');
+    sendmessage($transferTo, $texttransfer, $keyboard, 'HTML');
     $stmt = $pdo->prepare("INSERT IGNORE INTO service_other (id_user, username,value,type,time,price) VALUES (?, ?, ?, ?,?,?)");
-    $value = $user['Processing_value_one'];
+    $value = $transferTo;
     $dateacc = date('Y/m/d H:i:s');
     $type = "transfertouser";
     $price = "0";
@@ -3961,6 +3970,17 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $eextraprice = json_decode($marzban_list_get['pricecustomtime'], true);
     $customtimevalueprice = $eextraprice[$user['agent']];
     if ($parts[0] == "customvolume") {
+        $mainvolume = intval(json_decode($marzban_list_get['mainvolume'], true)[$user['agent']] ?? 0);
+        $maxvolume = intval(json_decode($marzban_list_get['maxvolume'], true)[$user['agent']] ?? 0);
+        $maintime = intval(json_decode($marzban_list_get['maintime'], true)[$user['agent']] ?? 0);
+        $maxtime = intval(json_decode($marzban_list_get['maxtime'], true)[$user['agent']] ?? 0);
+        if ((json_decode($marzban_list_get['customvolume'] ?? '[]', true)[$user['agent']] ?? null) != "1" || $marzban_list_get['type'] == "Manualsale"
+            || !ctype_digit((string) $parts[1]) || !ctype_digit((string) $parts[2])
+            || $parts[2] < $mainvolume || $parts[2] > $maxvolume || $parts[1] < $maintime || $parts[1] > $maxtime) {
+            sendmessage($from_id, $textbotlang['users']['sell']['purchaseError'], $backuser, 'html');
+            step("home", $from_id);
+            return;
+        }
         $info_product['Volume_constraint'] = $parts[2];
         $info_product['name_product'] = $textbotlang['users']['customSellVolume']['title'];
         $info_product['code_product'] = "customvolume";
@@ -4562,6 +4582,17 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $customtimevalueprice = $eextraprice[$user['agent']];
     $parts = explode("_", $user['Processing_value_one']);
     if ($parts[0] == "customvolume") {
+        $mainvolume = intval(json_decode($marzban_list_get['mainvolume'], true)[$user['agent']] ?? 0);
+        $maxvolume = intval(json_decode($marzban_list_get['maxvolume'], true)[$user['agent']] ?? 0);
+        $maintime = intval(json_decode($marzban_list_get['maintime'], true)[$user['agent']] ?? 0);
+        $maxtime = intval(json_decode($marzban_list_get['maxtime'], true)[$user['agent']] ?? 0);
+        if ((json_decode($marzban_list_get['customvolume'] ?? '[]', true)[$user['agent']] ?? null) != "1" || $marzban_list_get['type'] == "Manualsale"
+            || !ctype_digit((string) $parts[1]) || !ctype_digit((string) $parts[2])
+            || $parts[2] < $mainvolume || $parts[2] > $maxvolume || $parts[1] < $maintime || $parts[1] > $maxtime) {
+            sendmessage($from_id, $textbotlang['users']['sell']['purchaseError'], $backuser, 'html');
+            step("home", $from_id);
+            return;
+        }
         $info_product['Volume_constraint'] = $parts[2];
         $info_product['name_product'] = $textbotlang['users']['customSellVolume']['title'];
         $info_product['code_product'] = "customvolume";

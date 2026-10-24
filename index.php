@@ -65,11 +65,60 @@ if (is_array($keyboard_check) && preg_match('/[\x{600}-\x{6FF}\x{FB50}-\x{FDFF}]
 
 if (intval($from_id) == 0)
     return;
-$userLock = $pdo->prepare("SELECT GET_LOCK(?, 0)");
+$lockWait = isset($update['pre_checkout_query']) || isset($update['message']['successful_payment']) ? 10 : 0;
+$userLock = $pdo->prepare("SELECT GET_LOCK(?, $lockWait)");
 $userLock->execute(["mirza_user_" . $from_id]);
 if ((int) $userLock->fetchColumn() !== 1) {
     if ($callback_query_id) {
         telegram('answerCallbackQuery', ['callback_query_id' => $callback_query_id]);
+    }
+    return;
+}
+if (isset($update['pre_checkout_query'])) {
+    $userid = $update['pre_checkout_query']['from']['id'];
+    $id_order = $update['pre_checkout_query']['invoice_payload'];
+    $Payment_report = select("Payment_report", "*", "id_order", $id_order, "select");
+    if ($Payment_report == false) {
+        return;
+    } else {
+        telegram('answerPreCheckoutQuery', [
+            'pre_checkout_query_id' => $update['pre_checkout_query']['id'],
+            'ok' => true,
+        ]);
+    }
+    if ($Payment_report['payment_Status'] == "paid") {
+        return;
+    }
+    update("Payment_report", "dec_not_confirmed", json_encode($update['pre_checkout_query']), "id_order", $Payment_report['id_order']);
+    return;
+}
+if (isset($update['message']['successful_payment'])) {
+    $id_order = $update['message']['successful_payment']['invoice_payload'];
+    $Payment_report = select("Payment_report", "*", "id_order", $id_order, "select");
+    if ($Payment_report == false) {
+        return;
+    }
+    if (!claimPaymentPaid($Payment_report['id_order'])) {
+        return;
+    }
+    update("Payment_report", "dec_not_confirmed", $Payment_report['dec_not_confirmed'] . json_encode($update['message']['successful_payment']), "id_order", $Payment_report['id_order']);
+    DirectPayment($Payment_report['id_order']);
+    $pricecashback = select("PaySetting", "ValuePay", "NamePay", "chashbackstar", "select")['ValuePay'];
+    $Balance_id = select("user", "*", "id", $Payment_report['id_user'], "select");
+    if ($pricecashback != "0") {
+        $result = ($Payment_report['price'] * $pricecashback) / 100;
+        $Balance_confrim = intval($Balance_id['Balance']) + $result;
+        addBalance($Balance_id['id'], $result);
+        $text_report = sprintf($textbotlang['users']['Discount']['gift-deposit'], $result);
+        sendmessage($Balance_id['id'], $text_report, null, 'HTML');
+    }
+    if (strlen($setting['Channel_Report']) > 0) {
+        telegram('sendmessage', [
+            'chat_id' => $setting['Channel_Report'],
+            'message_thread_id' => select("topicid", "idreport", "report", "paymentreport", "select")['idreport'],
+            'text' => sprintf($textbotlang['Admin']['reportgroup']['newPaymentStar'], $Balance_id['username'], $Balance_id['id'], $Payment_report['price'], $update['message']['successful_payment']['total_amount']),
+            'parse_mode' => "HTML"
+        ]);
     }
     return;
 }
@@ -1781,7 +1830,9 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             ':agent' => $user['agent']
         ]);
         $SellDiscountlimit = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($SellDiscountlimit == false || (intval($SellDiscountlimit['time']) != 0 && time() >= intval($SellDiscountlimit['time'])) || $SellDiscountlimit['limitDiscount'] <= $SellDiscountlimit['usedDiscount']) {
+        $usedByUser = $pdo->prepare("SELECT COUNT(*) FROM Giftcodeconsumed WHERE id_user = ? AND code = ?");
+        $usedByUser->execute([$from_id, $partsdic[1]]);
+        if ($SellDiscountlimit == false || (intval($SellDiscountlimit['time']) != 0 && time() >= intval($SellDiscountlimit['time'])) || $SellDiscountlimit['limitDiscount'] <= $SellDiscountlimit['usedDiscount'] || intval($usedByUser->fetchColumn()) >= intval($SellDiscountlimit['useuser'])) {
             sendmessage($from_id, $textbotlang['users']['Discount']['notAllowed'], null, 'HTML');
             return;
         }
@@ -2074,6 +2125,10 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $nameloc['Service_location'], "select");
     $eextraprice = json_decode($marzban_list_get['priceextravolume'], true);
     $extrapricevalue = $eextraprice[$user['agent']];
+    if (intval($extrapricevalue) <= 0) {
+        sendmessage($from_id, $textbotlang['users']['sell']['purchaseError'], null, 'HTML');
+        return;
+    }
     if ($user['Balance'] < $volume && $user['agent'] != "n2") {
         $marzbandirectpay = select('shopSetting', "*", "Namevalue", "statusdirectpabuy", "select")['value'];
         if ($marzbandirectpay == "offdirectbuy") {
@@ -2624,6 +2679,10 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $marzban_list_get = select("marzban_panel", "*", "name_panel", $nameloc['Service_location'], "select");
     $eextraprice = json_decode($marzban_list_get['priceextratime'], true);
     $extratimepricevalue = $eextraprice[$user['agent']];
+    if (intval($extratimepricevalue) <= 0) {
+        sendmessage($from_id, $textbotlang['users']['sell']['purchaseError'], null, 'HTML');
+        return;
+    }
     if ($user['Balance'] < $tmieextra && $user['agent'] != "n2") {
         $marzbandirectpay = select('shopSetting', "*", "Namevalue", "statusdirectpabuy", "select")['value'];
         if ($marzbandirectpay == "offdirectbuy") {
@@ -3060,6 +3119,7 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
         }
         step('home', $from_id);
         update("invoice", "Status", "Unsuccessful", "id_invoice", $randomString);
+        update("user", "limit_usertest", $userlimit['limit_usertest'], "id", $from_id);
         return;
     }
     $output_config_link = "";
@@ -4845,10 +4905,10 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             }
             return;
         }
-        $stmt = $pdo->prepare("INSERT INTO Payment_report (id_user,id_order,time,price,payment_Status,Payment_Method) VALUES (?,?,?,?,?,?)");
+        $stmt = $pdo->prepare("INSERT INTO Payment_report (id_user,id_order,time,price,payment_Status,Payment_Method,dec_not_confirmed) VALUES (?,?,?,?,?,?,?)");
         $payment_Status = "Unpaid";
         $Payment_Method = "aqayepardakht";
-        $stmt->execute([$from_id, $randomString, $dateacc, $user['Processing_value'], $payment_Status, $Payment_Method]);
+        $stmt->execute([$from_id, $randomString, $dateacc, $user['Processing_value'], $payment_Status, $Payment_Method, $pay['transid']]);
         linkPaymentToOrder($randomString, $user);
         $paymentkeyboard = json_encode([
             'inline_keyboard' => [
@@ -5822,9 +5882,14 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     $stmt->bindParam(':code', $text);
     $stmt->execute();
     $get_codesql = $stmt->fetch(PDO::FETCH_ASSOC);
+    $claim = $pdo->prepare("UPDATE Discount SET limitused = COALESCE(CAST(limitused AS UNSIGNED), 0) + 1 WHERE code = ? AND COALESCE(CAST(limitused AS UNSIGNED), 0) < CAST(limituse AS UNSIGNED)");
+    $claim->execute([$text]);
+    clearSelectCache('Discount');
+    if ($claim->rowCount() == 0) {
+        sendmessage($from_id, $textbotlang['users']['Discount']['errorLimitDiscount'], $backuser, 'HTML');
+        return;
+    }
     addBalance($from_id, $get_codesql['price']);
-    $discountlimitadd = intval($checklimit['limitused']) + 1;
-    update("Discount", "limitused", $discountlimitadd, "code", $text);
     step('home', $from_id);
     $text_balance_code = sprintf($textbotlang['users']['Discount']['giftcodesuccess'], $get_codesql['price']);
     sendmessage($from_id, $text_balance_code, $keyboard, 'HTML');
@@ -5988,6 +6053,10 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
     }
     $eextraprice = json_decode($marzban_list_get['priceextravolume'], true);
     $extrapricevalue = $eextraprice[$user['agent']];
+    if (intval($extrapricevalue) <= 0) {
+        sendmessage($from_id, $textbotlang['users']['sell']['purchaseError'], null, 'HTML');
+        return;
+    }
     $volume = $extrapricevalue * $userdata['volume'];
     $usernamepanel = $userdata['username'];
     $location = $marzban_list_get['name_panel'];
@@ -6590,50 +6659,6 @@ if ($text == "/start" || $datain == "start" || $text == "start") {
             'chat_id' => $setting['Channel_Report'],
             'message_thread_id' => $otherreport,
             'text' => $textreport,
-            'parse_mode' => "HTML"
-        ]);
-    }
-} elseif (isset($update['pre_checkout_query'])) {
-    $userid = $update['pre_checkout_query']['from']['id'];
-    $id_order = $update['pre_checkout_query']['invoice_payload'];
-    $Payment_report = select("Payment_report", "*", "id_order", $id_order, "select");
-    if ($Payment_report == false) {
-        return;
-    } else {
-        telegram('answerPreCheckoutQuery', [
-            'pre_checkout_query_id' => $update['pre_checkout_query']['id'],
-            'ok' => true,
-        ]);
-    }
-    if ($Payment_report['payment_Status'] == "paid") {
-        return;
-    }
-    update("Payment_report", "dec_not_confirmed", json_encode($update['pre_checkout_query']), "id_order", $Payment_report['id_order']);
-} elseif (isset($update['message']['successful_payment'])) {
-    $id_order = $update['message']['successful_payment']['invoice_payload'];
-    $Payment_report = select("Payment_report", "*", "id_order", $id_order, "select");
-    if ($Payment_report == false) {
-        return;
-    }
-    if (!claimPaymentPaid($Payment_report['id_order'])) {
-        return;
-    }
-    update("Payment_report", "dec_not_confirmed", $Payment_report['dec_not_confirmed'] . json_encode($update['message']['successful_payment']), "id_order", $Payment_report['id_order']);
-    DirectPayment($Payment_report['id_order']);
-    $pricecashback = select("PaySetting", "ValuePay", "NamePay", "chashbackstar", "select")['ValuePay'];
-    $Balance_id = select("user", "*", "id", $Payment_report['id_user'], "select");
-    if ($pricecashback != "0") {
-        $result = ($Payment_report['price'] * $pricecashback) / 100;
-        $Balance_confrim = intval($Balance_id['Balance']) + $result;
-        addBalance($Balance_id['id'], $result);
-        $text_report = sprintf($textbotlang['users']['Discount']['gift-deposit'], $result);
-        sendmessage($Balance_id['id'], $text_report, null, 'HTML');
-    }
-    if (strlen($setting['Channel_Report']) > 0) {
-        telegram('sendmessage', [
-            'chat_id' => $setting['Channel_Report'],
-            'message_thread_id' => $paymentreports,
-            'text' => sprintf($textbotlang['Admin']['reportgroup']['newPaymentStar'], $Balance_id['username'], $Balance_id['id'], $Payment_report['price'], $update['message']['successful_payment']['total_amount']),
             'parse_mode' => "HTML"
         ]);
     }

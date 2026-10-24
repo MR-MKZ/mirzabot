@@ -297,6 +297,10 @@ if ($datain == "paygwback") {
     update("user", "Processing_value", $iduser, "id", $from_id);
     step('get_number_limit', $from_id);
 } elseif ($user['step'] == "get_number_limit") {
+    if (!ctype_digit($text)) {
+        sendmessage($from_id, $textbotlang['common']['invalidInput'], $backadmin, 'HTML');
+        return;
+    }
     sendmessage($from_id, $textbotlang['Admin']['getlimitusertest']['setLimit'], $keyboardadmin, 'HTML');
     step('home', $from_id);
     update("user", "limit_usertest", $text, "id", $user['Processing_value']);
@@ -304,6 +308,10 @@ if ($datain == "paygwback") {
     sendmessage($from_id, $textbotlang['Admin']['getlimitusertest']['limitAll'], $backadmin, 'HTML');
     step('limit_usertest_allusers', $from_id);
 } elseif ($user['step'] == "limit_usertest_allusers") {
+    if (!ctype_digit($text)) {
+        sendmessage($from_id, $textbotlang['common']['invalidInput'], $backadmin, 'HTML');
+        return;
+    }
     sendmessage($from_id, $textbotlang['Admin']['getlimitusertest']['setLimitAll'], $keyboardadmin, 'HTML');
     step('home', $from_id);
     update("user", "limit_usertest", $text);
@@ -3818,6 +3826,10 @@ elseif ($datain == "systemsms") {
     editFlowMessage($textbotlang['Admin']['Discountsell']['getLimit'], $discountCodeFlowKeyboard);
     step('getlimitcode', $from_id);
 } elseif ($user['step'] == "getlimitcode") {
+    if (!ctype_digit($text)) {
+        editFlowMessage($textbotlang['common']['invalidInput'], $discountCodeFlowKeyboard);
+        return;
+    }
     savedata("save", "limitDiscount", $text);
     $userGroupsKeyboard = json_encode([
         'inline_keyboard' => [
@@ -3882,6 +3894,10 @@ elseif ($datain == "systemsms") {
     Editmessagetext($from_id, $message_id, $textbotlang['Admin']['Discount']['askUserLimit'], $discountCodeFlowKeyboard);
     step('getuseuser', $from_id);
 } elseif ($user['step'] == "getuseuser") {
+    if (!ctype_digit($text)) {
+        editFlowMessage($textbotlang['common']['invalidInput'], $discountCodeFlowKeyboard);
+        return;
+    }
     $userdata = json_decode($user['Processing_value'], true);
     if (intval($text) > intval($userdata['limitDiscount'])) {
         editFlowMessage($textbotlang['Admin']['Discount']['userLimitTooHigh'], $discountCodeFlowKeyboard);
@@ -4084,7 +4100,9 @@ elseif ($datain == "systemsms") {
     }
     step('home', $from_id);
     $balancemaax = json_decode(select("PaySetting", "ValuePay", "NamePay", "minbalance", "select")['ValuePay'], true);
-    $balancemaax[$text] = $user['Processing_value'];
+    foreach ($text == "allusers" ? ["f", "n", "n2"] : [$text] as $agentKey) {
+        $balancemaax[$agentKey] = $user['Processing_value'];
+    }
     $balancemaax = json_encode($balancemaax);
     sendmessage($from_id, $textbotlang['Admin']['SettingnowPayment']['saveApi'], $keyboardadmin, 'HTML');
     update("PaySetting", "ValuePay", $balancemaax, "NamePay", "minbalance");
@@ -4109,7 +4127,9 @@ elseif ($datain == "systemsms") {
     }
     step('home', $from_id);
     $balancemaax = json_decode(select("PaySetting", "ValuePay", "NamePay", "maxbalance", "select")['ValuePay'], true);
-    $balancemaax[$text] = $user['Processing_value'];
+    foreach ($text == "allusers" ? ["f", "n", "n2"] : [$text] as $agentKey) {
+        $balancemaax[$agentKey] = $user['Processing_value'];
+    }
     $balancemaax = json_encode($balancemaax);
     sendmessage($from_id, $textbotlang['Admin']['SettingnowPayment']['saveApi'], $keyboardadmin, 'HTML');
     update("PaySetting", "ValuePay", $balancemaax, "NamePay", "maxbalance");
@@ -4988,6 +5008,10 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     sendmessage($from_id, $textmin, $backadmin, 'HTML');
     step('minbalancebulk', $from_id);
 } elseif ($user['step'] == "minbalancebulk") {
+    if (!ctype_digit($text)) {
+        sendmessage($from_id, $textbotlang['common']['invalidInput'], $backadmin, 'HTML');
+        return;
+    }
     sendmessage($from_id, $textbotlang['Admin']['SettingnowPayment']['saveApi'], $shopkeyboard, 'HTML');
     update("shopSetting", "value", $text, "Namevalue", "minbalancebuybulk");
     step('home', $from_id);
@@ -5714,7 +5738,10 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     sendmessage($from_id, sprintf($textbotlang['Admin']['gateway']['cubepayFeeAsk'], $feeValueNow), $backadmin, 'HTML');
     step("getfeeiranpay2", $from_id);
 } elseif ($user['step'] == "getfeeiranpay2") {
-
+    if (!is_numeric($text) || $text < 0) {
+        sendmessage($from_id, $textbotlang['common']['invalidInput'], $backadmin, 'HTML');
+        return;
+    }
     update("PaySetting", "ValuePay", (string) $text, "NamePay", "feeternado");
     $feeExample = number_format(cubepayApplyFee(100000, $text));
     $feeSavedText = $text <= 100
@@ -5883,9 +5910,9 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     step("getnameremove", $from_id);
 } elseif ($user['step'] == "getnameremove") {
     sendmessage($from_id, $textbotlang['Admin']['config']['deleted'], $panelOptions['Manualsale'], 'HTML');
-    $stmt = $pdo->prepare("DELETE FROM manualsell WHERE namerecord = ?");
-    $stmt->bindParam(1, $text);
-    $stmt->execute();
+    $panel = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
+    $stmt = $pdo->prepare("DELETE FROM manualsell WHERE namerecord = ? AND codepanel = ?");
+    $stmt->execute([$text, $panel['code_panel']]);
     step("home", $from_id);
 } elseif ($text == $textbotlang['keyboard']['changeLocationPrice'] && $adminrulecheck['rule'] == "administrator") {
     sendmessage($from_id, $textbotlang['Admin']['price']['askChangeLocation'], $backadmin, 'HTML');
@@ -6091,7 +6118,9 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     step("getcontentedit", $from_id);
 } elseif ($user['step'] == "getcontentedit") {
     sendmessage($from_id, $textbotlang['Admin']['saved'], $panelOptions['Manualsale'], 'HTML');
-    update("manualsell", "contentrecord", $text, "namerecord", $user['Processing_value_one']);
+    $panel = select("marzban_panel", "*", "name_panel", $user['Processing_value'], "select");
+    $stmt = $pdo->prepare("UPDATE manualsell SET contentrecord = ? WHERE namerecord = ? AND codepanel = ?");
+    $stmt->execute([$text, $user['Processing_value_one'], $panel['code_panel']]);
     step('home', $from_id);
 } elseif ($text == $textbotlang['keyboard']['increaseGroupPrice']) {
     sendmessage($from_id, $textbotlang['Admin']['price']['askIncreasePanel'], $json_list_marzban_panel, 'HTML');
@@ -6184,6 +6213,10 @@ if ($datain == "settimecornremove" && $adminrulecheck['rule'] == "administrator"
     sendmessage($from_id, $textbotlang['Admin']['Balance']['askMinDeposit'], $backadmin, 'HTML');
     step("getmaincart", $from_id);
 } elseif ($user['step'] == "getmaincart") {
+    if (!ctype_digit($text)) {
+        sendmessage($from_id, $textbotlang['common']['invalidInput'], $backadmin, 'HTML');
+        return;
+    }
     sendmessage($from_id, $textbotlang['Admin']['Balance']['minDepositSaved'], $CartManage, 'HTML');
     step("home", $from_id);
     update("PaySetting", "ValuePay", $text, "NamePay", "minbalancecart");

@@ -4045,6 +4045,7 @@ We hope you had a good experience with the ease and speed of your service. If yo
                 'rebecca' => 'Rebecca',
                 'reWebhookAgentBots' => '🔗 Re-webhook agent bots',
                 'setBotCommands' => '⛏ Bot commands',
+                'apiToken' => '🔑 API token',
                 'receiveMembershipGift' => '🎁 Receive membership gift',
                 'reconnectNode' => '♻️ Reconnect node',
                 'refresh' => '♻️ Update',

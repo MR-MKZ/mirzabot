@@ -4046,6 +4046,7 @@ ID пользователя : %s
                 'rebecca' => 'Rebecca',
                 'reWebhookAgentBots' => '🔗 Повторный webhook ботов агентов',
                 'setBotCommands' => '⛏ Команды бота',
+                'apiToken' => '🔑 API токен',
                 'receiveMembershipGift' => '🎁 Получить подарок за членство',
                 'reconnectNode' => '♻️ Переподключить ноду',
                 'refresh' => '♻️ Обновить',

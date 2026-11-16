@@ -1,6 +1,6 @@
 <?php
-require_once 'vendor/autoload.php';
-require 'config.php';
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/config.php';
 ini_set('error_log', 'error_log');
 
 const MIN_PHP_VERSION = PHP_VERSION_ID >= 80500 ? '8.5.12' : '8.4.27';
@@ -958,8 +958,10 @@ function cubepayCardDetailsText($payment)
 function formatBytes($bytes, $precision = 2): string
 {
     global $textbotlang;
-    $base = log($bytes, 1024);
-    $power = $bytes > 0 ? floor($base) : 0;
+    $bytes = is_numeric($bytes) ? (float) $bytes : 0.0;
+    if (!is_finite($bytes) || $bytes < 0) {
+        $bytes = 0.0;
+    }
     $suffixes = [
         $textbotlang['common']['units']['byte'],
         $textbotlang['common']['units']['kilobyte'],
@@ -967,7 +969,8 @@ function formatBytes($bytes, $precision = 2): string
         $textbotlang['common']['units']['gigabyteAlt'],
         $textbotlang['common']['units']['terabyte'],
     ];
-    return round(pow(1024, $base - $power), $precision) . ' ' . $suffixes[$power];
+    $power = $bytes >= 1 ? min((int) floor(log($bytes, 1024)), count($suffixes) - 1) : 0;
+    return round($bytes / pow(1024, $power), $precision) . ' ' . $suffixes[$power];
 }
 function generateUsername($from_id, $Metode, $username, $randomString, $text, $namecustome, $usernamecustom)
 {

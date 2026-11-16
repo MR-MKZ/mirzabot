@@ -28,7 +28,23 @@ $cronStatus['php_cli'] = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
 $cronStatus['pdo_mysql'] = extension_loaded('pdo_mysql');
 
 try {
-    foreach ($cronStatus['pdo_mysql'] ? mirza_cron_jobs() : [] as $job) {
+    if (!$cronStatus['pdo_mysql']) {
+        throw new RuntimeException('Cron requires the pdo_mysql PHP extension');
+    }
+    // Load shared prerequisites before any job. A failed require_once can remain
+    // marked as included; continuing would leave every subsequent job without PDO.
+    foreach (['config.php', 'vendor/autoload.php', 'function.php'] as $dependency) {
+        $dependencyPath = dirname($cronbotDir) . '/' . $dependency;
+        if (!is_readable($dependencyPath)) {
+            throw new RuntimeException('Required cron dependency is not readable: ' . $dependencyPath);
+        }
+        require_once $dependencyPath;
+    }
+    if (!isset($pdo) || !$pdo instanceof PDO) {
+        throw new RuntimeException('Cron database connection was not initialized');
+    }
+    unset($cronStatus['dispatcher_error']);
+    foreach (mirza_cron_jobs() as $job) {
         $script = $cronbotDir . '/' . $job['job'] . '.php';
         if (!is_file($script)) {
             continue;
@@ -42,34 +58,41 @@ try {
             continue;
         }
 
-        if ($job['job'] === 'lottery') {
-            if ($scorestatus === null) {
-                require_once dirname($cronbotDir) . '/config.php';
-                require_once dirname($cronbotDir) . '/function.php';
-                $setting = config_all('setting');
-                $scorestatus = intval($setting['scorestatus'] ?? 0);
-            }
-            if ($scorestatus !== 1) {
-                continue;
-            }
-        }
 
         $jobError = null;
         $jobStart = time();
         try {
+            if ($job['job'] === 'lottery') {
+                if ($scorestatus === null) {
+                    $setting = config_all('setting');
+                    $scorestatus = intval($setting['scorestatus'] ?? 0);
+                }
+                if ($scorestatus !== 1) {
+                    continue;
+                }
+            }
+
             include $script;
         } catch (Throwable $e) {
             $jobError = $e->getMessage();
-            error_log('mirza cron: ' . $job['job'] . ': ' . $jobError);
+            error_log('mirza cron: ' . $job['job'] . ': ' . $jobError . ' at ' . $e->getFile() . ':' . $e->getLine());
         }
         $cronStatus['jobs'][$job['job']] = ['time' => $jobStart, 'error' => $jobError];
     }
+} catch (Throwable $e) {
+    $cronStatus['dispatcher_error'] = $e->getMessage();
+    error_log('mirza cron: dispatcher: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+    http_response_code(500);
 } finally {
     @mkdir(dirname($cronStatusFile), 0775, true);
     @file_put_contents($cronStatusFile, json_encode($cronStatus));
     mirza_cron_release_host_slot($slotFh);
     flock($lockFh, LOCK_UN);
     fclose($lockFh);
+}
+
+if (isset($cronStatus['dispatcher_error']) && PHP_SAPI === 'cli') {
+    exit(1);
 }
 
 /** @return resource|null */

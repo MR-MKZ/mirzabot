@@ -215,12 +215,12 @@ try {
             continue;
         }
 
-        $stmt = $pdo->prepare("SELECT * FROM Payment_report WHERE Payment_Method = 'cart to cart' AND payment_Status IN ('Unpaid', 'waiting') AND CAST(price AS DECIMAL(20,0)) = :amount ORDER BY time ASC LIMIT 1");
+        $stmt = $pdo->prepare("SELECT * FROM payment_report WHERE Payment_Method = 'cart to cart' AND payment_Status IN ('Unpaid', 'waiting') AND CAST(price AS DECIMAL(20,0)) = :amount ORDER BY time ASC LIMIT 1");
         $stmt->bindValue(':amount', $toman, PDO::PARAM_INT);
         $stmt->execute();
         $Payment_report = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!is_array($Payment_report) || empty($Payment_report['id_order'])) {
-            $pendingStmt = $pdo->query("SELECT id_order, id_user, price, payment_Status, Payment_Method, time FROM Payment_report WHERE payment_Status IN ('Unpaid', 'waiting') ORDER BY time DESC LIMIT 8");
+            $pendingStmt = $pdo->query("SELECT id_order, id_user, price, payment_Status, Payment_Method, time FROM payment_report WHERE payment_Status IN ('Unpaid', 'waiting') ORDER BY time DESC LIMIT 8");
             $pending = $pendingStmt ? $pendingStmt->fetchAll(PDO::FETCH_ASSOC) : [];
             $attempts[] = ['field' => $label, 'bank' => $bank, 'result' => 'no waiting card order for this amount', 'toman' => $toman, 'sms' => cardSmsSnippet($sms), 'waiting' => $pending];
             continue;
@@ -248,11 +248,10 @@ try {
 
         $balanceRow = select('user', 'Balance', 'id', $Payment_report['id_user'], 'select');
         $balance = is_array($balanceRow) ? (float) ($balanceRow['Balance'] ?? 0) : 0;
-        $statusRow = select('Payment_report', 'payment_Status', 'id_order', $order_id, 'select');
+        $statusRow = select('payment_report', 'payment_Status', 'id_order', $order_id, 'select');
         $statusNow = is_array($statusRow) ? ($statusRow['payment_Status'] ?? null) : null;
-        $topic = select('topicid', 'idreport', 'report', 'paymentreport', 'select');
-        $paymentreports = is_array($topic) ? ($topic['idreport'] ?? null) : null;
-        $setting = select('setting', '*');
+        $paymentreports = config_get('topic', 'paymentreport');
+        $setting = config_all('setting');
         $reportFormat = $textbotlang['paymentGateway']['reportCard'] ?? '';
         $reportSent = false;
         if (is_string($reportFormat) && $reportFormat !== '' && is_array($setting) && !empty($setting['Channel_Report']) && $paymentreports) {
